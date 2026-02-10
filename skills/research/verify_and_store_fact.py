@@ -12,8 +12,13 @@ This skill enforces truth hygiene by:
 2. Reading top pages for evidence
 3. Determining evidence quality
 4. Storing with proper attribution
+
+Timeout handling:
+- Default timeout: 30 seconds
+- Graceful degradation: stores with reduced confidence if verification times out
 """
 
+import time
 from typing import Dict, List, Optional, Any
 
 
@@ -22,9 +27,12 @@ SKILL_META = {
     "name": "verify_and_store_fact",
     "description": "Verifies claims via web search before storing as facts",
     "tier": "core",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "author": "duro",
 }
+
+# Default timeout in seconds
+DEFAULT_TIMEOUT = 30
 
 # Required capabilities - orchestrator checks these before execution
 REQUIRES = ["search", "read", "store_fact"]
@@ -154,11 +162,23 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     Args:
         args: {claim, confidence (optional), tags, sensitivity}
         tools: {search, read, store_fact, log}
-        context: {run_id, constraints, max_sources, max_pages}
+        context: {run_id, constraints, max_sources, max_pages, timeout}
 
     Returns:
         {success, artifact_id, sources_found, confidence, evidence_type, error}
     """
+    start_time = time.time()
+    timeout = context.get("timeout", DEFAULT_TIMEOUT)
+
+    def check_timeout(phase: str) -> bool:
+        """Check if we've exceeded timeout. Returns True if timed out."""
+        elapsed = time.time() - start_time
+        return elapsed >= timeout
+
+    def time_remaining() -> float:
+        """Return seconds remaining before timeout."""
+        return max(0, timeout - (time.time() - start_time))
+
     claim = args.get("claim", "")
     if not claim or len(claim.strip()) < 10:
         return {"success": False, "error": "Claim must be at least 10 characters"}
@@ -172,56 +192,70 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     max_pages = context.get("max_pages", 2)
     run_id = context.get("run_id", "unknown")
 
-    # Step 1: Search for sources
-    search_result = tools["search"](claim, max_results=max_sources)
-
-    if search_result.get("error"):
-        # Search failed - can't verify, but don't hard fail
-        return {
-            "success": False,
-            "error": f"Search failed: {search_result['error']}",
-            "sources_found": 0
-        }
-
-    results = search_result.get("results", [])
-    if not results:
-        # No results - can't verify
-        return {
-            "success": False,
-            "error": "No search results found for claim",
-            "sources_found": 0
-        }
-
-    # Step 2: Read top pages and extract evidence
+    # Track state for graceful degradation
     source_urls = []
     snippets = []
     best_quality = "unknown"
+    search_completed = False
+    timed_out = False
 
-    for i, result in enumerate(results[:max_pages]):
-        url = result.get("url") or result.get("link", "")
-        if not url:
-            continue
+    # Step 1: Search for sources
+    if not check_timeout("search"):
+        try:
+            search_result = tools["search"](claim, max_results=max_sources)
+            search_completed = True
 
-        # Read the page
-        page_result = tools["read"](url)
+            if search_result.get("error"):
+                # Search failed - store with low confidence
+                return _store_unverified(
+                    tools, claim, requested_confidence, tags, sensitivity, run_id,
+                    reason=f"Search failed: {search_result['error']}"
+                )
 
-        if page_result.get("error"):
-            continue
+            results = search_result.get("results", [])
+        except Exception as e:
+            return _store_unverified(
+                tools, claim, requested_confidence, tags, sensitivity, run_id,
+                reason=f"Search exception: {str(e)}"
+            )
+    else:
+        timed_out = True
+        results = []
 
-        content = page_result.get("content", "")
-        if not content:
-            continue
+    # Step 2: Read top pages and extract evidence (with timeout checks)
+    if not timed_out and results:
+        for i, result in enumerate(results[:max_pages]):
+            if check_timeout("read"):
+                timed_out = True
+                break
 
-        # Extract snippet
-        snippet = extract_best_snippet(content, claim)
-        if snippet:
-            snippets.append(snippet)
-            source_urls.append(url)
+            url = result.get("url") or result.get("link", "")
+            if not url:
+                continue
 
-            # Track best quality source
-            quality = classify_source_quality(url)
-            if quality in ["official_docs", "reputable_news"]:
-                best_quality = quality
+            try:
+                page_result = tools["read"](url)
+
+                if page_result.get("error"):
+                    continue
+
+                content = page_result.get("content", "")
+                if not content:
+                    continue
+
+                # Extract snippet
+                snippet = extract_best_snippet(content, claim)
+                if snippet:
+                    snippets.append(snippet)
+                    source_urls.append(url)
+
+                    # Track best quality source
+                    quality = classify_source_quality(url)
+                    if quality in ["official_docs", "reputable_news"]:
+                        best_quality = quality
+            except Exception:
+                # Skip this URL on error, continue with others
+                continue
 
     sources_found = len(source_urls)
 
@@ -238,21 +272,33 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     # Use the lower of requested and calculated confidence
     final_confidence = min(requested_confidence, calculated_confidence)
 
-    # If we have sources, we can allow higher confidence
+    # If timed out during verification, cap confidence
+    if timed_out:
+        final_confidence = min(final_confidence, 0.4)
+        if not source_urls:
+            evidence_type = "none"
     # If no sources but search worked, cap at 0.5
-    if sources_found == 0:
+    elif sources_found == 0:
         final_confidence = min(final_confidence, 0.5)
         evidence_type = "none"
 
     # Step 4: Store the fact
+    if check_timeout("store"):
+        return {
+            "success": False,
+            "error": "Timeout before storing fact",
+            "sources_found": sources_found,
+            "timed_out": True
+        }
+
     store_result = tools["store_fact"](
         claim=claim,
         source_urls=source_urls if source_urls else None,
         snippet=best_snippet,
         confidence=final_confidence,
         evidence_type=evidence_type,
-        provenance="web",
-        tags=tags,
+        provenance="web" if source_urls else "user",
+        tags=tags + (["partial_verification"] if timed_out else []),
         sensitivity=sensitivity,
         workflow=f"verify_and_store_fact:{run_id}"
     )
@@ -265,6 +311,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         }
 
     # Success!
+    elapsed = time.time() - start_time
     return {
         "success": True,
         "artifact_id": store_result.get("artifact_id"),
@@ -272,17 +319,63 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         "source_urls": source_urls,
         "confidence": final_confidence,
         "evidence_type": evidence_type,
-        "snippet": best_snippet[:200] if best_snippet else None
+        "snippet": best_snippet[:200] if best_snippet else None,
+        "timed_out": timed_out,
+        "elapsed_seconds": round(elapsed, 2)
     }
+
+
+def _store_unverified(
+    tools: Dict[str, Any],
+    claim: str,
+    requested_confidence: float,
+    tags: list,
+    sensitivity: str,
+    run_id: str,
+    reason: str
+) -> Dict[str, Any]:
+    """Store fact with low confidence when verification fails."""
+    final_confidence = min(requested_confidence, 0.3)
+
+    store_result = tools["store_fact"](
+        claim=claim,
+        confidence=final_confidence,
+        evidence_type="none",
+        provenance="user",
+        tags=tags + ["unverified"],
+        sensitivity=sensitivity,
+        workflow=f"verify_and_store_fact:{run_id}"
+    )
+
+    if store_result.get("success"):
+        return {
+            "success": True,
+            "artifact_id": store_result.get("artifact_id"),
+            "sources_found": 0,
+            "confidence": final_confidence,
+            "evidence_type": "none",
+            "verification_failed": reason
+        }
+    else:
+        return {
+            "success": False,
+            "error": f"Verification failed ({reason}) and storage failed",
+            "sources_found": 0
+        }
 
 
 if __name__ == "__main__":
     # Test/documentation mode
-    print("verify_and_store_fact Skill v2.0")
+    print("verify_and_store_fact Skill v2.1")
     print("=" * 40)
     print(f"Requires: {REQUIRES}")
+    print(f"Default timeout: {DEFAULT_TIMEOUT}s")
     print("\nConfidence calculation examples:")
     print(f"  0 sources, no evidence: {calculate_confidence(0, 'none')}")
     print(f"  1 source, paraphrase: {calculate_confidence(1, 'paraphrase')}")
     print(f"  2 sources, quote: {calculate_confidence(2, 'quote')}")
     print(f"  3 sources, quote, official: {calculate_confidence(3, 'quote', 'official_docs')}")
+    print("\nTimeout behavior:")
+    print("  - Checks timeout before each network operation")
+    print("  - Graceful degradation: stores with reduced confidence if timed out")
+    print("  - Tags fact with 'partial_verification' if timed out mid-verification")

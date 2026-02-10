@@ -1,0 +1,63 @@
+{
+  "run_id": "run_20260210_225713_6txdr3",
+  "started_at": "2026-02-10T22:57:13.681630Z",
+  "finished_at": "2026-02-10T22:57:13.723399Z",
+  "intent": "store fact",
+  "intent_normalized": "store_fact",
+  "args": {
+    "claim": "The verify_and_store_fact skill now has 30 second timeout handling",
+    "confidence": 0.9,
+    "tags": [
+      "test",
+      "timeout"
+    ]
+  },
+  "dry_run": false,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [
+      "Fact Verification Requirements"
+    ],
+    "decisions": [
+      {
+        "rule_id": "rule_005",
+        "severity": "hard",
+        "decision": "CONSTRAIN",
+        "notes": "High confidence requires sources; routing to verify_and_store_fact"
+      }
+    ]
+  },
+  "plan": {
+    "selected": "verify_and_store_fact",
+    "type": "skill",
+    "reason": "High confidence without sources requires verification",
+    "constraints": {
+      "require_sources": true
+    }
+  },
+  "execution": {
+    "tool_calls": [
+      {
+        "name": "verify_and_store_fact",
+        "ok": true,
+        "ms": 41,
+        "error": null
+      }
+    ],
+    "outcome": "success",
+    "error": null,
+    "duration_ms": 41
+  },
+  "results": {
+    "artifacts_created": [
+      "fact_20260210_225713_ri6z73"
+    ],
+    "artifact_paths": [],
+    "notes": []
+  },
+  "meta": {
+    "server_build": "1.1.0",
+    "schema_version": "1.1"
+  }
+}

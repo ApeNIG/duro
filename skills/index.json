@@ -126,8 +126,8 @@
         "truth",
         "evidence"
       ],
-      "usage_count": 1,
-      "success_rate": 0.0,
+      "usage_count": 2,
+      "success_rate": 0.5,
       "requires_network": true,
       "timeout_seconds": 120,
       "expected_runtime_seconds": 30,
@@ -144,7 +144,7 @@
         "rule_005"
       ],
       "notes": "Prevents 'confident liar database' by requiring verification for high-confidence facts",
-      "last_used": "2026-02-10T22:34:04.795712"
+      "last_used": "2026-02-10T22:57:13.722528"
     }
   ],
   "selection_priority": [
