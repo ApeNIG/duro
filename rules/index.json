@@ -1,0 +1,102 @@
+{
+  "version": "1.2",
+  "description": "Duro Rules Index - Structured lessons that change behavior",
+  "last_updated": "2026-02-10",
+  "rule_types": {
+    "hard": "Safety, constraints, 'never do X' - always enforced",
+    "soft": "Preferences, heuristics, 'usually do Y' - can be overridden"
+  },
+  "rules": [
+    {
+      "id": "rule_001",
+      "name": "Face Distortion",
+      "file": "failures/face_distortion.json",
+      "type": "hard",
+      "priority": 1,
+      "trigger_keywords": [
+        "face",
+        "photorealistic",
+        "human",
+        "portrait",
+        "character image",
+        "distorted"
+      ],
+      "usage_count": 1,
+      "last_used": "2026-02-10"
+    },
+    {
+      "id": "rule_005",
+      "name": "Fact Verification Requirements",
+      "file": "artifacts/fact_verification.json",
+      "type": "hard",
+      "priority": 1,
+      "trigger_keywords": [
+        "store fact",
+        "duro_store_fact",
+        "claim",
+        "fact artifact",
+        "high confidence",
+        "verified"
+      ],
+      "usage_count": 1,
+      "last_used": "2026-02-10"
+    },
+    {
+      "id": "rule_002",
+      "name": "TTS Voice Selection",
+      "file": "tools/tts_generation.json",
+      "type": "soft",
+      "priority": 2,
+      "trigger_keywords": [
+        "voice",
+        "audio",
+        "speech",
+        "tts",
+        "dialogue",
+        "character voice"
+      ],
+      "usage_count": 3,
+      "last_used": "2026-02-10"
+    },
+    {
+      "id": "rule_003",
+      "name": "Tool Selection by Task",
+      "file": "tools/tool_selection.json",
+      "type": "soft",
+      "priority": 2,
+      "trigger_keywords": [
+        "which tool",
+        "what to use",
+        "generate",
+        "create",
+        "image",
+        "audio",
+        "video"
+      ],
+      "usage_count": 3,
+      "last_used": "2026-02-10"
+    },
+    {
+      "id": "rule_004",
+      "name": "Stop Conditions",
+      "file": "workflows/stop_conditions.json",
+      "type": "hard",
+      "priority": 1,
+      "trigger_keywords": [
+        "retry",
+        "failed",
+        "error",
+        "not working",
+        "try again"
+      ],
+      "usage_count": 1,
+      "last_used": "2026-02-10"
+    }
+  ],
+  "lookup_order": [
+    "1. Check trigger_keywords against current task",
+    "2. Sort matching rules by priority (1 = highest)",
+    "3. Apply hard rules first, then soft rules",
+    "4. Log rule application for tracking"
+  ]
+}

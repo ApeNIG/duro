@@ -1,0 +1,56 @@
+{
+  "run_id": "run_20260210_224646_x8upgo",
+  "started_at": "2026-02-10T22:46:46.898861Z",
+  "finished_at": "2026-02-10T22:46:46.900333Z",
+  "intent": "store fact",
+  "intent_normalized": "store_fact",
+  "args": {
+    "claim": "Orchestration loop test executed successfully",
+    "confidence": 0.9,
+    "tags": [
+      "test",
+      "orchestration"
+    ]
+  },
+  "dry_run": true,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [
+      "Fact Verification Requirements"
+    ],
+    "decisions": [
+      {
+        "rule_id": "rule_005",
+        "severity": "hard",
+        "decision": "CONSTRAIN",
+        "notes": "High confidence requires sources; routing to verify_and_store_fact"
+      }
+    ]
+  },
+  "plan": {
+    "selected": "verify_and_store_fact",
+    "type": "skill",
+    "reason": "High confidence without sources requires verification",
+    "constraints": {
+      "require_sources": true
+    }
+  },
+  "execution": {
+    "tool_calls": [],
+    "outcome": "dry_run",
+    "error": null,
+    "duration_ms": 2
+  },
+  "results": {
+    "artifacts_created": [],
+    "artifact_paths": [],
+    "notes": [
+      "Would execute: verify_and_store_fact"
+    ]
+  },
+  "meta": {
+    "server_build": "1.1.0",
+    "schema_version": "1.1"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "run_id": "run_20260210_222904_l0vfor",
+  "started_at": "2026-02-10T22:29:04.769976Z",
+  "finished_at": "2026-02-10T22:34:04.797491Z",
+  "intent": "store fact",
+  "intent_normalized": "store_fact",
+  "args": {
+    "claim": "Test claim",
+    "confidence": 0.9
+  },
+  "dry_run": false,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [
+      "Fact Verification Requirements"
+    ],
+    "decisions": [
+      {
+        "rule_id": "rule_005",
+        "severity": "hard",
+        "decision": "CONSTRAIN",
+        "notes": "High confidence requires sources; routing to verify_and_store_fact"
+      }
+    ]
+  },
+  "plan": {
+    "selected": "verify_and_store_fact",
+    "type": "skill",
+    "reason": "High confidence without sources requires verification",
+    "constraints": {
+      "require_sources": true
+    }
+  },
+  "execution": {
+    "tool_calls": [
+      {
+        "name": "verify_and_store_fact",
+        "ok": false,
+        "ms": 300012,
+        "error": "Skill execution timed out (5 min limit)"
+      }
+    ],
+    "outcome": "failed",
+    "error": "Skill execution timed out (5 min limit)",
+    "duration_ms": 300028
+  },
+  "results": {
+    "artifacts_created": [],
+    "artifact_paths": [],
+    "notes": []
+  },
+  "meta": {
+    "server_build": "1.0.0",
+    "schema_version": "1.0"
+  }
+}

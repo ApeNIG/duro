@@ -1,0 +1,95 @@
+{
+  "id": "rule_005",
+  "name": "Fact Verification Requirements",
+  "type": "hard",
+  "priority": 1,
+  "description": "Prevent storing unverified claims as high-confidence facts. Facts without sources become confident lies.",
+
+  "enforcement": {
+    "trigger_conditions": [
+      "storing a fact",
+      "duro_store_fact",
+      "claim",
+      "fact artifact"
+    ],
+    "checks": [
+      {
+        "condition": "confidence >= 0.8 AND source_urls is empty",
+        "decision": "deny",
+        "action": "Downgrade to unverified_note with confidence capped at 0.5, or require source_urls before storing"
+      },
+      {
+        "condition": "confidence >= 0.8 AND evidence_type == 'none'",
+        "decision": "deny",
+        "action": "Require evidence_type (quote, paraphrase, or inference) for high-confidence facts"
+      },
+      {
+        "condition": "confidence >= 0.6 AND provenance == 'unknown'",
+        "decision": "allow_with_constraints",
+        "constraints": ["Must set provenance to actual source type"],
+        "action": "Prompt to specify provenance before storing"
+      }
+    ]
+  },
+
+  "confidence_thresholds": {
+    "verified_fact": {
+      "min_confidence": 0.8,
+      "requires": ["source_urls (at least 1)", "evidence_type != none", "provenance != unknown"]
+    },
+    "supported_claim": {
+      "min_confidence": 0.5,
+      "max_confidence": 0.79,
+      "requires": ["snippet OR source_urls"]
+    },
+    "unverified_note": {
+      "max_confidence": 0.49,
+      "requires": [],
+      "notes": "Low-confidence claims, personal observations, things to verify later"
+    }
+  },
+
+  "auto_downgrades": [
+    {
+      "from": "high confidence fact (>=0.8)",
+      "to": "unverified_note (0.4)",
+      "when": "no source_urls AND no snippet",
+      "log": true
+    },
+    {
+      "from": "medium confidence (0.5-0.79)",
+      "to": "unverified_note (0.3)",
+      "when": "evidence_type == 'inference' AND no source_urls",
+      "log": true
+    }
+  ],
+
+  "required_workflow": {
+    "skill": "verify_and_store_fact",
+    "description": "For high-confidence facts, use this skill which: 1) web_search for sources, 2) extract snippet + URL, 3) store with proper evidence fields",
+    "bypass_allowed": false
+  },
+
+  "anti_patterns": [
+    {
+      "name": "Confident liar database",
+      "description": "Storing claims with high confidence but no sources",
+      "prevention": "This rule's enforcement checks"
+    },
+    {
+      "name": "Mush facts",
+      "description": "Facts without clear provenance that can't be traced or verified",
+      "prevention": "Require evidence_type and provenance for confidence >= 0.6"
+    }
+  ],
+
+  "eval_linkage": {
+    "metrics": ["facts_with_sources_ratio", "average_fact_confidence", "provenance_coverage"],
+    "goal": "100% of facts with confidence >= 0.8 have source_urls"
+  },
+
+  "confidence": 1.0,
+  "source": "system_design",
+  "last_validated": "2026-02-10",
+  "times_applied": 0
+}

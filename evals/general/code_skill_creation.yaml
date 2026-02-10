@@ -1,0 +1,74 @@
+# Eval: Code Skill Creation
+# Tests the ability to create a new reusable skill
+
+id: eval_general_002
+name: Code Skill Creation
+description: Create a new tested, documented skill for the skill library
+category: general
+
+inputs:
+  skill_name:
+    type: string
+    description: Name for the new skill
+  skill_description:
+    type: string
+    description: What the skill should do
+  category:
+    type: string
+    description: Skill category (audio, image, production, etc.)
+
+expected_outputs:
+  - name: skill_file_exists
+    type: boolean
+    description: Python file created in skills directory
+  - name: meta_file_exists
+    type: boolean
+    description: meta.json created with skill metadata
+  - name: test_file_exists
+    type: boolean
+    description: Test file created
+  - name: tests_pass
+    type: boolean
+    description: All tests pass
+  - name: index_updated
+    type: boolean
+    description: skills/index.json includes new skill
+
+validation_steps:
+  - Check skill file exists and is valid Python
+  - Check meta.json has required fields
+  - Run test file if exists
+  - Verify index.json updated
+
+metrics:
+  pass_fail:
+    type: boolean
+    description: Is skill complete and working?
+  time_seconds:
+    type: integer
+    description: Time to create skill
+  lines_of_code:
+    type: integer
+    description: Lines in skill file
+  test_coverage:
+    type: boolean
+    description: Does test file exist?
+  human_edits:
+    type: integer
+    description: Corrections needed
+
+baseline:
+  time_seconds: 600
+  lines_of_code: 50
+  test_coverage: true
+  human_edits: 0
+
+history:
+  - date: "2026-02-10"
+    skill: "generate_tts"
+    pass: true
+    time_seconds: 300
+    lines_of_code: 95
+    test_coverage: true
+    human_edits: 0
+    notes: "First skill created for Fashanus project"

@@ -1,0 +1,30 @@
+{
+  "id": "decision_20260210_201010_944nf0",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-10T20:10:10.323957Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "architecture",
+    "memory",
+    "persistence"
+  ],
+  "source": {
+    "workflow": "testing",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Use Duro MCP server for persistent memory across sessions",
+    "rationale": "Duro provides structured artifact storage with facts, decisions, skills, and rules that persist beyond individual conversations",
+    "alternatives": [
+      "In-memory only (no persistence)",
+      "Custom file-based storage",
+      "External database"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": null
+  }
+}

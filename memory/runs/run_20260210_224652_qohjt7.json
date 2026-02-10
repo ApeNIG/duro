@@ -1,0 +1,64 @@
+{
+  "run_id": "run_20260210_224652_qohjt7",
+  "started_at": "2026-02-10T22:46:52.276146Z",
+  "finished_at": "2026-02-10T22:46:52.284566Z",
+  "intent": "store fact",
+  "intent_normalized": "store_fact",
+  "args": {
+    "claim": "Duro orchestration loop test completed on 2026-02-10",
+    "confidence": 0.5,
+    "tags": [
+      "test",
+      "orchestration",
+      "duro"
+    ],
+    "provenance": "tool_output"
+  },
+  "dry_run": false,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [
+      "Fact Verification Requirements"
+    ],
+    "decisions": [
+      {
+        "rule_id": "rule_005",
+        "severity": "hard",
+        "decision": "ALLOW",
+        "notes": "No constraints"
+      }
+    ]
+  },
+  "plan": {
+    "selected": "duro_store_fact",
+    "type": "tool",
+    "reason": "Direct storage (low confidence or sources provided)",
+    "constraints": {}
+  },
+  "execution": {
+    "tool_calls": [
+      {
+        "name": "duro_store_fact",
+        "ok": true,
+        "ms": 7
+      }
+    ],
+    "outcome": "success",
+    "error": null,
+    "duration_ms": 8
+  },
+  "results": {
+    "artifacts_created": [
+      "fact_20260210_224652_yvo1r4"
+    ],
+    "artifact_paths": [
+      "C:\\Users\\sibag\\.agent\\memory\\facts\\fact_20260210_224652_yvo1r4.json"
+    ],
+    "notes": []
+  },
+  "meta": {
+    "server_build": "1.1.0",
+    "schema_version": "1.1"
+  }
+}

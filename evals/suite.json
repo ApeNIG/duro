@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "description": "Duro Evaluation Suite - Measure improvement, stop vibing",
+  "created": "2026-02-10",
+  "last_updated": "2026-02-10",
+  "evals": [
+    {
+      "id": "eval_fashanus_001",
+      "name": "Generate Episode Audio",
+      "file": "fashanus/generate_episode_audio.yaml",
+      "category": "fashanus",
+      "frequency": "per_episode"
+    },
+    {
+      "id": "eval_fashanus_002",
+      "name": "Generate Episode Script",
+      "file": "fashanus/generate_episode_script.yaml",
+      "category": "fashanus",
+      "frequency": "per_episode"
+    },
+    {
+      "id": "eval_fashanus_003",
+      "name": "Generate Character Image",
+      "file": "fashanus/generate_character_image.yaml",
+      "category": "fashanus",
+      "frequency": "per_character"
+    },
+    {
+      "id": "eval_general_001",
+      "name": "Research Question",
+      "file": "general/research_question.yaml",
+      "category": "general",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_general_002",
+      "name": "Code Skill Creation",
+      "file": "general/code_skill_creation.yaml",
+      "category": "general",
+      "frequency": "on_demand"
+    }
+  ],
+  "metrics_tracked": [
+    "pass_fail",
+    "time_seconds",
+    "tool_calls",
+    "human_edits",
+    "quality_score"
+  ]
+}

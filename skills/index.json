@@ -1,0 +1,156 @@
+{
+  "version": "1.2",
+  "description": "Duro Skills Index - Executable code that compounds",
+  "last_updated": "2026-02-10",
+  "skill_tiers": {
+    "core": "High-reliability, frequently used, thoroughly tested",
+    "tested": "Passes all tests, ready for production use",
+    "untested": "Scaffold created, needs implementation/testing"
+  },
+  "operational_fields": {
+    "requires_network": "Whether skill needs internet connectivity",
+    "timeout_seconds": "Max execution time (default 300)",
+    "expected_runtime_seconds": "Typical execution time",
+    "dependencies": "Python packages required",
+    "side_effects": "What the skill does (writes_file, network_request, etc.)",
+    "fallback_skill": "Alternative skill if this one fails"
+  },
+  "skills": [
+    {
+      "id": "skill_audio_001",
+      "name": "generate_tts",
+      "path": "audio/generate_tts.py",
+      "description": "Generate speech audio from text using edge-tts",
+      "tier": "tested",
+      "keywords": [
+        "voice",
+        "audio",
+        "speech",
+        "tts",
+        "dialogue",
+        "mp3"
+      ],
+      "usage_count": 13,
+      "success_rate": 0.8492307692307693,
+      "last_used": "2026-02-10T20:17:32.817455",
+      "requires_network": true,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [
+        "edge-tts"
+      ],
+      "side_effects": [
+        "writes_file",
+        "network_request"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "network_available",
+        "dependency_installed:edge-tts"
+      ]
+    },
+    {
+      "id": "skill_audio_002",
+      "name": "generate_episode_audio",
+      "path": "production/generate_episode_audio.py",
+      "description": "Generate all dialogue audio for an episode from script",
+      "tier": "tested",
+      "keywords": [
+        "episode",
+        "dialogue",
+        "audio",
+        "batch",
+        "fashanus",
+        "production"
+      ],
+      "usage_count": 2,
+      "success_rate": 1.0,
+      "composes": [
+        "audio/generate_tts.py"
+      ],
+      "requires_network": true,
+      "timeout_seconds": 300,
+      "expected_runtime_seconds": 60,
+      "dependencies": [
+        "edge-tts"
+      ],
+      "side_effects": [
+        "writes_file",
+        "network_request"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "network_available",
+        "dependency_installed:edge-tts"
+      ]
+    },
+    {
+      "id": "skill_meta_001",
+      "name": "create_skill",
+      "path": "meta/create_skill.py",
+      "description": "Meta-skill that generates new skill scaffolds",
+      "tier": "core",
+      "keywords": [
+        "meta",
+        "scaffold",
+        "create",
+        "generate",
+        "skill"
+      ],
+      "usage_count": 1,
+      "success_rate": 1.0,
+      "special": true,
+      "notes": "Use this to scale the skill library without handcrafting",
+      "requires_network": false,
+      "timeout_seconds": 30,
+      "expected_runtime_seconds": 2,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file"
+      ],
+      "fallback_skill": null,
+      "pre_checks": []
+    },
+    {
+      "id": "skill_research_001",
+      "name": "verify_and_store_fact",
+      "path": "research/verify_and_store_fact.py",
+      "description": "Compound skill that verifies claims via web search before storing as facts",
+      "tier": "core",
+      "keywords": [
+        "verify",
+        "fact",
+        "research",
+        "web",
+        "search",
+        "truth",
+        "evidence"
+      ],
+      "usage_count": 1,
+      "success_rate": 0.0,
+      "requires_network": true,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 30,
+      "dependencies": [],
+      "side_effects": [
+        "network_request",
+        "modifies_state"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "network_available"
+      ],
+      "linked_rules": [
+        "rule_005"
+      ],
+      "notes": "Prevents 'confident liar database' by requiring verification for high-confidence facts",
+      "last_used": "2026-02-10T22:34:04.795712"
+    }
+  ],
+  "selection_priority": [
+    "1. Match keywords to task description",
+    "2. Prefer higher-tier skills (core > tested > untested)",
+    "3. Prefer higher usage_count (proven utility)",
+    "4. Prefer higher success_rate (reliability)"
+  ]
+}

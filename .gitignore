@@ -1,0 +1,17 @@
+# SQLite database (can be rebuilt from artifact files)
+memory/artifacts.db
+memory/artifacts.db-journal
+memory/artifacts.db-wal
+
+# Audit logs may contain sensitive deletion records
+memory/logs/audit.jsonl
+memory/logs/repairs.jsonl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~

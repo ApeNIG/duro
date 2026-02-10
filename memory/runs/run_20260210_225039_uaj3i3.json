@@ -1,0 +1,63 @@
+{
+  "run_id": "run_20260210_225039_uaj3i3",
+  "started_at": "2026-02-10T22:50:39.393024Z",
+  "finished_at": "2026-02-10T22:50:39.401331Z",
+  "intent": "store fact",
+  "intent_normalized": "store_fact",
+  "args": {
+    "claim": "Low confidence facts bypass verification requirements",
+    "confidence": 0.5,
+    "tags": [
+      "test",
+      "rules"
+    ],
+    "provenance": "user"
+  },
+  "dry_run": false,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [
+      "Fact Verification Requirements"
+    ],
+    "decisions": [
+      {
+        "rule_id": "rule_005",
+        "severity": "hard",
+        "decision": "ALLOW",
+        "notes": "No constraints"
+      }
+    ]
+  },
+  "plan": {
+    "selected": "duro_store_fact",
+    "type": "tool",
+    "reason": "Direct storage (low confidence or sources provided)",
+    "constraints": {}
+  },
+  "execution": {
+    "tool_calls": [
+      {
+        "name": "duro_store_fact",
+        "ok": true,
+        "ms": 7
+      }
+    ],
+    "outcome": "success",
+    "error": null,
+    "duration_ms": 8
+  },
+  "results": {
+    "artifacts_created": [
+      "fact_20260210_225039_jo8t18"
+    ],
+    "artifact_paths": [
+      "C:\\Users\\sibag\\.agent\\memory\\facts\\fact_20260210_225039_jo8t18.json"
+    ],
+    "notes": []
+  },
+  "meta": {
+    "server_build": "1.1.0",
+    "schema_version": "1.1"
+  }
+}

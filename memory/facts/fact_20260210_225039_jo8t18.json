@@ -1,0 +1,26 @@
+{
+  "id": "fact_20260210_225039_jo8t18",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-10T22:50:39.393616Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "test",
+    "rules"
+  ],
+  "source": {
+    "workflow": "duro_orchestrate",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Low confidence facts bypass verification requirements",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

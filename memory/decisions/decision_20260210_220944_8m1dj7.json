@@ -1,0 +1,30 @@
+{
+  "id": "decision_20260210_220944_8m1dj7",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-10T22:09:44.956079Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "architecture",
+    "orchestration",
+    "duro"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Implement Orchestration Phase 1 as a thin workflow selector that routes intents through rules to skills with consistent run logging",
+    "rationale": "Need a reusable \"brain cell\" pattern where: (1) rules gate what can happen, (2) skills do the work, (3) runs log everything. This makes compound workflows composable without adding complexity. Thin layer = easy to debug.",
+    "alternatives": [
+      "Fat orchestrator with embedded logic",
+      "No orchestrator - let Claude route manually each time",
+      "External workflow engine (Temporal, etc)"
+    ],
+    "context": "Duro already has rules, skills, and artifacts working. Missing piece is consistent execution logging and automatic rule-to-skill routing.",
+    "reversible": true,
+    "outcome": null
+  }
+}
