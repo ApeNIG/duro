@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260211_123749_ui5feo",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-11T12:37:49.193474Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "typography",
+    "design",
+    "font-pairing",
+    "fundamentals"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Font Pairing Golden Rules - 1) Pair serif with sans-serif (classic, nearly foolproof). 2) Avoid same classification (two slab serifs clash). 3) Assign distinct roles (heading vs body). 4) Contrast weights significantly. 5) Match moods (playful with playful, formal with formal). 6) Pair distinctive with neutral. 7) Keep it simple - two typefaces max, vary weights/sizes for variety.",
+    "source_urls": [
+      "https://www.smashingmagazine.com/2010/11/best-practices-of-combining-typefaces/",
+      "https://www.figma.com/resource-library/font-pairings/"
+    ],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

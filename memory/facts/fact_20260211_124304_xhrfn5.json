@@ -1,0 +1,32 @@
+{
+  "id": "fact_20260211_124304_xhrfn5",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-11T12:43:04.490888Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "color-theory",
+    "accessibility",
+    "WCAG",
+    "contrast",
+    "legal"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "WCAG Color Contrast Requirements: Level AA - Normal text 4.5:1, Large text (18px+) 3:1, UI components 3:1. Level AAA - Normal text 7:1, Large text 4.5:1. Ratios cannot round up (4.47:1 fails 4.5:1). Never use color alone to convey info - pair with icons/text. Links by color need 3:1 contrast vs body text + visual cue on hover. 2026 deadline: ADA Title II mandates WCAG 2.1 AA compliance.",
+    "source_urls": [
+      "https://webaim.org/articles/contrast/",
+      "https://www.webability.io/blog/color-contrast-for-accessibility"
+    ],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

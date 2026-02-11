@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260211_123908_gqj8xe",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-11T12:39:08.239482Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "typography",
+    "design",
+    "trends",
+    "2026"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Typography Trends 2026: 1) Uniformity is out, character is in. 2) Kinetic/motion typography for digital. 3) \"Mutant Heritage\" - classic fonts reimagined with off-kilter feel. 4) Human touch + strategic imperfection vs AI polish. 5) Funky curvy serifs trending. 6) Type as hero/graphic element (not quiet). 7) Variable fonts now standard. 8) Gothic/blackletter revival. 9) \"Soft brutalism\" - minimal but rough edges. 10) Joy and playfulness emphasized.",
+    "source_urls": [
+      "https://www.creativebloq.com/design/fonts-typography/breaking-rules-and-bringing-joy-top-typography-trends-for-2026",
+      "https://www.fontfabric.com/blog/10-design-trends-shaping-the-visual-typographic-landscape-in-2026/"
+    ],
+    "snippet": null,
+    "confidence": 0.9,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}
