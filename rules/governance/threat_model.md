@@ -146,13 +146,14 @@ These map directly to Hookify patterns, orchestrator checks, CI checks, and regr
 | # | Invariant | Threat | Enforcement |
 |---|-----------|--------|-------------|
 | S1 | No read of credential files (ever) | T1 | Hookify file gate |
-| S2 | No printing of env vars or secrets to output/logs | T1 | Sink scrubbing |
+| S2 | No printing of env vars or secrets to output/logs | T1 | Sink scrubbing (PostToolUse) |
 | S3 | No network calls unless explicitly allowed per run | T1, T2 | Hookify bash gate |
-| S4 | No prod DB / prod API writes unless break-glass mode | T2 | Orchestrator check |
-| S5 | No writes to governance files except via PR workflow | T3 | Hookify file gate (done) |
+| S4 | No prod DB / prod API writes unless break-glass mode | T2 | Hookify bash gate |
+| S5 | No writes to governance files except via PR workflow | T3 | Hookify file gate |
 | S6 | No shell commands with destructive patterns (rm -rf, curl\|bash) | T4, T7 | Hookify bash gate |
 | S7 | No git force push to main (or protected branches) | T3, T4 | Hookify bash gate |
-| S8 | All tool executions pass through policy gate and are logged | T5 | Telemetry |
+| S8 | All tool executions pass through policy gate and are logged | T5 | Telemetry (PreToolUse) |
+| S9 | System refuses to operate if safety gates are missing/modified | T5 | Fail-closed (UserPromptSubmit) |
 
 ---
 
@@ -162,11 +163,19 @@ Reliability comes from chokepoints, not trust.
 
 | Layer | What it catches | Status |
 |-------|-----------------|--------|
-| Hookify (host hooks) | File writes, bash commands | Partial (S5 done) |
+| Hookify (host hooks) | File writes, bash commands | **Done** (S1, S3-S8) |
+| Fail-Closed Gate | Missing/modified safety gates | **Done** (S9) |
 | Orchestrator (plan gate) | Intent-level decisions | Not implemented |
 | CI backstop | Committed violations | Not implemented |
 
 **If all three agree, you're safe. If one is optional, it's cosplay.**
+
+**Fail-Closed (S9):** System now refuses to operate if:
+- Critical rule files are missing
+- Hook files have been modified
+- Hookify plugin is not present
+
+This prevents "mostly-real gate with secret tunnels" vulnerability.
 
 ---
 
@@ -183,7 +192,10 @@ This is a seatbelt + airbag + crash test setup. 8 invariants stop 90% of disaste
 ## Next Steps
 
 1. [x] Threat model defined
-2. [ ] Implement remaining hookify rules for S1, S3, S6, S7
-3. [ ] Build regression tests for each invariant
-4. [ ] Add telemetry for S8
-5. [ ] Define break-glass mode for S4
+2. [x] Implement hookify rules for S1, S3, S4, S5, S6, S7
+3. [x] Add telemetry for S8 (PreToolUse logging)
+4. [x] Add sink scrubbing for S2 (PostToolUse detection)
+5. [x] Implement fail-closed verification for S9
+6. [x] Build regression tests (test-safety-gates.py, test-fail-closed.py)
+7. [ ] Orchestrator plan gate (future)
+8. [ ] CI backstop (future)
