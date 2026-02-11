@@ -57,10 +57,23 @@ Each entry needs:
 
 ---
 
+### Entry 004: Swiss + Punk Fusion
+- **Source**: Reference Fusion experiment (2026-02-11)
+- **Domain**: design
+- **What it is**: Rigid grid structure with rebellious/hand-made elements breaking through
+- **Why it works**: Tension between order and chaos creates energy; grid provides credibility, punk provides personality
+- **Where it breaks**: If too many punk elements, loses credibility; if too Swiss, loses personality. Needs balance.
+- **Micro-patterns**:
+  1. Visible grid as design element — show the underlying structure, don't hide it
+  2. Rotation as rebellion — one rotated element against rigid grid reads as intentional breaking
+  3. Stamp/seal as verification — hand-drawn circle + text creates "approved" energy without being corporate
+
+---
+
 ## Tags for Filtering
 
 ### By Domain
-- design: 001, 002, 003
+- design: 001, 002, 003, 004
 - writing: (none yet)
 - code: (none yet)
 - architecture: 003
@@ -70,12 +83,13 @@ Each entry needs:
 - composition: 002, 003
 - hierarchy: 003
 - simplification: 002
+- tension/contrast: 004
+- grid: 004
 
 ---
 
 ## Queue (to be processed)
 - Dieter Rams 10 principles
-- Swiss grid systems
-- Punk zine aesthetics (for contrast)
+- Swiss grid systems (partially covered by 004)
 - Apple HIG patterns
 - Linear app UI
