@@ -1,0 +1,31 @@
+{
+  "id": "decision_20260211_082257_syqpts",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-11T08:22:57.611613Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "critical-thinking",
+    "market-analysis",
+    "self-critique",
+    "honesty"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "When asked to produce market analysis, competitive positioning, or strategic documents, default to skeptical mode rather than optimistic mode",
+    "rationale": "The market-analysis.md I created contained multiple patterns of startup fantasy thinking: self-rating bias, fabricated-sounding statistics, optimistic timelines, and \"pitch deck language\" that obscures operational reality. The user correctly called this out. Honest analysis requires starting with unknowns and gaps, not impressive-sounding claims.",
+    "alternatives": [
+      "Continue producing optimistic analyses when asked",
+      "Add disclaimers but keep optimistic tone",
+      "Default to skeptical/critical mode and require explicit request for promotional content"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": null
+  }
+}

@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Rules Index - Structured lessons that change behavior",
-  "last_updated": "2026-02-10",
+  "last_updated": "2026-02-11",
   "rule_types": {
     "hard": "Safety, constraints, 'never do X' - always enforced",
     "soft": "Preferences, heuristics, 'usually do Y' - can be overridden"
@@ -73,8 +73,8 @@
         "audio",
         "video"
       ],
-      "usage_count": 3,
-      "last_used": "2026-02-10"
+      "usage_count": 6,
+      "last_used": "2026-02-11"
     },
     {
       "id": "rule_004",
@@ -91,6 +91,30 @@
       ],
       "usage_count": 1,
       "last_used": "2026-02-10"
+    },
+    {
+      "id": "rule_006",
+      "name": "Layered Governance Constitution",
+      "file": "governance/layered_governance.json",
+      "type": "hard",
+      "priority": 1,
+      "trigger_keywords": [
+        "waiver",
+        "devkit",
+        "auto-generate",
+        "policy change",
+        "governance",
+        "contract version",
+        "ci enforcement",
+        "silent side-effect",
+        "exempt",
+        "skip check",
+        "bypass",
+        ".devkit-waiver.yml",
+        "devkit.config.json"
+      ],
+      "usage_count": 2,
+      "last_used": "2026-02-11"
     }
   ],
   "lookup_order": [

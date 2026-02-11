@@ -1,0 +1,35 @@
+{
+  "id": "decision_20260211_092101_jn3f9k",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-11T09:21:01.702098Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "constitution",
+    "architecture",
+    "devkit",
+    "duro",
+    "superagi",
+    "governance",
+    "foundational"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Adopt layered governance: DevKit enforces repo policy in CI; Duro stores historical context; SuperAGI executes. CI is source of truth; waivers and policy changes must be PR-reviewed; no silent agent side-effects.",
+    "rationale": "Three systems must remain orthogonal to avoid becoming a hydra:\n\n1. **DevKit** - Owns repo quality policy and enforcement. Emits verdicts (facts), not tasks. Stays dumb and authoritative. Contract lives in devkit.config.json in the repo.\n\n2. **Duro** - Owns memory, decisions, learnings, agent behavioral rules. Stores historical context about CI results but never asserts what the contract currently is. If Duro says \"1.0\" and repo says \"1.1\", repo wins.\n\n3. **SuperAGI** - Owns execution capabilities. Runs commands, does not own policy or memory.\n\nKey constraints:\n- DevKit results stored in Duro must include full provenance (repo, branch, SHA, run URL, timestamp)\n- Waivers are code-reviewed artifacts, not silent agent side-effects\n- Auto-generating waivers = open a PR, not write directly\n- Version drift risk: CLI version, contract version, and Duro's memory can diverge. CI is always source of truth.\n- If any system starts doing what another owns, that's the hydra forming.",
+    "alternatives": [
+      "Let systems blur and sync rules across them (rejected: distributed config pain)",
+      "Have DevKit manage tasks directly (rejected: project management creep)",
+      "Auto-generate waivers silently (rejected: no audit trail)",
+      "Let Duro assert current contract state (rejected: dual source of truth)"
+    ],
+    "context": null,
+    "reversible": false,
+    "outcome": null
+  }
+}
