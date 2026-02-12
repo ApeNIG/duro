@@ -1,0 +1,33 @@
+{
+  "id": "decision_20260212_122947_tyzajv",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T12:29:47.968434Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "phase1",
+    "feedback-loop",
+    "implementation",
+    "complete",
+    "episode",
+    "evaluation"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Phase 1 Feedback Loop MVP implemented: episodes/, evaluations/, skill_stats/ directories created; schemas.py updated with Episode, Evaluation, SkillStats schemas plus backward_compat defaults; artifacts.py updated with store_episode, update_episode, store_evaluation, apply_evaluation methods; duro_mcp_server.py updated with 8 new tools (create_episode, add_episode_action, close_episode, evaluate_episode, apply_evaluation, get_episode, list_episodes, suggest_episode); 5 core skill stats seeded.",
+    "rationale": "Phase 1 implementation completed per user-approved plan with refinements: normalized scores 0-5, tokens_bucket enum, confidence capped 0.05-0.99, deltas capped +/-0.02, stored_confidence vs effective_confidence (computed), usage counters, backward compat defaults for old artifacts.",
+    "alternatives": [
+      "Build more before testing",
+      "Skip skill stats seeding",
+      "Automate episode creation fully"
+    ],
+    "context": "Building the compounding engine - feedback loop first before expanding tools",
+    "reversible": true,
+    "outcome": null
+  }
+}
