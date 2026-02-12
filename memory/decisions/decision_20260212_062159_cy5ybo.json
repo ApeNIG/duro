@@ -1,0 +1,28 @@
+{
+  "id": "decision_20260212_062159_cy5ybo",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T06:21:59.981616Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "priorities",
+    "focus",
+    "2026",
+    "monetization",
+    "constraints"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Focus development efforts on Intersphere and design skills. Maintain safety systems without over-engineering. All work should build toward monetizable service offerings.",
+    "rationale": "User is in pre-revenue phase with budget constraints. Goal is skill-building to confidently charge for services. Intersphere and design are the current priority areas.",
+    "alternatives": [],
+    "context": "User explicitly stated current priorities and constraints in session",
+    "reversible": true,
+    "outcome": null
+  }
+}

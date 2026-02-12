@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260212_060929_l0wpl6",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T06:09:29.989016Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "design",
+    "geometric",
+    "universal",
+    "composition",
+    "principles",
+    "golden-ratio",
+    "focal-point"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Geometric Composition Principles (Universal): Circle overlap 25-35% creates flow/connection, 40-50% creates unity/single form. Golden ratio sizing (1.618) for progressive element scaling. One clear focal point per composition - competing elements kill hierarchy. Position clusters at rule-of-thirds intersections. These apply to any geometric hero, logo, or abstract composition - not project-specific.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}
