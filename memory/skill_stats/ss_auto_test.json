@@ -1,23 +1,23 @@
 {
-  "id": "ss_planning",
+  "id": "ss_auto_test",
   "type": "skill_stats",
   "version": "1.0",
-  "created_at": "2026-02-12T12:30:00Z",
-  "updated_at": "2026-02-12T13:42:46.074683Z",
+  "created_at": "2026-02-12T13:20:01.674309Z",
+  "updated_at": "2026-02-12T13:42:44.521924Z",
   "sensitivity": "internal",
   "tags": [
     "core",
-    "planning",
+    "auto_test",
     "seeded"
   ],
   "source": {
-    "workflow": "phase1_seed",
+    "workflow": "startup_seed",
     "run_id": null,
     "tool_trace_path": null
   },
   "data": {
-    "skill_id": "planning",
-    "name": "Planning",
+    "skill_id": "auto_test",
+    "name": "Auto Test Skill",
     "total_uses": 0,
     "successes": 0,
     "failures": 0,
@@ -25,6 +25,6 @@
     "avg_duration_ms": null,
     "last_used": null,
     "last_outcome": null,
-    "confidence": 0.8300000000000003
+    "confidence": 0.5800000000000001
   }
 }

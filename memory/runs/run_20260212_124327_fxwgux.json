@@ -1,0 +1,41 @@
+{
+  "run_id": "run_20260212_124327_fxwgux",
+  "started_at": "2026-02-12T12:43:27.954637Z",
+  "finished_at": "2026-02-12T12:43:27.964634Z",
+  "intent": "store skill_stats for planning skill",
+  "intent_normalized": "unknown",
+  "args": {
+    "skill_id": "planning",
+    "success_count": 0,
+    "failure_count": 0,
+    "confidence": 0.5
+  },
+  "dry_run": false,
+  "sensitivity": "internal",
+  "rules": {
+    "checked": true,
+    "applicable": [],
+    "decisions": []
+  },
+  "plan": {
+    "selected": null,
+    "type": null,
+    "reason": "Unknown intent: unknown",
+    "constraints": {}
+  },
+  "execution": {
+    "tool_calls": [],
+    "outcome": "failed",
+    "error": "No plan available for intent: unknown",
+    "duration_ms": 10
+  },
+  "results": {
+    "artifacts_created": [],
+    "artifact_paths": [],
+    "notes": []
+  },
+  "meta": {
+    "server_build": "1.1.0",
+    "schema_version": "1.1"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "decision_20260212_134009_ez96tx",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T13:40:09.185656Z",
+  "updated_at": "2026-02-12T13:40:09.249992Z",
+  "sensitivity": "internal",
+  "tags": [
+    "test",
+    "decision-outcomes"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Test decision for validation",
+    "rationale": "Testing the decision outcomes system",
+    "alternatives": [
+      "Option A",
+      "Option B"
+    ],
+    "context": "Smoke test context",
+    "reversible": true,
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-12T13:40:09.249992Z",
+      "evidence": [
+        {
+          "episode_id": "ep_20260212_134009_gq9niz",
+          "result": "success",
+          "notes": "Decision worked as expected"
+        }
+      ],
+      "confidence": 0.6
+    },
+    "episodes_used": [
+      "ep_20260212_134009_gq9niz"
+    ]
+  }
+}
