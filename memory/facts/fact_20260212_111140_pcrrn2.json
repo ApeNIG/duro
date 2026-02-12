@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260212_111140_pcrrn2",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T11:11:40.380514Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "AI-safety",
+    "METR",
+    "evaluation",
+    "research-org"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "METR (Model Evaluation & Threat Research) is a nonprofit that scientifically measures AI catastrophic risk potential. Founded by Beth Barnes, works with OpenAI, Anthropic, NIST AI Safety Institute, UK AI Security Institute. Does not accept funding from AI companies.",
+    "source_urls": [
+      "https://metr.org/",
+      "https://metr.org/about"
+    ],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}
