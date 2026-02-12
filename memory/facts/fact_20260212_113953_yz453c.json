@@ -1,0 +1,33 @@
+{
+  "id": "fact_20260212_113953_yz453c",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T11:39:53.392312Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "mcp",
+    "e2b",
+    "code-execution",
+    "sandbox",
+    "superagi-expansion",
+    "high-priority"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "E2B MCP Server (github.com/e2b-dev/mcp-server) provides secure code sandboxing with full Linux environment. Unlike basic code execution, E2B offers: package installation, persistent environments, file system access, terminal commands, internet connectivity. Ideal for AI-generated code execution.",
+    "source_urls": [
+      "https://github.com/e2b-dev/mcp-server",
+      "https://e2b.dev/docs/mcp"
+    ],
+    "snippet": "E2B sandboxes provide an ideal environment for running MCP tools, giving AI full access to an internet-connected Linux machine where it can safely install packages, write files, run terminal commands.",
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

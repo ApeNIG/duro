@@ -1,0 +1,33 @@
+{
+  "id": "fact_20260212_113952_y1h7gv",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T11:39:52.634707Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "mcp",
+    "google-workspace",
+    "gmail",
+    "calendar",
+    "drive",
+    "superagi-expansion",
+    "high-priority"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Google Workspace MCP (github.com/taylorwilsdon/google_workspace_mcp, 1.4k stars) provides full control over: Gmail, Calendar, Drive, Docs, Sheets, Slides, Forms, Tasks, Contacts, Chat. Supports OAuth 2.1, multi-user auth, CLI for Claude Code. Most feature-complete Google integration available.",
+    "source_urls": [
+      "https://github.com/taylorwilsdon/google_workspace_mcp"
+    ],
+    "snippet": "Full natural language control over Google Calendar, Drive, Gmail, Docs, Sheets, Slides, Forms, Tasks, Contacts, and Chat through all MCP clients. The most feature-complete Google Workspace MCP server.",
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "quote",
+    "provenance": "web"
+  }
+}
