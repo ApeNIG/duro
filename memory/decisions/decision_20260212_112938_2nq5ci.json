@@ -1,0 +1,32 @@
+{
+  "id": "decision_20260212_112938_2nq5ci",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T11:29:38.665499Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "superagi",
+    "duro",
+    "architecture",
+    "mcp",
+    "system-design"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "SuperAGI MCP serves as the action/execution layer in the Duro system. It provides: web_search, read_webpage, execute_python, workspace file operations, task management, shell_execute, and github_api. This complements Duro's memory layer - SuperAGI acts, Duro remembers.",
+    "rationale": "Understanding the architectural separation: SuperAGI MCP = tools/actions, Duro = memory/knowledge. This clarifies how improvements should be targeted - action capabilities via SuperAGI toolkits, persistence via Duro artifacts.",
+    "alternatives": [
+      "Use different MCP server",
+      "Build custom action layer",
+      "Integrate SuperAGI full framework"
+    ],
+    "context": "Research on SuperAGI architecture and MCP implementation",
+    "reversible": true,
+    "outcome": null
+  }
+}

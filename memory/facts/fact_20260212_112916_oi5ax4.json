@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260212_112916_oi5ax4",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T11:29:16.561299Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "superagi",
+    "autogpt",
+    "comparison",
+    "performance"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "SuperAGI vs AutoGPT comparison: SuperAGI has better tool integration ecosystem, GUI for agent management, concurrent agent execution, and memory/context management. AutoGPT excels at solo agent deep research. SuperAGI reports 30% less memory usage and 20% faster processing than competitors.",
+    "source_urls": [
+      "https://smythos.com/developers/agent-comparisons/superagi-vs-autogpt/",
+      "https://aiwirepress.com/react-autogpt-and-superagi/"
+    ],
+    "snippet": "SuperAGI boasts up to 30% less memory usage and 20% faster processing. Extensive tool integration ecosystem. AutoGPT is still king for solo agent projects especially for deep research.",
+    "confidence": 0.85,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

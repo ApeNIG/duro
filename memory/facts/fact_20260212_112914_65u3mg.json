@@ -1,0 +1,32 @@
+{
+  "id": "fact_20260212_112914_65u3mg",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T11:29:14.621341Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "superagi",
+    "architecture",
+    "ai-agents",
+    "tools",
+    "infrastructure"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "SuperAGI is a dev-first open-source autonomous AI agent framework with 17.2k GitHub stars (MIT license). Core architecture: FastAPI backend, Next.js frontend, PostgreSQL database, Redis for caching/vectors, Celery workers for background agent execution.",
+    "source_urls": [
+      "https://github.com/TransformerOptimus/SuperAGI",
+      "https://deepwiki.com/TransformerOptimus/SuperAGI/1.1-system-architecture"
+    ],
+    "snippet": "A dev-first open source autonomous AI agent framework enabling developers to build, manage & run useful autonomous agents. FastAPI Backend, PostgreSQL Database, Redis, Celery Worker.",
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "quote",
+    "provenance": "web"
+  }
+}
