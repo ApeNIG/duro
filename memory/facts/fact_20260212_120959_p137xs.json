@@ -1,0 +1,30 @@
+{
+  "id": "fact_20260212_120959_p137xs",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-12T12:09:59.334106Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "feedback-loop",
+    "evaluation",
+    "rubric",
+    "implementation"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Evaluation rubric for episodes (consistent, not vibes): (1) Outcome quality - did we achieve goal? (2) Cost - time/tokens/tools. (3) Correctness risk - weak sources/assumptions? (4) Reusability - produced reusable assets? (5) Next change - one concrete adjustment.",
+    "source_urls": [
+      "user-guidance"
+    ],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "quote",
+    "provenance": "user"
+  }
+}
