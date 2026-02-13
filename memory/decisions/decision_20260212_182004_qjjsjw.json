@@ -1,0 +1,28 @@
+{
+  "id": "decision_20260212_182004_qjjsjw",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T18:20:04.180848Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Pursue AI Path-Finding as next major feature for InterSphere knowledge graph",
+    "rationale": "Builds directly on existing graph infrastructure, creates \"show me how X connects to Y\" killer demo moment, leverages existing connections API, highest impact for effort ratio",
+    "alternatives": [
+      "Personal Knowledge Maps (save/share graphs)",
+      "Guided Journeys (curated tours)",
+      "Multiplayer exploration",
+      "Second Brain/PKM integration",
+      "Gamification with challenges"
+    ],
+    "context": "Knowledge graph visualization now working with force-directed layout, smart labels, sessionStorage persistence. Ready for next feature layer.",
+    "reversible": true,
+    "outcome": null
+  }
+}

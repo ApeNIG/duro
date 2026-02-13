@@ -1,0 +1,32 @@
+{
+  "id": "decision_20260212_191219_vruthq",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-12T19:12:19.307420Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "intersphere",
+    "path-finding",
+    "architecture",
+    "performance"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Build a smarter path-finding system using bidirectional semantic search instead of relying solely on the current BFS algorithm",
+    "rationale": "The current API's BFS algorithm explored 243 topics over 15.5 seconds and failed to find the Music→Africa path. Two parallel agents found it in ~5 seconds with credible sources. The new system should use semantic awareness, bidirectional search, and possibly a pre-seeded knowledge cache.",
+    "alternatives": [
+      "Keep current BFS but increase depth limit",
+      "Add timeout and show partial results",
+      "Pre-compute popular paths",
+      "Use LLM to suggest bridge topics"
+    ],
+    "context": "InterSphere knowledge graph path-finding feature",
+    "reversible": true,
+    "outcome": null
+  }
+}

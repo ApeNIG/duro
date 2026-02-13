@@ -3,7 +3,7 @@
   "type": "skill_stats",
   "version": "1.0",
   "created_at": "2026-02-12T12:30:00Z",
-  "updated_at": "2026-02-12T13:42:46.074683Z",
+  "updated_at": "2026-02-12T21:53:27.878209Z",
   "sensitivity": "internal",
   "tags": [
     "core",
@@ -25,6 +25,6 @@
     "avg_duration_ms": null,
     "last_used": null,
     "last_outcome": null,
-    "confidence": 0.8300000000000003
+    "confidence": 0.8600000000000003
   }
 }
