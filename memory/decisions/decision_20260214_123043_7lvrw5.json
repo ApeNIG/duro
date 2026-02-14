@@ -1,0 +1,45 @@
+{
+  "id": "decision_20260214_123043_7lvrw5",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T12:30:43.637876Z",
+  "updated_at": "2026-02-14T12:32:22.077373Z",
+  "sensitivity": "internal",
+  "tags": [
+    "e2e-test",
+    "sqlite-vec",
+    "qa"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "E2E test decision: Use DELETE+INSERT pattern for sqlite-vec virtual tables",
+    "rationale": "vec0 virtual tables do not support UPSERT/ON CONFLICT syntax",
+    "alternatives": [
+      "Use UPSERT (failed)",
+      "Use REPLACE (not supported)",
+      "Use DELETE+INSERT (works)"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-14T12:32:22.077373Z",
+      "evidence": [
+        {
+          "episode_id": "ep_20260214_123138_o72j54",
+          "result": "success",
+          "notes": "DELETE+INSERT pattern confirmed working for vec0 tables"
+        }
+      ],
+      "confidence": 0.6,
+      "last_evaluated_at": "2026-02-14T12:32:05.377015Z"
+    },
+    "episodes_used": [
+      "ep_20260214_123138_o72j54"
+    ]
+  }
+}

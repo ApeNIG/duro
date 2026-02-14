@@ -2,8 +2,8 @@
   "id": "ss_planning",
   "type": "skill_stats",
   "version": "1.0",
-  "created_at": "2026-02-14T01:39:51.063988Z",
-  "updated_at": "2026-02-14T02:57:27.193375Z",
+  "created_at": "2026-02-14T12:01:54.014712Z",
+  "updated_at": "2026-02-14T12:32:05.347387Z",
   "sensitivity": "internal",
   "tags": [
     "core",
@@ -25,6 +25,6 @@
     "avg_duration_ms": null,
     "last_used": null,
     "last_outcome": null,
-    "confidence": 0.8000000000000003
+    "confidence": 0.5900000000000001
   }
 }
