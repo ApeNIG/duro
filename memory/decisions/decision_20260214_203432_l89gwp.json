@@ -1,0 +1,33 @@
+{
+  "id": "decision_20260214_203432_l89gwp",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T20:34:32.204246Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "operations",
+    "resilience",
+    "testing",
+    "duro"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Crash drill protocol for Duro reembed verification",
+    "rationale": "Need to verify operational resilience, not just \"works on good days\". The drill proves stuck repairs get cleaned up, system stays usable, and audit trail captures failures.",
+    "alternatives": [],
+    "context": "Drill recipe: 1) Start duro_reembed artifact_type=fact limit=100, 2) Wait for heartbeat, 3) Kill server process, 4) Restart server, 5) Verify: duro_list_repairs shows failed entry, duro_health_check still OK, duro_semantic_search works, no queue drift.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
