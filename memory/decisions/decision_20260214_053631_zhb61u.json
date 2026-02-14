@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260214_053631_zhb61u",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:36:31.775641Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "cinematch",
+    "design",
+    "homepage",
+    "creative-direction"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Redesign Cinematch homepage with fresh creative direction while maintaining brand tokens",
+    "rationale": "Current homepage has 8 sections with standard layout. User requested completely new design while following existing brand guidelines (void/obsidian dark theme, gold/teal accents, Inter/Playfair fonts). Opportunity to create more distinctive, emotionally resonant experience that better captures the cinematic nature of film-music collaboration.",
+    "alternatives": [
+      "Keep existing layout with visual polish only",
+      "Complete brand overhaul including new colors",
+      "Incremental section-by-section updates"
+    ],
+    "context": "Cinematch is a platform connecting filmmakers with composers. Target audience: directors, producers, music supervisors. Competitors: Scorefolio, traditional talent agencies. Value prop: curated profiles, search by vibe, direct messaging.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

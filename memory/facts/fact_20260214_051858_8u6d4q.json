@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260214_051858_8u6d4q",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-14T05:18:58.711249Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "cinematch",
+    "experiment",
+    "autonomous",
+    "restructure",
+    "success"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Duro autonomous experiment on Cinematch completed successfully. Key finding: existing codebase already followed best practices (route groups, feature-based components, services layer). Main cleanup was organizational: moved 12 test scripts to scripts/tests/, consolidated 6 screenshot folders to docs/screenshots/, updated UI component barrel exports. Build validated: 28 routes, 0 TypeScript errors.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "quote",
+    "provenance": "tool_output"
+  }
+}

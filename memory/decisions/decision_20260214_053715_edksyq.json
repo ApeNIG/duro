@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260214_053715_edksyq",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:37:15.081893Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "cinematch",
+    "design",
+    "style-guide",
+    "creative-direction"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Apply Dark Luxury style guide with Cinematch brand tokens",
+    "rationale": "Style guide provides excellent framework for premium cinematic platform. Sharp corners convey architectural precision. Single accent color (gold) creates cohesive brand identity. Serif headlines (Playfair Display) add editorial elegance. Adapting luxury dashboard patterns for landing page creates distinctive, premium experience.",
+    "alternatives": [
+      "Use softer rounded corners for approachable feel",
+      "Use multiple accent colors",
+      "Use more gradients and visual effects"
+    ],
+    "context": "Received Elegant Luxury Web Dashboard style guide with dark mode, gold accent, serif headlines, zero radius corners. Will adapt for Cinematch using their existing brand tokens.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

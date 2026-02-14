@@ -1,0 +1,34 @@
+{
+  "id": "decision_20260214_050732_f0c7wr",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:07:32.820217Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "cinematch",
+    "design-system",
+    "dark-theme",
+    "component-library",
+    "pencil-mockup"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Cinematch component library uses dark theme with burgundy accent (#6B2D3C), Outfit for UI text, Cormorant Garamond for display, 8px border radius standard",
+    "rationale": "Editorial Swiss aesthetic fits creative professional networking. Dark mode suits film/music industry users. Burgundy accent adds sophistication without competing. Dual-font system (serif display + geometric sans) creates editorial gravitas.",
+    "alternatives": [],
+    "context": "Phase 0 of Cinematch restructure experiment - design mockups in Pencil before implementation",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

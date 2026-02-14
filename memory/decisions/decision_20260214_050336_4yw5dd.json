@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260214_050336_4yw5dd",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:03:36.775417Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "cinematch",
+    "restructure",
+    "architecture",
+    "experiment",
+    "autonomous"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Restructure Cinematch using atomic design principles with route groups, component library, and services layer",
+    "rationale": "Current codebase has organic growth issues: root clutter (15+ test files), no component hierarchy, scattered screenshots (6 folders), missing services layer. Restructure improves maintainability, testability, and developer experience.",
+    "alternatives": [
+      "Incremental cleanup only (less disruptive)",
+      "Monorepo split into packages (overkill for current scale)",
+      "Keep current structure with documentation (doesn't solve root issues)"
+    ],
+    "context": "Duro autonomous experiment - testing compounded skills on real project restructure",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
