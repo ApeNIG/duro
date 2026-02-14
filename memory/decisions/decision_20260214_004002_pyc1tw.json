@@ -1,0 +1,42 @@
+{
+  "id": "decision_20260214_004002_pyc1tw",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:40:02.324347Z",
+  "updated_at": "2026-02-14T00:40:02.391149Z",
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "decision-outcome"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Use async processing for smoke test batch jobs",
+    "rationale": "Async improves throughput without blocking the main thread",
+    "alternatives": [
+      "sync processing",
+      "thread pool"
+    ],
+    "context": "smoke test decision outcomes",
+    "reversible": true,
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-14T00:40:02.391149Z",
+      "evidence": [
+        {
+          "episode_id": "ep_20260214_004002_fm85ee",
+          "result": "success",
+          "notes": "Async processing confirmed to improve throughput in smoke test"
+        }
+      ],
+      "confidence": 0.6
+    },
+    "episodes_used": [
+      "ep_20260214_004002_fm85ee"
+    ]
+  }
+}

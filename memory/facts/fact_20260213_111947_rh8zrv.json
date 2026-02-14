@@ -1,0 +1,37 @@
+{
+  "id": "fact_20260213_111947_rh8zrv",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-13T11:19:47.122632Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "design-resources",
+    "glassmorphism",
+    "bento-grid",
+    "landing-page",
+    "color-theory",
+    "typography",
+    "study-materials"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Comprehensive Design Study Materials - 5 Topics Curated from Verified Sources",
+    "source_urls": [
+      "https://ui.glass/generator/",
+      "https://m3.material.io/styles",
+      "https://developer.apple.com/design/human-interface-guidelines/",
+      "https://www.smashingmagazine.com/category/design/",
+      "https://fonts.google.com/knowledge"
+    ],
+    "snippet": "Design study materials covering: Glassmorphism (Glass UI, Hype4 Academy), Bento Grids (Figma Community, BentoGrids.com), Landing Pages (conversion principles from Shopify, Swipe Pages), Color Theory/Gradients (Material Design 3), Typography (Google Fonts Knowledge, Apple HIG, IxDF)",
+    "confidence": 0.9,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

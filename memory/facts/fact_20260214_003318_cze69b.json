@@ -1,0 +1,27 @@
+{
+  "id": "fact_20260214_003318_cze69b",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-14T00:33:18.866379Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "api",
+    "version",
+    "test-temporal"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "API version is 3.0",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "unknown"
+  }
+}
