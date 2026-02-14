@@ -2,12 +2,16 @@
   "id": "ss_source_verification",
   "type": "skill_stats",
   "version": "1.0",
-  "created_at": "2026-02-12T12:30:00Z",
+  "created_at": "2026-02-14T01:39:51.004928Z",
   "updated_at": null,
   "sensitivity": "internal",
-  "tags": ["core", "verification", "seeded"],
+  "tags": [
+    "core",
+    "source_verification",
+    "seeded"
+  ],
   "source": {
-    "workflow": "phase1_seed",
+    "workflow": "startup_seed",
     "run_id": null,
     "tool_trace_path": null
   },

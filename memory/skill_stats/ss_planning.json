@@ -2,8 +2,8 @@
   "id": "ss_planning",
   "type": "skill_stats",
   "version": "1.0",
-  "created_at": "2026-02-12T12:30:00Z",
-  "updated_at": "2026-02-14T01:20:01.090737Z",
+  "created_at": "2026-02-14T01:39:51.063988Z",
+  "updated_at": "2026-02-14T02:57:27.193375Z",
   "sensitivity": "internal",
   "tags": [
     "core",
@@ -11,7 +11,7 @@
     "seeded"
   ],
   "source": {
-    "workflow": "phase1_seed",
+    "workflow": "startup_seed",
     "run_id": null,
     "tool_trace_path": null
   },
@@ -25,6 +25,6 @@
     "avg_duration_ms": null,
     "last_used": null,
     "last_outcome": null,
-    "confidence": 0.99
+    "confidence": 0.8000000000000003
   }
 }
