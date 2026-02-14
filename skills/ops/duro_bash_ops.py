@@ -74,7 +74,7 @@ def cmd_health():
         # Search capabilities
         caps = store.index.get_search_capabilities()
         print(f"[OK] FTS: {caps.get('fts_available', False)}")
-        print(f"[OK] Vector: {caps.get('vec_available', False)}")
+        print(f"[OK] Vector: {caps.get('vector_available', False)}")
         print(f"[OK] Embeddings: {caps.get('embedding_count', 0)}")
 
         # WAL mode

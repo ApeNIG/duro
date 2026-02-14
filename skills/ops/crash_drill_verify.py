@@ -251,7 +251,7 @@ def step_6_health_check():
                 f"Indexed {count} artifacts",
                 {
                     "fts_available": caps.get("fts_available", False),
-                    "vec_available": caps.get("vec_available", False),
+                    "vec_available": caps.get("vector_available", False),
                     "embedding_count": caps.get("embedding_count", 0)
                 })
         return True
