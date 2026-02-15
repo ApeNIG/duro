@@ -2,6 +2,16 @@
 memory/artifacts.db
 memory/artifacts.db-journal
 memory/artifacts.db-wal
+memory/index.db
+memory/index.db-shm
+memory/index.db-wal
+
+# Runtime caches
+.rule_cache/
+.image_cache/
+
+# Test fixtures
+evals/fixtures/
 
 # Audit logs may contain sensitive deletion records
 memory/logs/audit.jsonl
