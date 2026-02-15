@@ -1,0 +1,133 @@
+# Skill Schema v1.1 - Typography Systems
+id: skill_design_typography
+name: typography_systems
+version: "1.0.0"
+scope: core
+tier: core
+
+classification:
+  type: prompt
+  domain: [design, typography, ui, text]
+  primary_action: design_typography
+
+description:
+  short: "Design typography systems for readability and hierarchy"
+  full: |
+    Typography principles: font pairing, size scales, line height,
+    weight hierarchy, and responsive text sizing.
+
+triggers:
+  hard:
+    intents:
+      - "set up typography"
+      - "design type system"
+      - "text styling"
+  soft:
+    keywords:
+      - typography
+      - font
+      - text
+      - heading
+      - body
+      - type
+      - readable
+      - scale
+    embedding_threshold: 0.7
+  budget:
+    priority: 8
+    min_tokens: 80
+    max_tokens: 500
+
+renderings:
+  minimal:
+    tokens: 70
+    content: |
+      **Typography**: Display font for headings, body font for text. Scale: 12/14/16/20/24/32/48px. Line-height: 1.5 for body, 1.2 for headings. Max line length: 65-75 characters.
+
+  compact:
+    tokens: 200
+    content: |
+      ## Typography System
+
+      **Font Pairing**
+      - Display: geometric sans (headings) - Space Grotesk, Poppins, Inter Display
+      - Body: humanist sans (text) - Inter, SF Pro, Roboto
+
+      **Type Scale** (1.25 ratio)
+      - 12px: captions, labels
+      - 14px: body small, metadata
+      - 16px: body default
+      - 20px: h4, lead text
+      - 24px: h3, section titles
+      - 32px: h2, page sections
+      - 48px: h1, hero headlines
+
+      **Line Height**
+      - Body: 1.5-1.6 (comfortable reading)
+      - Headings: 1.1-1.3 (tight, impactful)
+      - UI labels: 1.2-1.4
+
+      **Weight Hierarchy**
+      - 400: body text
+      - 500: emphasis, labels
+      - 600: subheadings
+      - 700: headings
+
+      **Line Length**: 65-75 characters optimal
+
+  full:
+    tokens: 450
+    content: |
+      ## Typography System (v1.0.0)
+
+      ### Font Pairing Strategy
+      **Display Font** (headings, titles):
+      - Geometric sans-serif: Space Grotesk, Poppins, Outfit
+      - Characteristics: modern, bold, distinctive
+      - Use for: h1-h3, hero text, buttons
+
+      **Body Font** (text, UI):
+      - Humanist sans-serif: Inter, SF Pro, Roboto, Open Sans
+      - Characteristics: readable, neutral, professional
+      - Use for: paragraphs, labels, navigation
+
+      ### Type Scale
+      Using 1.25 modular scale (base 16px):
+      | Size | Use Case |
+      |------|----------|
+      | 10px | Fine print only |
+      | 12px | Captions, badges, timestamps |
+      | 14px | Body small, metadata, nav links |
+      | 16px | Body default, buttons |
+      | 20px | h4, lead paragraphs |
+      | 24px | h3, section headers |
+      | 32px | h2, page titles |
+      | 48px | h1, hero headlines |
+      | 64px | Display, marketing |
+
+      ### Line Height
+      - **Body text**: 1.5-1.6 (optimal readability)
+      - **Headings**: 1.1-1.25 (compact, impactful)
+      - **UI elements**: 1.2-1.4 (buttons, labels)
+      - **Tight lists**: 1.3-1.4
+
+      ### Font Weight
+      - 400 (Regular): Body text, descriptions
+      - 500 (Medium): Labels, emphasis, buttons
+      - 600 (Semibold): Subheadings, nav active
+      - 700 (Bold): Headings, CTAs
+
+      ### Responsive Typography
+      - Mobile: Base 16px, scale down headings 20%
+      - Tablet: Full scale
+      - Desktop: Can increase base to 18px
+
+      ### Readability Rules
+      - Line length: 65-75 characters
+      - Paragraph spacing: 1em
+      - Heading margin-top > margin-bottom
+      - Never fully justify text on screens
+
+lifecycle:
+  created_at: "2026-02-15T12:00:00Z"
+  provenance: ["decision_20260215_cms_design_pack"]

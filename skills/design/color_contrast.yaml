@@ -1,0 +1,133 @@
+# Skill Schema v1.1 - Color and Contrast
+id: skill_design_color
+name: color_contrast
+version: "1.0.0"
+scope: core
+tier: core
+
+classification:
+  type: prompt
+  domain: [design, color, ui, accessibility]
+  primary_action: design_color
+
+description:
+  short: "Apply color theory and contrast for accessible, appealing UI"
+  full: |
+    Color system design: palette creation, semantic colors, contrast ratios,
+    dark mode considerations, and accessibility compliance.
+
+triggers:
+  hard:
+    intents:
+      - "design color palette"
+      - "pick colors"
+      - "color system"
+  soft:
+    keywords:
+      - color
+      - palette
+      - contrast
+      - dark mode
+      - theme
+      - brand
+      - accent
+      - primary
+    embedding_threshold: 0.7
+  budget:
+    priority: 8
+    min_tokens: 80
+    max_tokens: 500
+
+renderings:
+  minimal:
+    tokens: 70
+    content: |
+      **Color**: Primary (brand), accent (actions), neutrals (backgrounds/text). WCAG AA contrast: 4.5:1 text, 3:1 large text. Semantic: success green, error red, warning amber, info blue.
+
+  compact:
+    tokens: 220
+    content: |
+      ## Color System
+
+      **Palette Structure**
+      - Primary: Brand color (buttons, links, active states)
+      - Accent: Secondary actions, highlights
+      - Neutrals: Backgrounds (white/gray scale), text (dark gray/black)
+      - Semantic: Success (green), Error (red), Warning (amber), Info (blue)
+
+      **Contrast Requirements (WCAG AA)**
+      - Normal text (<18px): 4.5:1 minimum
+      - Large text (>=18px or 14px bold): 3:1 minimum
+      - UI components: 3:1 against adjacent colors
+
+      **Usage Guidelines**
+      - Primary: max 10-20% of screen
+      - Neutrals: 60-70% (backgrounds, cards)
+      - Text on white: use #1f1f1f or darker
+      - Avoid pure black (#000) on pure white
+
+      **Dark Mode Considerations**
+      - Don't just invert colors
+      - Reduce primary saturation 10-15%
+      - Background: #121212 or #1a1a1a (not pure black)
+      - Elevate with lighter grays, not opacity
+
+  full:
+    tokens: 450
+    content: |
+      ## Color & Contrast System (v1.0.0)
+
+      ### Palette Architecture
+      **Primary Color**
+      - Purpose: Brand identity, CTAs, active states
+      - Usage: 10-20% of screen area
+      - Variants: 50, 100, 200... 900 (light to dark)
+
+      **Accent Color**
+      - Purpose: Secondary actions, highlights, progress
+      - Should contrast with primary
+      - Often complementary or analogous
+
+      **Neutral Scale**
+      - White (#FFFFFF): Primary background
+      - Gray-50 (#FAFAFA): Subtle backgrounds
+      - Gray-100 (#F4F4F5): Cards, hover states
+      - Gray-200 (#E4E4E7): Borders, dividers
+      - Gray-400 (#A1A1AA): Disabled text
+      - Gray-600 (#52525B): Secondary text
+      - Gray-900 (#18181B): Primary text
+
+      **Semantic Colors**
+      | Purpose | Color | Hex Example |
+      |---------|-------|-------------|
+      | Success | Green | #22C55E |
+      | Error | Red | #EF4444 |
+      | Warning | Amber | #F59E0B |
+      | Info | Blue | #3B82F6 |
+
+      ### Contrast Requirements
+      **WCAG AA (minimum)**
+      - Normal text: 4.5:1 ratio
+      - Large text (18px+): 3:1 ratio
+      - UI components: 3:1 against adjacent
+
+      **WCAG AAA (enhanced)**
+      - Normal text: 7:1 ratio
+      - Large text: 4.5:1 ratio
+
+      ### Dark Mode
+      - Background: #121212 or #1a1a1a
+      - Surface: #1e1e1e (elevated cards)
+      - Text: #FFFFFF (87% opacity for body)
+      - Reduce primary saturation 10-15%
+      - Test all semantic colors for visibility
+
+      ### Application Tips
+      - Use color for meaning, not just decoration
+      - Always pair color with icon/text for colorblind users
+      - Test with color blindness simulators
+      - Maintain consistent meaning across app
+
+lifecycle:
+  created_at: "2026-02-15T12:00:00Z"
+  provenance: ["decision_20260215_cms_design_pack"]

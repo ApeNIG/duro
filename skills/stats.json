@@ -74,6 +74,38 @@
       "last_used": null,
       "avg_runtime_seconds": null,
       "confidence": 0.50
+    },
+    "skill_design_layout": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_typography": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_color": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_mobile_spacing": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_critique": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_components": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_a11y": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
+    },
+    "skill_design_dashboard": {
+      "usage_count": 0, "success_count": 0, "failure_count": 0,
+      "success_rate": 1.0, "last_used": null, "confidence": 0.50
     }
   },
   "update_policy": {

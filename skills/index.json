@@ -281,6 +281,94 @@
       ],
       "has_precompiled_renderings": true,
       "notes": "Prompt-based skill with precompiled renderings at minimal/compact/full token levels"
+    },
+    {
+      "id": "skill_design_layout",
+      "name": "layout_principles",
+      "path": "design/layout_principles.yaml",
+      "description": "Apply layout principles for visual hierarchy and structure",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["layout", "grid", "structure", "hierarchy", "spacing", "align", "page", "screen", "dashboard"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_typography",
+      "name": "typography_systems",
+      "path": "design/typography_systems.yaml",
+      "description": "Design typography systems for readability and hierarchy",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["typography", "font", "text", "heading", "body", "type", "readable", "scale"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_color",
+      "name": "color_contrast",
+      "path": "design/color_contrast.yaml",
+      "description": "Apply color theory and contrast for accessible, appealing UI",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["color", "palette", "contrast", "dark mode", "theme", "brand", "accent", "primary"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_mobile_spacing",
+      "name": "mobile_spacing",
+      "path": "design/mobile_spacing.yaml",
+      "description": "Mobile-first spacing and touch-friendly design patterns",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["mobile", "touch", "spacing", "responsive", "phone", "ios", "android", "safe area"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_critique",
+      "name": "design_critique",
+      "path": "design/design_critique.yaml",
+      "description": "Evaluate designs against quality criteria and best practices",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["critique", "review", "evaluate", "feedback", "improve", "better", "issues"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_components",
+      "name": "component_cards_lists",
+      "path": "design/component_cards_lists.yaml",
+      "description": "Design patterns for cards, lists, and common UI components",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["card", "list", "component", "item", "row", "stat", "widget", "tile"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_a11y",
+      "name": "accessibility_mobile",
+      "path": "design/accessibility_mobile.yaml",
+      "description": "Design accessible mobile interfaces (WCAG compliance)",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["accessible", "accessibility", "a11y", "wcag", "contrast", "screen reader"],
+      "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_design_dashboard",
+      "name": "dashboard_patterns",
+      "path": "design/dashboard_patterns.yaml",
+      "description": "Design data-driven dashboards and analytics screens",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["dashboard", "analytics", "data", "metrics", "kpi", "chart", "graph", "stats", "report"],
+      "has_precompiled_renderings": true
     }
   ],
   "selection_priority": [

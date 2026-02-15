@@ -42,12 +42,28 @@ class TokenBudget:
 
 
 @dataclass
+class AssemblyDebug:
+    """Debug info for context assembly - essential for tuning."""
+    working_dir: str
+    detected_project: Optional[str]
+    project_detection_method: Optional[str]  # .project_id, package.json, dir_name, parent_dir, explicit, none
+    constitution_loaded: bool
+    constitution_reason: str  # "loaded from msj", "no project detected", "project not found"
+    skills_scanned: int
+    skills_matched: int
+    skills_selected: int
+    skill_candidates: List[Dict[str, Any]]  # Top 10 candidates with scores
+    domain_hints: List[str]  # Keywords detected from task
+
+@dataclass
 class ContextPack:
     """Assembled context ready for injection."""
     constitution: Optional[str]
     skills: List[Dict[str, Any]]
     task_context: Optional[str]
     total_tokens: int
+    budget_used: Dict[str, int] = None
+    debug: Optional[AssemblyDebug] = None
     budget_used: Dict[str, int]
 
 
@@ -181,7 +197,7 @@ def select_skills_for_task(
     return selected
 
 
-def detect_project_from_path(path: Path) -> Optional[str]:
+def detect_project_from_path(path: Path) -> Tuple[Optional[str], Optional[str]]:
     """
     Detect project ID from current working directory.
 
@@ -189,11 +205,13 @@ def detect_project_from_path(path: Path) -> Optional[str]:
     1. .project_id file
     2. constitution_id in package.json
     3. Project directory name matching known constitutions
+
+    Returns: (project_id, detection_method)
     """
     # Check for .project_id file
     project_id_file = path / ".project_id"
     if project_id_file.exists():
-        return project_id_file.read_text().strip()
+        return project_id_file.read_text().strip(), ".project_id"
 
     # Check package.json
     package_json = path / "package.json"
@@ -202,7 +220,7 @@ def detect_project_from_path(path: Path) -> Optional[str]:
             with open(package_json, 'r', encoding='utf-8') as f:
                 pkg = json.load(f)
                 if "constitution_id" in pkg:
-                    return pkg["constitution_id"]
+                    return pkg["constitution_id"], "package.json"
         except (json.JSONDecodeError, KeyError):
             pass
 
@@ -212,16 +230,16 @@ def detect_project_from_path(path: Path) -> Optional[str]:
 
     for const_id in available:
         if const_id.replace("-", "") == dir_name:
-            return const_id
+            return const_id, "dir_name"
 
     # Check parent directories
     for parent in path.parents:
         parent_name = parent.name.lower().replace("-", "").replace("_", "")
         for const_id in available:
             if const_id.replace("-", "") == parent_name:
-                return const_id
+                return const_id, "parent_dir"
 
-    return None
+    return None, "none"
 
 
 def assemble_context(
@@ -258,23 +276,54 @@ def assemble_context(
         "task_pack": 0
     }
 
+    # Extract domain hints from task
+    domain_keywords = ["design", "ui", "ux", "layout", "typography", "color", "commit", "git",
+                       "test", "debug", "deploy", "api", "database", "mobile", "web", "component"]
+    task_lower = task_description.lower()
+    domain_hints = [kw for kw in domain_keywords if kw in task_lower]
+
     # 1. Load Project Constitution
     constitution_text = None
-    project_id = detect_project_from_path(working_dir)
+    constitution_reason = "no project detected"
+    project_id, detection_method = detect_project_from_path(working_dir)
 
     if project_id:
         const = load_constitution(project_id)
         if const:
             constitution_text = render_constitution(const, constitution_mode.value)
             budget_used["constitution"] = estimate_tokens(constitution_text)
+            constitution_reason = f"loaded from {project_id}"
+        else:
+            constitution_reason = f"project {project_id} detected but constitution not found"
+    else:
+        constitution_reason = "no project detected from path"
 
-    # 2. Select Skills
-    # Adjust skill budget based on constitution usage
+    # 2. Select Skills - with debug tracking
     available_skill_budget = budget.skills
     if budget_used["constitution"] > budget.constitution:
-        # Constitution went over, reduce skill budget
         overflow = budget_used["constitution"] - budget.constitution
         available_skill_budget = max(10000, budget.skills - overflow)
+
+    # Count total skills scanned
+    stats = load_skill_stats()
+    all_skills = []
+    skills_scanned = 0
+    for skill_file in SKILLS_DIR.rglob("*.yaml"):
+        skill = load_skill(skill_file)
+        if skill and "id" in skill:
+            skills_scanned += 1
+            score = score_skill_for_task(skill, task_description, stats)
+            all_skills.append({
+                "id": skill.get("id"),
+                "name": skill.get("name"),
+                "score": score,
+                "matched": score > 0
+            })
+
+    # Sort and get top 10 candidates for debug
+    all_skills.sort(key=lambda x: x["score"], reverse=True)
+    skill_candidates = all_skills[:10]
+    skills_matched = sum(1 for s in all_skills if s["matched"])
 
     selected_skills = select_skills_for_task(
         task_description,
@@ -294,15 +343,29 @@ def assemble_context(
 
     # 3. Task Pack (placeholder - would be filled by semantic search)
     task_context = None
-    # In full implementation, this would search deep archive for relevant context
 
     total_tokens = sum(budget_used.values())
+
+    # Build debug info
+    debug = AssemblyDebug(
+        working_dir=str(working_dir),
+        detected_project=project_id,
+        project_detection_method=detection_method,
+        constitution_loaded=constitution_text is not None,
+        constitution_reason=constitution_reason,
+        skills_scanned=skills_scanned,
+        skills_matched=skills_matched,
+        skills_selected=len(skills_data),
+        skill_candidates=skill_candidates,
+        domain_hints=domain_hints
+    )
 
     return ContextPack(
         constitution=constitution_text,
         skills=skills_data,
         task_context=task_context,
         total_tokens=total_tokens,
+        debug=debug,
         budget_used=budget_used
     )
 
