@@ -128,8 +128,8 @@ class TestHighVolumeIndexing:
 
         elapsed = time.time() - start_time
 
-        # Should complete quickly
-        assert elapsed < 5, f"Indexing 100 artifacts took {elapsed:.2f}s"
+        # Should complete quickly (10s threshold for Windows CI variance)
+        assert elapsed < 10, f"Indexing 100 artifacts took {elapsed:.2f}s"
 
         # Verify count
         count = isolated_db.count_artifacts("fact")

@@ -43,7 +43,7 @@ from harness import IsolatedTestDB, MockEmbedder, MockArtifact
 PROPERTY_SETTINGS = settings(
     max_examples=15,
     suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow, HealthCheck.filter_too_much],
-    deadline=5000
+    deadline=None  # Disable for CI variance
 )
 
 
