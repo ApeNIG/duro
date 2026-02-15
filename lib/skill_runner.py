@@ -6,6 +6,7 @@ Core responsibilities:
 2. Enforce path allowlist (security)
 3. Enforce file size limits and timeouts
 4. Standardize all results
+5. Progress callbacks for long-running skills
 
 Every skill runs through this. It's the trust layer.
 """
@@ -15,7 +16,7 @@ import re
 import time
 import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable, Union
+from typing import Any, Dict, List, Optional, Callable, Union, Protocol
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 import threading
@@ -41,6 +42,280 @@ class Severity(Enum):
     INFO = "info"
     WARN = "warn"
     ERROR = "error"
+
+
+class ProgressEvent(Enum):
+    """Types of progress events."""
+    STARTED = "started"
+    PROGRESS = "progress"
+    SUBSTEP = "substep"
+    COMPLETED = "completed"
+    ERROR = "error"
+
+
+@dataclass
+class ProgressUpdate:
+    """A progress update from a skill."""
+    event: ProgressEvent
+    current: int
+    total: int
+    message: str
+    percentage: float
+    elapsed_ms: float
+    estimated_remaining_ms: Optional[float] = None
+    substep: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def is_terminal(self) -> bool:
+        """Check if this is a terminal event (completed or error)."""
+        return self.event in (ProgressEvent.COMPLETED, ProgressEvent.ERROR)
+
+    def to_dict(self) -> Dict[str, Any]:
+        d = asdict(self)
+        d["event"] = self.event.value
+        return d
+
+
+class ProgressCallback(Protocol):
+    """Protocol for progress callbacks."""
+    def __call__(self, update: ProgressUpdate) -> None:
+        """Handle a progress update."""
+        ...
+
+
+class ProgressReporter:
+    """
+    Helper for skills to report progress.
+
+    Usage:
+        reporter = ProgressReporter(total=100, callback=callback)
+        reporter.start("Processing files...")
+        for i, file in enumerate(files):
+            reporter.update(i + 1, f"Processing {file}")
+        reporter.complete("Done!")
+    """
+
+    def __init__(
+        self,
+        total: int,
+        callback: Optional[ProgressCallback] = None,
+        label: str = "progress"
+    ):
+        self.total = total
+        self.callback = callback
+        self.label = label
+        self.current = 0
+        self.start_time = time.time()
+        self._history: List[ProgressUpdate] = []
+
+    def _emit(self, update: ProgressUpdate) -> None:
+        """Emit a progress update."""
+        self._history.append(update)
+        if self.callback:
+            try:
+                self.callback(update)
+            except Exception:
+                pass  # Don't let callback errors break the skill
+
+    def _elapsed_ms(self) -> float:
+        return (time.time() - self.start_time) * 1000
+
+    def _estimate_remaining(self) -> Optional[float]:
+        """Estimate remaining time based on progress rate."""
+        if self.current <= 0 or self.total <= 0:
+            return None
+        elapsed = self._elapsed_ms()
+        rate = self.current / elapsed  # items per ms
+        remaining_items = self.total - self.current
+        if rate > 0:
+            return remaining_items / rate
+        return None
+
+    def start(self, message: str = "Starting...") -> None:
+        """Emit a start event."""
+        self.start_time = time.time()
+        self._emit(ProgressUpdate(
+            event=ProgressEvent.STARTED,
+            current=0,
+            total=self.total,
+            message=message,
+            percentage=0.0,
+            elapsed_ms=0.0
+        ))
+
+    def update(
+        self,
+        current: int,
+        message: str = "",
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Update progress."""
+        self.current = current
+        percentage = (current / self.total * 100) if self.total > 0 else 0.0
+        self._emit(ProgressUpdate(
+            event=ProgressEvent.PROGRESS,
+            current=current,
+            total=self.total,
+            message=message,
+            percentage=percentage,
+            elapsed_ms=self._elapsed_ms(),
+            estimated_remaining_ms=self._estimate_remaining(),
+            metadata=metadata or {}
+        ))
+
+    def substep(self, substep_name: str, message: str = "") -> None:
+        """Report a substep within the current progress."""
+        self._emit(ProgressUpdate(
+            event=ProgressEvent.SUBSTEP,
+            current=self.current,
+            total=self.total,
+            message=message,
+            percentage=(self.current / self.total * 100) if self.total > 0 else 0.0,
+            elapsed_ms=self._elapsed_ms(),
+            substep=substep_name
+        ))
+
+    def complete(self, message: str = "Completed") -> None:
+        """Emit completion event."""
+        self.current = self.total
+        self._emit(ProgressUpdate(
+            event=ProgressEvent.COMPLETED,
+            current=self.total,
+            total=self.total,
+            message=message,
+            percentage=100.0,
+            elapsed_ms=self._elapsed_ms()
+        ))
+
+    def error(self, message: str) -> None:
+        """Emit error event."""
+        self._emit(ProgressUpdate(
+            event=ProgressEvent.ERROR,
+            current=self.current,
+            total=self.total,
+            message=message,
+            percentage=(self.current / self.total * 100) if self.total > 0 else 0.0,
+            elapsed_ms=self._elapsed_ms()
+        ))
+
+    @property
+    def history(self) -> List[ProgressUpdate]:
+        """Get progress history."""
+        return self._history.copy()
+
+
+class AggregateProgressReporter:
+    """
+    Aggregates progress from multiple sub-reporters.
+
+    Usage:
+        agg = AggregateProgressReporter(callback)
+        agg.add_stage("download", weight=1)
+        agg.add_stage("process", weight=3)
+        agg.add_stage("upload", weight=1)
+
+        download_reporter = agg.get_reporter("download")
+        # ... use download_reporter
+    """
+
+    def __init__(self, callback: Optional[ProgressCallback] = None):
+        self.callback = callback
+        self.stages: Dict[str, Dict[str, Any]] = {}
+        self.start_time = time.time()
+
+    def add_stage(self, name: str, total: int = 100, weight: float = 1.0) -> None:
+        """Add a stage with optional weighting."""
+        self.stages[name] = {
+            "total": total,
+            "current": 0,
+            "weight": weight,
+            "complete": False
+        }
+
+    def get_reporter(self, stage_name: str) -> ProgressReporter:
+        """Get a reporter for a specific stage."""
+        if stage_name not in self.stages:
+            raise ValueError(f"Unknown stage: {stage_name}")
+
+        def stage_callback(update: ProgressUpdate) -> None:
+            self._handle_stage_update(stage_name, update)
+
+        return ProgressReporter(
+            total=self.stages[stage_name]["total"],
+            callback=stage_callback,
+            label=stage_name
+        )
+
+    def _handle_stage_update(self, stage: str, update: ProgressUpdate) -> None:
+        """Handle progress update from a stage."""
+        self.stages[stage]["current"] = update.current
+        if update.event == ProgressEvent.COMPLETED:
+            self.stages[stage]["complete"] = True
+
+        # Calculate aggregate progress
+        total_weight = sum(s["weight"] for s in self.stages.values())
+        weighted_progress = sum(
+            (s["current"] / s["total"]) * s["weight"]
+            for s in self.stages.values()
+            if s["total"] > 0
+        )
+        aggregate_pct = (weighted_progress / total_weight * 100) if total_weight > 0 else 0
+
+        # Emit aggregate update
+        if self.callback:
+            self.callback(ProgressUpdate(
+                event=update.event,
+                current=int(aggregate_pct),
+                total=100,
+                message=f"[{stage}] {update.message}",
+                percentage=aggregate_pct,
+                elapsed_ms=(time.time() - self.start_time) * 1000,
+                substep=stage,
+                metadata={"stage": stage, "stage_progress": update.percentage}
+            ))
+
+
+def report_progress(
+    tools: Dict[str, Any],
+    current: int,
+    total: int,
+    message: str = "",
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Convenience function for skills to report progress.
+
+    Args:
+        tools: The tools dict passed to the skill
+        current: Current progress (0 to total)
+        total: Total items
+        message: Optional status message
+        metadata: Optional metadata dict
+    """
+    reporter = tools.get("_progress_reporter")
+    if reporter:
+        reporter.update(current, message, metadata)
+
+
+def create_progress_reporter(
+    tools: Dict[str, Any],
+    total: int,
+    label: str = "progress"
+) -> ProgressReporter:
+    """
+    Create a ProgressReporter from the tools dict.
+
+    Args:
+        tools: The tools dict passed to the skill
+        total: Total number of items to process
+        label: Label for this progress reporter
+
+    Returns:
+        A ProgressReporter (may have no-op callback if none provided)
+    """
+    callback = tools.get("_progress_callback")
+    return ProgressReporter(total=total, callback=callback, label=label)
 
 
 @dataclass
@@ -342,7 +617,8 @@ class SkillRunner:
         self,
         skill_func: Callable[..., SkillResult],
         args: Dict[str, Any],
-        schema: Optional[Dict[str, Any]] = None
+        schema: Optional[Dict[str, Any]] = None,
+        progress_callback: Optional[ProgressCallback] = None
     ) -> SkillResult:
         """
         Execute a skill with all guardrails.
@@ -351,6 +627,7 @@ class SkillRunner:
             skill_func: The skill function to execute
             args: Arguments to pass to the skill
             schema: Optional argument schema for validation
+            progress_callback: Optional callback for progress updates
 
         Returns:
             SkillResult with standardized output
@@ -359,10 +636,31 @@ class SkillRunner:
         timestamp = get_timestamp()
         start_time = time.time()
 
+        # Emit start progress if callback provided
+        if progress_callback:
+            progress_callback(ProgressUpdate(
+                event=ProgressEvent.STARTED,
+                current=0,
+                total=100,
+                message=f"Starting skill execution",
+                percentage=0.0,
+                elapsed_ms=0.0,
+                metadata={"run_id": run_id}
+            ))
+
         # Validate arguments
         if schema:
             validation_errors = validate_args(args, schema)
             if validation_errors:
+                if progress_callback:
+                    progress_callback(ProgressUpdate(
+                        event=ProgressEvent.ERROR,
+                        current=0,
+                        total=100,
+                        message=f"Validation failed",
+                        percentage=0.0,
+                        elapsed_ms=(time.time() - start_time) * 1000
+                    ))
                 return SkillResult(
                     success=False,
                     summary=f"Validation failed: {', '.join(validation_errors)}",
@@ -378,6 +676,15 @@ class SkillRunner:
                 try:
                     args[field] = str(self.path_validator.validate(args[field]))
                 except ValueError as e:
+                    if progress_callback:
+                        progress_callback(ProgressUpdate(
+                            event=ProgressEvent.ERROR,
+                            current=0,
+                            total=100,
+                            message=f"Path validation failed: {e}",
+                            percentage=0.0,
+                            elapsed_ms=(time.time() - start_time) * 1000
+                        ))
                     return SkillResult(
                         success=False,
                         summary=f"Path validation failed: {e}",
@@ -390,6 +697,7 @@ class SkillRunner:
         args["_runner"] = self
         args["_run_id"] = run_id
         args["_suppressions"] = self.suppressions
+        args["_progress_callback"] = progress_callback
 
         # Execute with timeout
         try:
@@ -427,9 +735,31 @@ class SkillRunner:
             result.findings = active_findings
             result.suppressed = suppressed_findings
 
+            # Emit completion progress
+            if progress_callback:
+                progress_callback(ProgressUpdate(
+                    event=ProgressEvent.COMPLETED,
+                    current=100,
+                    total=100,
+                    message=result.summary,
+                    percentage=100.0,
+                    elapsed_ms=result.timings.get("total_ms", 0),
+                    metadata={"findings_count": len(result.findings)}
+                ))
+
             return result
 
         except TimeoutError as e:
+            elapsed = self.timeout_ms
+            if progress_callback:
+                progress_callback(ProgressUpdate(
+                    event=ProgressEvent.ERROR,
+                    current=0,
+                    total=100,
+                    message=f"Skill timed out after {self.timeout_ms}ms",
+                    percentage=0.0,
+                    elapsed_ms=elapsed
+                ))
             return SkillResult(
                 success=False,
                 summary=f"Skill timed out after {self.timeout_ms}ms",
@@ -439,13 +769,23 @@ class SkillRunner:
                 timings={"total_ms": self.timeout_ms}
             )
         except Exception as e:
+            elapsed = (time.time() - start_time) * 1000
+            if progress_callback:
+                progress_callback(ProgressUpdate(
+                    event=ProgressEvent.ERROR,
+                    current=0,
+                    total=100,
+                    message=f"Skill failed: {e}",
+                    percentage=0.0,
+                    elapsed_ms=elapsed
+                ))
             return SkillResult(
                 success=False,
                 summary=f"Skill failed: {e}",
                 run_id=run_id,
                 timestamp=timestamp,
                 errors=[str(e)],
-                timings={"total_ms": (time.time() - start_time) * 1000}
+                timings={"total_ms": elapsed}
             )
 
     def check_file_size(self, file_path: Path) -> bool:
