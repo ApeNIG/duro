@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260215_041103_w1up2f",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T04:11:03.522291Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "blender",
+    "python",
+    "api",
+    "scripting",
+    "customization"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Blender has an extensive Python API where every tool is available for scripting and customization, including full UI, window layout, and shortcut customization.",
+    "source_urls": [
+      "https://www.blender.org/features/"
+    ],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": true,
+    "evidence_type": "quote",
+    "provenance": "web"
+  }
+}

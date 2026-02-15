@@ -85,6 +85,36 @@
       ]
     },
     {
+      "id": "skill_meta_002",
+      "name": "adversarial_planning",
+      "path": "meta/adversarial_planning.py",
+      "description": "3-phase planning with built-in critique (Architect/Critic/Integrator pattern)",
+      "tier": "core",
+      "keywords": [
+        "plan",
+        "planning",
+        "architect",
+        "critic",
+        "review",
+        "adversarial",
+        "design",
+        "implement",
+        "risk",
+        "mitigation"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "origin": "Extracted from SuperAGI planify pattern",
+      "notes": "Produces robust plans by explicitly surfacing missing requirements, edge cases, security concerns, and alternatives."
+    },
+    {
       "id": "skill_meta_001",
       "name": "create_skill",
       "path": "meta/create_skill.py",

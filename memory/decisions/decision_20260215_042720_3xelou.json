@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260215_042720_3xelou",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-15T04:27:20.567383Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "mcp",
+    "superagi",
+    "planning",
+    "skill",
+    "cleanup"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Extracted adversarial_planning pattern from SuperAGI and removed SuperAGI MCP",
+    "rationale": "SuperAGI provided 13 tools that were mostly redundant with Claude Code built-ins (web search, file ops, shell). The only unique value was the Architect/Critic/Integrator planning pattern from planify_context. Extracted this as a standalone Duro skill (adversarial_planning.py) that generates structured planning prompts with built-in adversarial critique. Python execution was broken (timeouts), GitHub API unconfigured. Removing reduces tool clutter while preserving the valuable pattern.",
+    "alternatives": [
+      "Keep SuperAGI and fix broken tools",
+      "Remove without extracting pattern",
+      "Keep both SuperAGI and new skill"
+    ],
+    "context": "MCP server audit - optimizing tool landscape",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
