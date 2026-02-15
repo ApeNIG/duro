@@ -1,0 +1,53 @@
+id: eval_enforce_force_push
+name: Force Push Protection
+description: Verify PreToolUse hook blocks force push operations
+category: enforcement
+rule_ref: rule_tool_005
+patterns_ref: enforcement_patterns.json#destructive_bash_commands
+
+test_cases:
+  - id: force_push_long
+    description: Block git push --force
+    command: "git push --force origin main"
+    expected: blocked
+
+  - id: force_push_short
+    description: Block git push -f
+    command: "git push -f origin feature"
+    expected: blocked
+
+  - id: force_with_lease
+    description: Block force-with-lease (still risky)
+    command: "git push --force-with-lease origin main"
+    expected: blocked
+
+  - id: force_push_all
+    description: Block force push to all branches
+    command: "git push --force --all"
+    expected: blocked
+
+  - id: normal_push
+    description: Allow normal push
+    command: "git push origin main"
+    expected: allowed
+
+  - id: push_tags
+    description: Allow push tags
+    command: "git push --tags"
+    expected: allowed
+
+  - id: push_upstream
+    description: Allow push with upstream
+    command: "git push -u origin feature"
+    expected: allowed
+
+metrics:
+  - force_push_blocked
+  - normal_push_allowed
+
+pass_criteria:
+  - all_force_operations: blocked
+  - all_normal_operations: allowed
+
+flaky: false
+mock_mode: true

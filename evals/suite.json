@@ -4,11 +4,60 @@
   "created": "2026-02-10",
   "last_updated": "2026-02-15",
   "categories": {
+    "enforcement": "Rule enforcement evals - verify hooks/gates block correctly",
     "skills": "Individual skill evals - test one skill in isolation",
     "fashanus": "Fashanus project-specific production evals",
     "general": "General-purpose workflow evals"
   },
   "evals": [
+    {
+      "id": "eval_enforce_destructive_commands",
+      "name": "Destructive Commands Blocked",
+      "file": "enforcement/destructive_commands.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
+    {
+      "id": "eval_enforce_secrets_in_git",
+      "name": "Secrets in Git Blocked",
+      "file": "enforcement/secrets_in_git.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
+    {
+      "id": "eval_enforce_force_push",
+      "name": "Force Push Protection",
+      "file": "enforcement/force_push.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
+    {
+      "id": "eval_enforce_read_before_edit",
+      "name": "Read Before Edit Gate",
+      "file": "enforcement/read_before_edit.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
+    {
+      "id": "eval_enforce_amend_pushed",
+      "name": "Amend Pushed Commit Protection",
+      "file": "enforcement/amend_pushed.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
+    {
+      "id": "eval_enforce_path_sandbox",
+      "name": "Path Sandbox Protection",
+      "file": "enforcement/path_sandbox.yaml",
+      "category": "enforcement",
+      "frequency": "daily",
+      "priority": 0
+    },
     {
       "id": "eval_skill_tts_001",
       "name": "Generate TTS Audio",

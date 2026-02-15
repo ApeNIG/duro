@@ -1,0 +1,263 @@
+{
+  "version": "1.0",
+  "description": "Actual enforcement patterns for PreToolUse hooks",
+  "last_updated": "2026-02-15",
+  "enforcement_rules": [
+    {
+      "id": "destructive_bash_commands",
+      "name": "Block Destructive Shell Commands",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "patterns": [
+        {
+          "regex": "rm\\s+(-[rf]+\\s+)*[/\\\\]",
+          "description": "rm -rf with root path"
+        },
+        {
+          "regex": "rm\\s+-[rf]*\\s+-[rf]*\\s+",
+          "description": "rm with recursive/force flags"
+        },
+        {
+          "regex": "del\\s+/[sq]",
+          "description": "Windows del with /s or /q"
+        },
+        {
+          "regex": "rd\\s+/s",
+          "description": "Windows rd /s (recursive)"
+        },
+        {
+          "regex": "rmdir\\s+/s",
+          "description": "Windows rmdir /s"
+        },
+        {
+          "regex": "git\\s+push\\s+.*--force",
+          "description": "git push --force"
+        },
+        {
+          "regex": "git\\s+push\\s+.*\\s-f\\b",
+          "description": "git push -f"
+        },
+        {
+          "regex": "git\\s+reset\\s+--hard",
+          "description": "git reset --hard"
+        },
+        {
+          "regex": "DROP\\s+(TABLE|DATABASE|INDEX)",
+          "description": "SQL DROP statements",
+          "flags": "i"
+        },
+        {
+          "regex": "TRUNCATE\\s+TABLE",
+          "description": "SQL TRUNCATE",
+          "flags": "i"
+        },
+        {
+          "regex": "format\\s+[a-zA-Z]:",
+          "description": "Windows format drive"
+        },
+        {
+          "regex": "mkfs\\.",
+          "description": "Linux format filesystem"
+        }
+      ],
+      "message": "Destructive command blocked. Use explicit confirmation if intended."
+    },
+    {
+      "id": "secrets_in_git",
+      "name": "Block Secrets in Git Operations",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "trigger_commands": ["git add", "git commit"],
+      "file_patterns": [
+        {
+          "regex": "\\.env$",
+          "description": "Environment files"
+        },
+        {
+          "regex": "credentials\\.json$",
+          "description": "Credential files"
+        },
+        {
+          "regex": ".*\\.pem$",
+          "description": "PEM key files"
+        },
+        {
+          "regex": ".*secret.*",
+          "description": "Files with 'secret' in name",
+          "flags": "i"
+        },
+        {
+          "regex": "\\.key$",
+          "description": "Key files"
+        },
+        {
+          "regex": "id_rsa",
+          "description": "SSH private keys"
+        },
+        {
+          "regex": "\\.p12$|\\.pfx$",
+          "description": "Certificate files"
+        }
+      ],
+      "content_patterns": [
+        {
+          "regex": "(api[_-]?key|apikey)\\s*[:=]\\s*['\"][^'\"]{10,}['\"]",
+          "description": "API key assignment",
+          "flags": "i"
+        },
+        {
+          "regex": "(password|passwd)\\s*[:=]\\s*['\"][^'\"]+['\"]",
+          "description": "Password assignment",
+          "flags": "i"
+        },
+        {
+          "regex": "(secret|token)\\s*[:=]\\s*['\"][^'\"]{10,}['\"]",
+          "description": "Secret/token assignment",
+          "flags": "i"
+        },
+        {
+          "regex": "-----BEGIN (RSA |DSA |EC )?PRIVATE KEY-----",
+          "description": "Private key block"
+        },
+        {
+          "regex": "sk-[a-zA-Z0-9]{20,}",
+          "description": "OpenAI API key pattern"
+        },
+        {
+          "regex": "ghp_[a-zA-Z0-9]{36}",
+          "description": "GitHub personal access token"
+        },
+        {
+          "regex": "AKIA[0-9A-Z]{16}",
+          "description": "AWS access key ID"
+        }
+      ],
+      "message": "Potential secret detected. Remove sensitive data before committing."
+    },
+    {
+      "id": "amend_pushed_commit",
+      "name": "Block Amending Pushed Commits",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "warn",
+      "patterns": [
+        {
+          "regex": "git\\s+commit\\s+.*--amend",
+          "description": "git commit --amend"
+        }
+      ],
+      "requires_check": "verify_head_not_pushed",
+      "message": "Warning: amending may rewrite pushed history. Verify HEAD is not pushed."
+    },
+    {
+      "id": "path_sandbox",
+      "name": "Block Operations Outside Safe Paths",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "forbidden_paths": [
+        {
+          "regex": "(rm|del|rd|rmdir)\\s+.*[/\\\\](Windows|System32)",
+          "description": "Windows system directories",
+          "flags": "i"
+        },
+        {
+          "regex": "(rm|del)\\s+.*[/\\\\](etc|var|boot|lib|lib64|sbin|bin)[/\\\\]",
+          "description": "Linux system directories"
+        },
+        {
+          "regex": "(rm|del)\\s+.*~[/\\\\]\\.",
+          "description": "Home directory dotfiles"
+        }
+      ],
+      "message": "Operation on system path blocked. Specify exact target if intended."
+    },
+    {
+      "id": "read_before_edit",
+      "name": "Require Read Before Edit",
+      "type": "hard",
+      "tool": "Edit",
+      "action": "check",
+      "requires_check": "session_has_read_for_file",
+      "check_implementation": {
+        "description": "Track Read tool calls in session, require matching file_path before Edit",
+        "state_key": "read_files",
+        "on_read": "add file_path to read_files set",
+        "on_edit": "check file_path in read_files set"
+      },
+      "message": "File must be read before editing. Use Read tool first."
+    },
+    {
+      "id": "skip_hooks_protection",
+      "name": "Block Skipping Git Hooks",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "patterns": [
+        {
+          "regex": "git\\s+commit\\s+.*--no-verify",
+          "description": "git commit --no-verify"
+        },
+        {
+          "regex": "git\\s+push\\s+.*--no-verify",
+          "description": "git push --no-verify"
+        },
+        {
+          "regex": "git\\s+.*--no-gpg-sign",
+          "description": "Skip GPG signing"
+        }
+      ],
+      "message": "Skipping git hooks is blocked. Remove --no-verify flag."
+    }
+  ],
+  "soft_warnings": [
+    {
+      "id": "short_commit_message",
+      "name": "Warn on Short Commit Messages",
+      "type": "soft",
+      "tool": "Bash",
+      "action": "warn",
+      "patterns": [
+        {
+          "regex": "git\\s+commit\\s+-m\\s*['\"][^'\"]{1,10}['\"]",
+          "description": "Commit message under 10 chars"
+        }
+      ],
+      "message": "Commit message may be too short. Consider adding more context."
+    }
+  ],
+  "eval_cases": [
+    {
+      "rule_id": "destructive_bash_commands",
+      "test_command": "rm -rf /tmp/test",
+      "expected": "blocked"
+    },
+    {
+      "rule_id": "destructive_bash_commands",
+      "test_command": "git push --force origin main",
+      "expected": "blocked"
+    },
+    {
+      "rule_id": "secrets_in_git",
+      "test_command": "git add .env",
+      "expected": "blocked"
+    },
+    {
+      "rule_id": "path_sandbox",
+      "test_command": "rm -rf /Windows/System32",
+      "expected": "blocked"
+    },
+    {
+      "rule_id": "skip_hooks_protection",
+      "test_command": "git commit --no-verify -m 'skip'",
+      "expected": "blocked"
+    },
+    {
+      "rule_id": "read_before_edit",
+      "test_scenario": "Edit file without prior Read",
+      "expected": "blocked"
+    }
+  ]
+}
