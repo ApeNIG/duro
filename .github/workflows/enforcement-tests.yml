@@ -50,6 +50,54 @@ jobs:
           cd evals
           python enforcement_runner.py --ci --verbose
 
+      - name: Waiver threshold check (last 7 days)
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+
+          PATH = "metrics/waiver_scoreboard.json"
+          WARN = 5
+          FAIL = 10
+          WINDOW_DAYS = 7
+
+          if not os.path.exists(PATH):
+            print(f"[waivers] {PATH} not found; assuming 0 waivers.")
+            raise SystemExit(0)
+
+          with open(PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+          recent = data.get("recent", []) or []
+          now = datetime.now(timezone.utc)
+          cutoff = now - timedelta(days=WINDOW_DAYS)
+
+          def parse_ts(x):
+            if not x:
+              return None
+            x = x.replace("Z", "+00:00")
+            try:
+              dt = datetime.fromisoformat(x)
+            except Exception:
+              return None
+            if dt.tzinfo is None:
+              dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
+
+          count = 0
+          for item in recent:
+            ts = parse_ts(item.get("ts"))
+            if ts and ts >= cutoff:
+              count += 1
+
+          print(f"[waivers] last {WINDOW_DAYS} days: {count}")
+          if count > FAIL:
+            print(f"::error::Waiver rate too high: {count} in last {WINDOW_DAYS} days (fail > {FAIL})")
+            raise SystemExit(1)
+          elif count > WARN:
+            print(f"::warning::Waiver rate elevated: {count} in last {WINDOW_DAYS} days (warn > {WARN})")
+          PY
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
