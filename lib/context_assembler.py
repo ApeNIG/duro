@@ -62,9 +62,8 @@ class ContextPack:
     skills: List[Dict[str, Any]]
     task_context: Optional[str]
     total_tokens: int
-    budget_used: Dict[str, int] = None
+    budget_used: Optional[Dict[str, int]] = None
     debug: Optional[AssemblyDebug] = None
-    budget_used: Dict[str, int]
 
 
 def estimate_tokens(text: str) -> int:
@@ -197,42 +196,60 @@ def select_skills_for_task(
     return selected
 
 
+def find_git_root(path: Path) -> Optional[Path]:
+    """Find the nearest parent directory containing .git"""
+    current = path.resolve()
+    while current != current.parent:
+        if (current / ".git").exists():
+            return current
+        current = current.parent
+    return None
+
+
 def detect_project_from_path(path: Path) -> Tuple[Optional[str], Optional[str]]:
     """
     Detect project ID from current working directory.
 
-    Looks for:
-    1. .project_id file
-    2. constitution_id in package.json
-    3. Project directory name matching known constitutions
+    Detection order:
+    1. Find git root (if any) - makes detection location-independent
+    2. Check .project_id file at git root (or current path)
+    3. Check constitution_id in package.json
+    4. Match directory name to known constitutions
 
     Returns: (project_id, detection_method)
     """
-    # Check for .project_id file
-    project_id_file = path / ".project_id"
-    if project_id_file.exists():
-        return project_id_file.read_text().strip(), ".project_id"
+    # Step 1: Find git root for location-independent detection
+    git_root = find_git_root(path)
+    check_path = git_root if git_root else path
 
-    # Check package.json
-    package_json = path / "package.json"
+    # Step 2: Check for .project_id file
+    project_id_file = check_path / ".project_id"
+    if project_id_file.exists():
+        method = "git_root/.project_id" if git_root else ".project_id"
+        return project_id_file.read_text().strip(), method
+
+    # Step 3: Check package.json
+    package_json = check_path / "package.json"
     if package_json.exists():
         try:
             with open(package_json, 'r', encoding='utf-8') as f:
                 pkg = json.load(f)
                 if "constitution_id" in pkg:
-                    return pkg["constitution_id"], "package.json"
+                    method = "git_root/package.json" if git_root else "package.json"
+                    return pkg["constitution_id"], method
         except (json.JSONDecodeError, KeyError):
             pass
 
-    # Check if directory name matches a constitution
+    # Step 4: Check if directory name matches a constitution
     available = list_constitutions()
-    dir_name = path.name.lower().replace("-", "").replace("_", "")
+    check_name = check_path.name.lower().replace("-", "").replace("_", "")
 
     for const_id in available:
-        if const_id.replace("-", "") == dir_name:
-            return const_id, "dir_name"
+        if const_id.replace("-", "") == check_name:
+            method = "git_root_name" if git_root else "dir_name"
+            return const_id, method
 
-    # Check parent directories
+    # Step 5: Check parent directories (fallback)
     for parent in path.parents:
         parent_name = parent.name.lower().replace("-", "").replace("_", "")
         for const_id in available:
