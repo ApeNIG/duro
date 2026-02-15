@@ -239,6 +239,35 @@
       "notes": "Workaround for hookify PreToolUse hook hang on MCP tools. Commands: crash-drill, health, reembed N, prune, status"
     },
     {
+      "id": "skill_verify_003",
+      "name": "accessibility_verifier",
+      "path": "verification/accessibility_verifier.py",
+      "description": "WCAG compliance checking for designs and code",
+      "tier": "tested",
+      "phase": "3.1",
+      "keywords": [
+        "accessibility",
+        "a11y",
+        "wcag",
+        "contrast",
+        "alt",
+        "aria",
+        "focus",
+        "keyboard",
+        "screen reader"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 10,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "notes": "Phase 3.1 skill. Checks color contrast, touch targets, alt text, heading order, ARIA, focus indicators. Supports HTML, CSS, JSX."
+    },
+    {
       "id": "skill_verify_002",
       "name": "test_coverage_verifier",
       "path": "verification/test_coverage_verifier.py",
