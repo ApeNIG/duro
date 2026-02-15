@@ -1,0 +1,30 @@
+{
+  "id": "fact_20260215_085529_yyho8c",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T08:55:29.365772Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "design-os",
+    "framework",
+    "runbook",
+    "permanent",
+    "masterwork",
+    "user-teaching"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Abstract-to-Digital Design Operating System: Three-layer architecture - Layer 1 (Intent): mood sentence + Kandinsky palette dial; Layer 2 (Composition): 10 principles as hierarchy toolkit + Mondrian grid discipline with intentional breaks; Layer 3 (Behavior): principles mapped to interaction/motion. DURO Runbook: 10-point checklist for every design. Critical correction: color-emotion is partially cultural (powerful heuristic, not physics law). Perceptual mechanics (scale, contrast, direction, spacing) are true constants.",
+    "source_urls": [],
+    "snippet": "Layer 1: Intent (mood sentence + palette) → Layer 2: Composition (hierarchy + grid + intentional discord) → Layer 3: Behavior (motion that clarifies, indicates causality, or creates mood). Rule: disorder is only allowed if it has a job. Rule: motion must clarify hierarchy, indicate causality, or create mood - if not, it's confetti.",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "quote",
+    "provenance": "user"
+  }
+}

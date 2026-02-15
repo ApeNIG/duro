@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260215_111603_uq1k06",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-15T11:16:03.891246Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "roadmap",
+    "strategic",
+    "duro",
+    "verification",
+    "adversarial-testing"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Duro Roadmap v2 - Corrected status reflecting actual implementation state",
+    "rationale": "Phase 2.0 (Cartridge Memory) and Phase 2.1 (Verification Intelligence) are COMPLETE. Phase 2.2 (Adversarial Testing) is next priority before Phase 3.0 (Capability Expansion). Video editing and other new capabilities belong in Phase 3.0.",
+    "alternatives": [
+      "Continue building new features",
+      "Focus on adversarial testing first",
+      "Skip to capability expansion"
+    ],
+    "context": "Roadmap phases: 1.0 Foundation ✅, 1.1 Compounding Loop ✅, 1.2 Hardening ✅, 2.0 Cartridge Memory ✅, 2.1 Verification Intelligence ✅, 2.2 Adversarial Testing 🔲, 3.0 Capability Expansion 🔲. Key insight from ROI conversation: \"Verification skills have highest ROI because they validate other AI outputs, creating a trust layer.\"",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "fact_20260215_084144_g79bew",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T08:41:44.248912Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "abstract-art",
+    "design-system",
+    "framework",
+    "kandinsky",
+    "mondrian",
+    "visual-design",
+    "ui-principles",
+    "masterwork"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Abstract Art to Digital Design: The Complete Translation Framework - 10 principles (Color Speaks, Negative Space, Process, Temperature, Scale/Weight, Rhythm, Balance, Direction, Depth, Harmony/Discord) can be directly applied to any digital interface. Kandinsky's color-emotion mapping (Yellow=aggressive, Blue=spiritual, Red=powerful, Green=peaceful) drives UI mood. Mondrian's grid constraints inform layout systems. The key insight: abstract art removed representation to reveal pure visual truth - digital design can use these same truths to create interfaces that communicate before users even read.",
+    "source_urls": [],
+    "snippet": "Proven through 10 studies + 1 synthesis + 5 production designs: Music App (rhythm/movement/color), Finance Dashboard (balance/scale/negative-space), Meditation App (temperature/harmony/depth), E-commerce (direction/contrast/discord), Creative Agency (process/gesture/asymmetry)",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "inference",
+    "provenance": "tool_output"
+  }
+}
