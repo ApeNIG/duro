@@ -3,7 +3,7 @@ id: eval_skill_core_001
 name: Git Commit
 description: Test git commit skill with message generation
 category: skills
-skill_path: core/git_commit.py
+skill_path: core/git_commit.yaml
 
 flaky: false
 mock_mode: true  # Don't actually commit during evals
@@ -11,7 +11,7 @@ mock_mode: true  # Don't actually commit during evals
 inputs:
   repo_path:
     type: directory
-    default: "/tmp/eval_git_repo/"
+    default: "evals/fixtures/git_repo/"
   message:
     type: string
     default: null  # Auto-generate

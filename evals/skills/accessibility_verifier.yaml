@@ -3,7 +3,7 @@ id: eval_skill_verify_003
 name: Accessibility Verifier
 description: Test accessibility compliance verification
 category: skills
-skill_path: code/accessibility_verifier.py
+skill_path: verification/accessibility_verifier.py
 
 flaky: false
 mock_mode: false
@@ -11,7 +11,7 @@ mock_mode: false
 inputs:
   file_path:
     type: file
-    default: ".agent/evals/fixtures/sample_component.tsx"
+    default: "evals/fixtures/sample_component.tsx"
   wcag_level:
     type: string
     default: "AA"

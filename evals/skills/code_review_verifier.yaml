@@ -3,7 +3,7 @@ id: eval_skill_verify_001
 name: Code Review Verifier
 description: Test automated code review skill
 category: skills
-skill_path: code/code_review_verifier.py
+skill_path: verification/code_review_verifier.py
 
 flaky: false
 mock_mode: false
@@ -11,7 +11,7 @@ mock_mode: false
 inputs:
   file_path:
     type: file
-    default: ".agent/skills/core/git_commit.py"
+    default: "evals/fixtures/sample_code.py"
   check_style:
     type: boolean
     default: true

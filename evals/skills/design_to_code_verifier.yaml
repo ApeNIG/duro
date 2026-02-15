@@ -11,10 +11,10 @@ mock_mode: false
 inputs:
   design_file:
     type: file
-    default: ".agent/evals/fixtures/sample_design.json"
+    default: "evals/fixtures/sample_design.json"
   code_file:
     type: file
-    default: ".agent/evals/fixtures/sample_component.tsx"
+    default: "evals/fixtures/sample_component.tsx"
 
 expected_outputs:
   - name: comparison_complete
