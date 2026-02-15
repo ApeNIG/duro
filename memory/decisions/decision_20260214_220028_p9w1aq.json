@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260214_220028_p9w1aq",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-14T22:00:28.658696Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "msj",
+    "project",
+    "swimming",
+    "data-model"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Start MSJ (My Swim Journey) project with data model first, then UI",
+    "rationale": "User has real data (Ariana's Snowpen meet) to inform requirements. Starting with data model ensures we capture all entities: swimmers, meets, events, race logs, body state, parent observations, equipment. Both swimmer and parent are users.",
+    "alternatives": [
+      "Start with UI mockups",
+      "Start with database schema directly",
+      "Use existing swim tracking app"
+    ],
+    "context": "New project for tracking swimmer performance, progression, food, mood. Based on actual meet documents from Ariana (11yo, City of Manchester Aquatics).",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-14",
+  "last_updated": "2026-02-15",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -207,6 +207,47 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Workaround for hookify PreToolUse hook hang on MCP tools. Commands: crash-drill, health, reembed N, prune, status"
+    },
+    {
+      "id": "skill_design_001",
+      "name": "dual_direction_design",
+      "path": "design/dual_direction_design.py",
+      "description": "Autonomous design workflow: create two design directions in Pencil, evaluate, blend best elements",
+      "tier": "core",
+      "keywords": [
+        "design",
+        "mockup",
+        "UI",
+        "UX",
+        "pencil",
+        "screen",
+        "page",
+        "dashboard",
+        "landing",
+        "component",
+        "dual",
+        "direction",
+        "evaluate",
+        "blend"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 600,
+      "expected_runtime_seconds": 120,
+      "dependencies": [],
+      "side_effects": [
+        "creates_pen_file",
+        "stores_decision"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "mcp_pencil_available"
+      ],
+      "linked_rules": [
+        "rule_007"
+      ],
+      "notes": "No user approval needed during mockup phase. Creates two contrasting directions, evaluates on 8 criteria, blends into optimal solution."
     }
   ],
   "selection_priority": [

@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260215_011158_9291z7",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T01:11:58.714848Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "msj",
+    "design-patterns",
+    "bracket-b",
+    "tournament",
+    "extracted-rules"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Bracket B Matchup Patterns for MSJ: (1) Gold accents on dark backgrounds create premium feel without sacrificing readability (2) Serif display fonts (Cormorant Garamond) work well for metrics at large sizes (3) Pill-shaped navigation with subtle border feels more refined than sharp rectangles (4) Red accent works better as highlight than dominant fill for sports apps",
+    "source_urls": [],
+    "snippet": "Direction D 34/40 vs Direction C 31/40. Key differentiators: hierarchy score (5 vs 4), consistency (5 vs 4), user flow (4 vs 3)",
+    "confidence": 0.7,
+    "verified": false,
+    "evidence_type": "inference",
+    "provenance": "tool_output"
+  }
+}

@@ -23,6 +23,29 @@
 
 ---
 
+## Design Workflow
+
+### Process (Hard Rule)
+1. **Planify** - Plan project comprehensively first
+2. **Two Directions** - Create 2 contrasting design directions in Pencil
+3. **Self-Evaluate** - Score on 8 criteria (no user approval needed)
+4. **Blend** - Take best elements from each into final design
+5. **Implement** - Code the final blended design
+
+### Design Preferences
+- Sports apps: "playful_sports" vs "minimal_clean" directions
+- SaaS dashboards: "minimal_clean" vs "dark_premium" directions
+- Mobile-first responsive approach
+- Clear visual hierarchy
+- Accessibility matters (contrast, sizing)
+
+### Tools
+- **Pencil MCP** - For all mockups (.pen files)
+- **Planify** - For project planning before design
+- **Screenshot** - To validate visual output
+
+---
+
 ## Learned Patterns
 
 ### What Works
