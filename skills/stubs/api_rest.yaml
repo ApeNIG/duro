@@ -1,0 +1,20 @@
+# Stub skill for selectivity testing
+id: stub_api_rest
+name: rest_api_design
+version: "0.1.0"
+scope: core
+tier: untested
+
+triggers:
+  hard:
+    intents: ["design rest api", "create endpoint"]
+  soft:
+    keywords: [api, rest, endpoint, http, json, request, response, crud]
+
+renderings:
+  minimal:
+    tokens: 50
+    content: "REST API: resource nouns, HTTP verbs, status codes, pagination."
+  compact:
+    tokens: 100
+    content: "## REST API Design\nResources as nouns. Use proper HTTP methods. Paginate lists."

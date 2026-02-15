@@ -108,14 +108,23 @@ def score_skill_for_task(skill: Dict[str, Any], task_description: str, stats: Di
     """
     Score how relevant a skill is for a given task.
 
-    Scoring factors:
+    Scoring model:
+    1. Base relevance from triggers (must be > 0 to match)
+    2. Stats multiplier (amplifies matches, doesn't create them)
+
+    Base scoring:
     - Hard trigger match (intent): +10
-    - Keyword overlap: +2 per match
-    - Success rate: +0-5 based on historical performance
-    - Confidence from stats: +0-3
+    - Soft trigger keyword: +2 per match
+    - Legacy keyword field: +1.5 per match
+
+    Stats multiplier (only if base > 0):
+    - mult = 0.3*success_rate + 0.2*confidence
+    - final = base * (1 + mult)
     """
-    score = 0.0
     task_lower = task_description.lower()
+
+    # === PHASE 1: Base relevance (gate) ===
+    base_score = 0.0
 
     # Check hard triggers (intents)
     triggers = skill.get("triggers", {})
@@ -123,30 +132,73 @@ def score_skill_for_task(skill: Dict[str, Any], task_description: str, stats: Di
 
     for intent in hard_triggers.get("intents", []):
         if intent.lower() in task_lower:
-            score += 10.0
+            base_score += 10.0
             break
 
     # Check soft triggers (keywords)
     soft_triggers = triggers.get("soft", {})
     for keyword in soft_triggers.get("keywords", []):
         if keyword.lower() in task_lower:
-            score += 2.0
+            base_score += 2.0
 
     # Also check old-style keywords field
     for keyword in skill.get("keywords", []):
         if keyword.lower() in task_lower:
-            score += 1.5
+            base_score += 1.5
 
-    # Add stats-based scoring
+    # === GATE: No trigger match = no match ===
+    if base_score == 0:
+        return 0.0
+
+    # === PHASE 2: Stats multiplier (amplify, don't create) ===
+    stats_mult = 0.0
     skill_id = skill.get("id", "")
     if skill_id in stats:
         s = stats[skill_id]
-        # Success rate contribution (0-5)
-        score += s.get("success_rate", 0.5) * 5
-        # Confidence contribution (0-3)
-        score += s.get("confidence", 0.5) * 3
+        # Success rate contribution (0-0.3)
+        stats_mult += s.get("success_rate", 0.5) * 0.3
+        # Confidence contribution (0-0.2)
+        stats_mult += s.get("confidence", 0.5) * 0.2
 
-    return score
+    return base_score * (1 + stats_mult)
+
+
+# Domain detection keywords
+DOMAIN_KEYWORDS = {
+    "design": ["design", "ui", "ux", "dashboard", "layout", "typography", "color",
+               "a11y", "wireframe", "mockup", "screen", "page", "component", "mobile"],
+    "testing": ["test", "unittest", "pytest", "jest", "spec", "mock", "coverage", "tdd"],
+    "api": ["api", "rest", "endpoint", "http", "request", "response", "graphql"],
+    "database": ["database", "sql", "query", "migration", "schema", "postgres", "mysql"],
+    "devops": ["deploy", "docker", "ci", "cd", "pipeline", "kubernetes", "container"],
+}
+
+# Foundational skills by domain (pulled in during domain expansion)
+FOUNDATIONAL_SKILLS = {
+    "design": [
+        "skill_design_layout",
+        "skill_design_typography",
+        "skill_design_color",
+        "skill_design_mobile_spacing",
+        "skill_design_a11y",
+        "skill_design_critique",
+    ],
+    "testing": ["stub_testing_unit"],
+    "api": ["stub_api_rest"],
+}
+
+
+def detect_task_domains(task_description: str) -> List[str]:
+    """Detect which domains a task belongs to based on keywords."""
+    task_lower = task_description.lower()
+    detected = []
+
+    for domain, keywords in DOMAIN_KEYWORDS.items():
+        matches = sum(1 for kw in keywords if kw in task_lower)
+        if matches >= 1:  # At least one keyword match
+            detected.append(domain)
+
+    return detected
 
 
 def select_skills_for_task(
@@ -157,27 +209,55 @@ def select_skills_for_task(
     """
     Select and rank skills for a task within token budget.
 
+    Two-stage selection:
+    1. Anchor match (strict) - skills with base_score > 0
+    2. Domain expansion - pull foundational skills if domain detected + anchors exist
+
     Returns: List of (skill, rendered_content, score) tuples.
     """
-    skills = []
     stats = load_skill_stats()
+    task_domains = detect_task_domains(task_description)
 
-    # Load all YAML skills from skills/core and other directories
+    # Load all skills and compute scores
+    all_skills = {}  # id -> (skill, score)
     for skill_file in SKILLS_DIR.rglob("*.yaml"):
         skill = load_skill(skill_file)
         if skill and "id" in skill:
             score = score_skill_for_task(skill, task_description, stats)
-            if score > 0:
-                skills.append((skill, score))
+            all_skills[skill.get("id")] = (skill, score)
 
-    # Sort by score descending
-    skills.sort(key=lambda x: x[1], reverse=True)
+    # === STAGE 1: Anchor match (strict) ===
+    anchors = [(skill, score) for skill, score in all_skills.values() if score > 0]
+    anchors.sort(key=lambda x: x[1], reverse=True)
+
+    # === STAGE 2: Domain expansion (only if anchors exist) ===
+    expansion_ids = set()
+    if anchors:
+        for domain in task_domains:
+            foundational = FOUNDATIONAL_SKILLS.get(domain, [])
+            for skill_id in foundational:
+                # Don't expand if already an anchor
+                if skill_id in all_skills:
+                    existing_score = all_skills[skill_id][1]
+                    if existing_score == 0:  # Only expand non-anchors
+                        expansion_ids.add(skill_id)
+
+    # Combine: anchors + expansions (expansions get a small base score for sorting)
+    EXPANSION_SCORE = 1.0  # Below any real match, but included
+    combined = list(anchors)
+    for skill_id in expansion_ids:
+        if skill_id in all_skills:
+            skill, _ = all_skills[skill_id]
+            combined.append((skill, EXPANSION_SCORE))
+
+    # Sort by score descending (anchors first, then expansions)
+    combined.sort(key=lambda x: x[1], reverse=True)
 
     # Select within budget
     selected = []
     tokens_used = 0
 
-    for skill, score in skills:
+    for skill, score in combined:
         rendered = get_skill_rendering(skill, mode)
         tokens = estimate_tokens(rendered)
 

@@ -1,0 +1,20 @@
+# Stub skill for selectivity testing
+id: stub_error_handling
+name: error_handling
+version: "0.1.0"
+scope: core
+tier: untested
+
+triggers:
+  hard:
+    intents: ["handle errors", "add error handling"]
+  soft:
+    keywords: [error, exception, try, catch, throw, logging, sentry, debug]
+
+renderings:
+  minimal:
+    tokens: 50
+    content: "Error handling: fail fast, log context, user-friendly messages."
+  compact:
+    tokens: 100
+    content: "## Error Handling\nCatch at boundaries. Log stack + context. Graceful fallbacks."

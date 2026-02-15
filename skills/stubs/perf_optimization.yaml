@@ -1,0 +1,20 @@
+# Stub skill for selectivity testing
+id: stub_perf_optimization
+name: performance
+version: "0.1.0"
+scope: core
+tier: untested
+
+triggers:
+  hard:
+    intents: ["optimize performance", "make it faster"]
+  soft:
+    keywords: [performance, optimize, speed, cache, lazy, bundle, profiler]
+
+renderings:
+  minimal:
+    tokens: 50
+    content: "Performance: measure first, cache expensive ops, lazy load."
+  compact:
+    tokens: 100
+    content: "## Performance\nProfile before optimizing. Cache at boundaries. Code-split."
