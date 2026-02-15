@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-15T16:45:00",
+  "last_updated": "2026-02-15T20:30:00",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -620,6 +620,88 @@
       ],
       "composes": [],
       "notes": "Phase 3.2 skill. Parses SRT/VTT formats, generates subtitles from text list, supports burn-in (hardcode) or soft (embedded) modes with style customization."
+    },
+    {
+      "id": "skill_code_001",
+      "name": "code_scaffold",
+      "path": "code/code_scaffold.py",
+      "description": "Template-based project scaffolding with variable substitution and validation",
+      "tier": "tested",
+      "phase": "3.3",
+      "keywords": [
+        "scaffold", "template", "project", "generate", "create",
+        "package", "react", "express", "cli", "structure", "boilerplate"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file",
+        "creates_directory"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "composes": [
+        "meta/adversarial_planning.py"
+      ],
+      "notes": "Phase 3.3 skill. Built-in templates: python-package, react-app, express-api, cli-tool. Supports variable validation, post-generation verification, atomic operations with rollback."
+    },
+    {
+      "id": "skill_code_002",
+      "name": "test_generate",
+      "path": "code/test_generate.py",
+      "description": "Generate tests from function/class signatures using AST analysis",
+      "tier": "tested",
+      "phase": "3.3",
+      "keywords": [
+        "test", "generate", "pytest", "unittest", "ast", "function",
+        "class", "coverage", "edge case", "parameterized"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "composes": [
+        "verification/test_coverage_verifier.py"
+      ],
+      "notes": "Phase 3.3 skill. AST-based code analysis, supports pytest/unittest frameworks, generates edge case tests, type checks, parameterized tests."
+    },
+    {
+      "id": "skill_code_003",
+      "name": "code_refactor",
+      "path": "code/code_refactor.py",
+      "description": "Structured code refactoring with before/after verification",
+      "tier": "tested",
+      "phase": "3.3",
+      "keywords": [
+        "refactor", "rename", "extract", "inline", "dead code",
+        "imports", "fstring", "cleanup", "verify"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 10,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "composes": [
+        "verification/code_review_verifier.py"
+      ],
+      "notes": "Phase 3.3 skill. Operations: rename (variable/function/class), remove unused imports, sort imports, convert to f-string, extract function, remove dead code. Includes diff generation and dry-run mode."
     }
   ],
   "selection_priority": [
