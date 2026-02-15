@@ -239,6 +239,34 @@
       "notes": "Workaround for hookify PreToolUse hook hang on MCP tools. Commands: crash-drill, health, reembed N, prune, status"
     },
     {
+      "id": "skill_verify_002",
+      "name": "test_coverage_verifier",
+      "path": "verification/test_coverage_verifier.py",
+      "description": "Parse coverage reports and enforce thresholds",
+      "tier": "tested",
+      "phase": "3.1",
+      "keywords": [
+        "coverage",
+        "test",
+        "threshold",
+        "cobertura",
+        "lcov",
+        "json",
+        "verify",
+        "regression"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "notes": "Phase 3.1 skill. Parses Cobertura XML, LCOV, JSON formats. Enforces thresholds, detects regressions."
+    },
+    {
       "id": "skill_verify_001",
       "name": "code_review_verifier",
       "path": "verification/code_review_verifier.py",
