@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-15T20:30:00",
+  "last_updated": "2026-02-15T21:15:00",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -702,6 +702,41 @@
         "verification/code_review_verifier.py"
       ],
       "notes": "Phase 3.3 skill. Operations: rename (variable/function/class), remove unused imports, sort imports, convert to f-string, extract function, remove dead code. Includes diff generation and dry-run mode."
+    },
+    {
+      "id": "skill_prod_001",
+      "name": "episode_produce",
+      "path": "production/episode_produce.py",
+      "description": "Full episode production: script -> audio -> images -> video with multi-modal composition",
+      "tier": "tested",
+      "phase": "3.4",
+      "keywords": [
+        "episode", "video", "production", "script", "audio",
+        "images", "compose", "pipeline", "multimodal", "media"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": true,
+      "timeout_seconds": 1800,
+      "expected_runtime_seconds": 300,
+      "dependencies": ["ffmpeg", "edge-tts"],
+      "side_effects": [
+        "writes_file",
+        "network_request",
+        "subprocess"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "ffmpeg_available",
+        "network_available"
+      ],
+      "composes": [
+        "audio/generate_tts.py",
+        "image/image_generate.py",
+        "video/video_compose.py",
+        "video/video_subtitle.py"
+      ],
+      "notes": "Phase 3.4 skill. Full multi-modal production pipeline with partial failure handling, progress callbacks, resource limits (500 images, 600s duration), and continue_on_error mode."
     }
   ],
   "selection_priority": [
