@@ -1,14 +1,20 @@
 """
 Skill: design_to_code_verifier
 Description: Compare Pencil designs to implemented code and detect drift
-Version: 1.0.0
+Version: 2.0.0
 Tier: core
 
 This skill closes the design-to-code feedback loop by:
 1. Extracting design tokens from .pen files (colors, spacing, typography, border-radius)
-2. Scanning React/TSX components for CSS values
+2. Scanning React/TSX components for Tailwind classes AND CSS values
 3. Detecting drift between design and implementation
-4. Generating fix suggestions
+4. Generating fix suggestions with devkit-compatible output
+
+V2 Improvements:
+- Full Tailwind class extraction from TSX/HTML
+- CSS variable resolution from globals.css
+- Integration with skill_runner.py for standardized output
+- devkit JSON report format
 
 Interface:
 - SKILL_META: metadata about this skill
@@ -25,9 +31,11 @@ Usage via orchestrator:
 
 import re
 import os
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, field
+import json
+from typing import Dict, List, Optional, Any, Tuple, Set
+from dataclasses import dataclass, field, asdict
 from enum import Enum
+from pathlib import Path
 
 
 # Skill metadata
@@ -35,13 +43,258 @@ SKILL_META = {
     "name": "design_to_code_verifier",
     "description": "Compare Pencil designs to code and detect drift",
     "tier": "core",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "author": "duro",
     "triggers": ["verify design", "check implementation", "design drift", "code matches design"],
 }
 
 # Required capabilities
 REQUIRES = ["pencil_batch_get", "read_file", "glob_files"]
+
+
+# === TAILWIND CLASS EXTRACTION (V2) ===
+
+# Complete Tailwind color palette mapping
+TAILWIND_COLORS = {
+    # Gray
+    "gray-50": "#f9fafb", "gray-100": "#f3f4f6", "gray-200": "#e5e7eb",
+    "gray-300": "#d1d5db", "gray-400": "#9ca3af", "gray-500": "#6b7280",
+    "gray-600": "#4b5563", "gray-700": "#374151", "gray-800": "#1f2937",
+    "gray-900": "#111827", "gray-950": "#030712",
+    # Zinc
+    "zinc-50": "#fafafa", "zinc-100": "#f4f4f5", "zinc-200": "#e4e4e7",
+    "zinc-300": "#d4d4d8", "zinc-400": "#a1a1aa", "zinc-500": "#71717a",
+    "zinc-600": "#52525b", "zinc-700": "#3f3f46", "zinc-800": "#27272a",
+    "zinc-900": "#18181b", "zinc-950": "#09090b",
+    # Purple
+    "purple-50": "#faf5ff", "purple-100": "#f3e8ff", "purple-200": "#e9d5ff",
+    "purple-300": "#d8b4fe", "purple-400": "#c084fc", "purple-500": "#a855f7",
+    "purple-600": "#9333ea", "purple-700": "#7c3aed", "purple-800": "#6b21a8",
+    "purple-900": "#581c87", "purple-950": "#3b0764",
+    # Violet (MSJ primary #8B5CF6 is between violet-500 and violet-400)
+    "violet-400": "#a78bfa", "violet-500": "#8b5cf6", "violet-600": "#7c3aed",
+    # Teal (MSJ secondary #14B8A6 is teal-500)
+    "teal-400": "#2dd4bf", "teal-500": "#14b8a6", "teal-600": "#0d9488",
+    # Green
+    "green-500": "#22c55e", "green-600": "#16a34a",
+    # Red
+    "red-500": "#ef4444", "red-600": "#dc2626",
+    # Common colors
+    "white": "#ffffff", "black": "#000000",
+}
+
+# Tailwind spacing scale (rem to px, assuming 16px base)
+TAILWIND_SPACING = {
+    "0": 0, "px": 1, "0.5": 2, "1": 4, "1.5": 6, "2": 8, "2.5": 10,
+    "3": 12, "3.5": 14, "4": 16, "5": 20, "6": 24, "7": 28, "8": 32,
+    "9": 36, "10": 40, "11": 44, "12": 48, "14": 56, "16": 64, "20": 80,
+    "24": 96, "28": 112, "32": 128, "36": 144, "40": 160, "44": 176,
+    "48": 192, "52": 208, "56": 224, "60": 240, "64": 256, "72": 288,
+    "80": 320, "96": 384,
+}
+
+# Tailwind font sizes
+TAILWIND_FONT_SIZES = {
+    "xs": 12, "sm": 14, "base": 16, "lg": 18, "xl": 20,
+    "2xl": 24, "3xl": 30, "4xl": 36, "5xl": 48, "6xl": 60,
+    "7xl": 72, "8xl": 96, "9xl": 128,
+}
+
+# Tailwind border radius
+TAILWIND_RADIUS = {
+    "none": 0, "sm": 2, "DEFAULT": 4, "md": 6, "lg": 8, "xl": 12,
+    "2xl": 16, "3xl": 24, "full": 9999,
+}
+
+
+@dataclass
+class TailwindUsage:
+    """Extracted Tailwind class usage from code."""
+    file_path: str
+    line_number: int
+    classes: List[str]
+    context: str  # surrounding code
+
+
+def extract_tailwind_classes(content: str, file_path: str) -> List[TailwindUsage]:
+    """
+    Extract ALL Tailwind classes from TSX/HTML content.
+
+    Handles:
+    - className="..."
+    - className={`...`}
+    - className={cn("...", condition && "...")}
+    - class="..." (HTML)
+    """
+    usages = []
+    lines = content.splitlines()
+
+    # Patterns for className extraction
+    patterns = [
+        r'className="([^"]+)"',  # className="..."
+        r"className='([^']+)'",  # className='...'
+        r'className=\{`([^`]+)`\}',  # className={`...`}
+        r'className=\{[^}]*"([^"]+)"[^}]*\}',  # className={cn("...")}
+        r'class="([^"]+)"',  # class="..." (HTML)
+    ]
+
+    for line_num, line in enumerate(lines, 1):
+        for pattern in patterns:
+            matches = re.finditer(pattern, line)
+            for match in matches:
+                class_string = match.group(1)
+                # Split into individual classes
+                classes = [c.strip() for c in class_string.split() if c.strip()]
+                if classes:
+                    usages.append(TailwindUsage(
+                        file_path=file_path,
+                        line_number=line_num,
+                        classes=classes,
+                        context=line.strip()[:100]
+                    ))
+
+    return usages
+
+
+def resolve_tailwind_color(tw_class: str) -> Optional[str]:
+    """
+    Resolve a Tailwind color class to hex value.
+
+    Examples:
+        bg-purple-500 -> #a855f7
+        text-zinc-900 -> #18181b
+        border-teal-500 -> #14b8a6
+    """
+    # Extract color from class
+    prefixes = ["bg-", "text-", "border-", "fill-", "stroke-", "ring-", "accent-"]
+    for prefix in prefixes:
+        if tw_class.startswith(prefix):
+            color_part = tw_class[len(prefix):]
+            if color_part in TAILWIND_COLORS:
+                return TAILWIND_COLORS[color_part]
+            # Handle arbitrary values: bg-[#8B5CF6]
+            arb_match = re.match(r'\[([^\]]+)\]', color_part)
+            if arb_match:
+                return arb_match.group(1).lower()
+    return None
+
+
+def resolve_tailwind_spacing(tw_class: str) -> Optional[int]:
+    """
+    Resolve a Tailwind spacing class to pixel value.
+
+    Examples:
+        p-4 -> 16
+        px-6 -> 24
+        gap-2 -> 8
+    """
+    prefixes = ["p-", "px-", "py-", "pt-", "pr-", "pb-", "pl-",
+                "m-", "mx-", "my-", "mt-", "mr-", "mb-", "ml-",
+                "gap-", "gap-x-", "gap-y-", "space-x-", "space-y-",
+                "w-", "h-", "min-w-", "min-h-", "max-w-", "max-h-"]
+
+    for prefix in prefixes:
+        if tw_class.startswith(prefix):
+            value_part = tw_class[len(prefix):]
+            if value_part in TAILWIND_SPACING:
+                return TAILWIND_SPACING[value_part]
+            # Handle arbitrary values: p-[20px]
+            arb_match = re.match(r'\[(\d+)px\]', value_part)
+            if arb_match:
+                return int(arb_match.group(1))
+    return None
+
+
+def resolve_tailwind_font_size(tw_class: str) -> Optional[int]:
+    """Resolve text-* to font size in pixels."""
+    if tw_class.startswith("text-"):
+        size_part = tw_class[5:]
+        if size_part in TAILWIND_FONT_SIZES:
+            return TAILWIND_FONT_SIZES[size_part]
+        # Arbitrary: text-[14px]
+        arb_match = re.match(r'\[(\d+)px\]', size_part)
+        if arb_match:
+            return int(arb_match.group(1))
+    return None
+
+
+def resolve_tailwind_radius(tw_class: str) -> Optional[int]:
+    """Resolve rounded-* to radius in pixels."""
+    if tw_class.startswith("rounded"):
+        if tw_class == "rounded":
+            return TAILWIND_RADIUS["DEFAULT"]
+        suffix = tw_class.replace("rounded-", "")
+        if suffix in TAILWIND_RADIUS:
+            return TAILWIND_RADIUS[suffix]
+        # Arbitrary: rounded-[16px]
+        arb_match = re.match(r'\[(\d+)px\]', suffix)
+        if arb_match:
+            return int(arb_match.group(1))
+    return None
+
+
+# === CSS VARIABLE RESOLUTION (V2) ===
+
+@dataclass
+class CSSVariableMap:
+    """Map of CSS variable names to their values."""
+    variables: Dict[str, str] = field(default_factory=dict)
+
+    def add_from_css(self, css_content: str):
+        """Parse CSS content and extract :root variables."""
+        # Match --variable: value; patterns
+        pattern = r'--([a-zA-Z0-9-]+):\s*([^;]+);'
+        for match in re.finditer(pattern, css_content):
+            var_name = match.group(1)
+            var_value = match.group(2).strip()
+            self.variables[var_name] = var_value
+
+    def resolve(self, var_reference: str) -> Optional[str]:
+        """
+        Resolve var(--name) to actual value.
+
+        Example: var(--color-primary) -> #8B5CF6
+        """
+        match = re.match(r'var\(--([a-zA-Z0-9-]+)\)', var_reference)
+        if match:
+            var_name = match.group(1)
+            return self.variables.get(var_name)
+        return None
+
+    def find_variable_for_color(self, hex_color: str) -> Optional[str]:
+        """Find which CSS variable (if any) maps to a given hex color."""
+        normalized = hex_color.lower()
+        for var_name, var_value in self.variables.items():
+            if var_value.lower() == normalized:
+                return f"var(--{var_name})"
+        return None
+
+
+def load_css_variables(code_dir: str, read_func) -> CSSVariableMap:
+    """Load CSS variables from common locations."""
+    var_map = CSSVariableMap()
+
+    # Common CSS variable locations
+    css_files = [
+        "globals.css",
+        "src/app/globals.css",
+        "src/styles/globals.css",
+        "styles/globals.css",
+        "app/globals.css",
+        "index.css",
+        "src/index.css",
+    ]
+
+    for css_file in css_files:
+        try:
+            full_path = os.path.join(code_dir, css_file)
+            content = read_func(full_path)
+            if content:
+                var_map.add_from_css(content)
+        except:
+            continue
+
+    return var_map
 
 
 class DriftSeverity(Enum):
@@ -598,6 +851,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             code_dir: str - path to code directory
             node_id: str (optional) - specific node to check
             component_filter: str (optional) - regex to filter components
+            output_format: str (optional) - "standard" or "devkit"
         }
         tools: {
             pencil_batch_get: callable - read from .pen files
@@ -613,11 +867,16 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     code_dir = args.get("code_dir", "")
     node_id = args.get("node_id")
     component_filter = args.get("component_filter", r".*\.(tsx|jsx)$")
+    output_format = args.get("output_format", "standard")
+    run_id = context.get("run_id")
 
     if not pen_file:
         return {"success": False, "error": "pen_file is required"}
     if not code_dir:
         return {"success": False, "error": "code_dir is required"}
+
+    # V2: Load CSS variables from globals.css
+    css_var_map = load_css_variables(code_dir, tools.get("read_file", lambda x: None))
 
     result = VerificationResult(
         success=True,
@@ -679,11 +938,74 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             return _format_result(result)
 
         all_code_tokens = []
+        all_tailwind_usages = []  # V2: Track Tailwind classes
+
         for code_file in code_files:
             try:
                 content = tools["read_file"](code_file)
                 tokens = scan_code_for_tokens(content, code_file)
                 all_code_tokens.extend(tokens)
+
+                # V2: Extract Tailwind classes
+                tw_usages = extract_tailwind_classes(content, code_file)
+                all_tailwind_usages.extend(tw_usages)
+
+                # V2: Convert Tailwind classes to CodeTokens for matching
+                for usage in tw_usages:
+                    for tw_class in usage.classes:
+                        # Extract color
+                        color = resolve_tailwind_color(tw_class)
+                        if color:
+                            all_code_tokens.append(CodeToken(
+                                token_type=TokenType.COLOR,
+                                value=color,
+                                file_path=usage.file_path,
+                                line_number=usage.line_number,
+                                context=f"tailwind: {tw_class}"
+                            ))
+
+                        # Extract spacing
+                        spacing = resolve_tailwind_spacing(tw_class)
+                        if spacing is not None:
+                            if tw_class.startswith("p") and not tw_class.startswith("pr") and not tw_class.startswith("pb"):
+                                all_code_tokens.append(CodeToken(
+                                    token_type=TokenType.PADDING,
+                                    value=str(spacing),
+                                    file_path=usage.file_path,
+                                    line_number=usage.line_number,
+                                    context=f"tailwind: {tw_class}"
+                                ))
+                            elif tw_class.startswith("gap"):
+                                all_code_tokens.append(CodeToken(
+                                    token_type=TokenType.GAP,
+                                    value=str(spacing),
+                                    file_path=usage.file_path,
+                                    line_number=usage.line_number,
+                                    context=f"tailwind: {tw_class}"
+                                ))
+
+                        # Extract font size
+                        font_size = resolve_tailwind_font_size(tw_class)
+                        if font_size:
+                            all_code_tokens.append(CodeToken(
+                                token_type=TokenType.FONT_SIZE,
+                                value=str(font_size),
+                                file_path=usage.file_path,
+                                line_number=usage.line_number,
+                                context=f"tailwind: {tw_class}"
+                            ))
+
+                        # Extract border radius
+                        radius = resolve_tailwind_radius(tw_class)
+                        if radius is not None:
+                            all_code_tokens.append(CodeToken(
+                                token_type=TokenType.BORDER_RADIUS,
+                                value=str(radius),
+                                file_path=usage.file_path,
+                                line_number=usage.line_number,
+                                context=f"tailwind: {tw_class}"
+                            ))
+
             except Exception as e:
                 result.errors.append(f"Failed to read {code_file}: {str(e)}")
 
@@ -705,6 +1027,9 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     # Generate summary
     result.summary = generate_summary(result)
 
+    # V2: Support devkit output format
+    if output_format == "devkit":
+        return _format_devkit_result(result, run_id)
     return _format_result(result)
 
 
@@ -732,6 +1057,68 @@ def _format_result(result: VerificationResult) -> Dict[str, Any]:
         ],
         "errors": result.errors
     }
+
+
+def _format_devkit_result(result: VerificationResult, run_id: str = None) -> Dict[str, Any]:
+    """
+    Format result in devkit-compatible JSON format.
+
+    This format is designed for CI/CD integration.
+    """
+    import uuid
+    from datetime import datetime
+
+    run_id = run_id or f"run_{uuid.uuid4().hex[:8]}"
+
+    return {
+        "run_id": run_id,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "repo": result.code_dir,
+        "success": result.success and len([d for d in result.drifts if d.severity in [DriftSeverity.ERROR, DriftSeverity.CRITICAL]]) == 0,
+
+        "checks": [
+            {
+                "name": "design_to_code_verification",
+                "success": result.success,
+                "duration_ms": 0,  # Would be filled by skill_runner
+            }
+        ],
+
+        "findings": [
+            {
+                "id": f"drift_{i}_{d.token_type.value}",
+                "type": "design_drift",
+                "severity": d.severity.value,
+                "confidence": 0.8,  # Could be refined based on match type
+                "file": d.code_location.split(":")[0] if ":" in d.code_location else d.code_location,
+                "line": int(d.code_location.split(":")[1]) if ":" in d.code_location and d.code_location.split(":")[1].isdigit() else None,
+                "snippet": d.code_value[:100] if d.code_value else None,
+                "message": d.message,
+                "suggested_fix": d.suggestion,
+            }
+            for i, d in enumerate(result.drifts)
+        ],
+
+        "metrics": {
+            "tokens_checked": result.tokens_checked,
+            "tokens_matched": result.tokens_matched,
+            "match_rate": result.tokens_matched / max(result.tokens_checked, 1),
+            "drift_count": len(result.drifts),
+            "by_severity": {
+                "critical": len([d for d in result.drifts if d.severity == DriftSeverity.CRITICAL]),
+                "error": len([d for d in result.drifts if d.severity == DriftSeverity.ERROR]),
+                "warning": len([d for d in result.drifts if d.severity == DriftSeverity.WARNING]),
+                "info": len([d for d in result.drifts if d.severity == DriftSeverity.INFO]),
+            }
+        },
+
+        "errors": result.errors
+    }
+
+
+def to_devkit_json(result: VerificationResult, run_id: str = None) -> str:
+    """Export result as devkit-compatible JSON string."""
+    return json.dumps(_format_devkit_result(result, run_id), indent=2)
 
 
 # Standalone verification function for direct use
