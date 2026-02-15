@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_012",
+  "name": "Syntax Error in Code",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "SyntaxError, parse error, unexpected token",
+    "root_cause": "Invalid code syntax",
+    "detection": "Linter or interpreter reports syntax error"
+  },
+  "prevention": {
+    "before_action": "Use proper syntax, check matching brackets",
+    "avoid": "Copy-pasting without verification",
+    "alternative": "Use linter before running"
+  },
+  "recovery": {
+    "if_detected": "Read error location, fix syntax",
+    "cleanup": "None needed"
+  },
+  "confidence": 0.95,
+  "validations": 4,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

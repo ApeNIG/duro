@@ -1,0 +1,25 @@
+{
+  "id": "rule_workflow_004",
+  "name": "Episode Production Workflow",
+  "category": "workflows",
+  "type": "soft",
+  "description": "Standard workflow for video episode production",
+  "condition": {
+    "when": "Producing video content",
+    "task_patterns": ["episode", "video production", "fashanus"]
+  },
+  "steps": {
+    "required_order": [
+      "parse script",
+      "generate audio for all dialogue",
+      "generate/select images",
+      "compose video with subtitles",
+      "verify output"
+    ],
+    "checkpoints": ["audio files exist", "images exist", "video plays"]
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

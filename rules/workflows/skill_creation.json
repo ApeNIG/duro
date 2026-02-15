@@ -1,0 +1,25 @@
+{
+  "id": "rule_workflow_008",
+  "name": "Skill Creation Workflow",
+  "category": "workflows",
+  "type": "soft",
+  "description": "Workflow for creating new Duro skills",
+  "condition": {
+    "when": "Creating a new skill",
+    "task_patterns": ["create skill", "new skill", "add skill"]
+  },
+  "steps": {
+    "required_order": [
+      "define skill purpose and interface",
+      "create skill file with run() function",
+      "add to skills/index.json",
+      "create eval definition",
+      "test skill"
+    ],
+    "checkpoints": ["skill file exists", "index updated", "eval passes"]
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

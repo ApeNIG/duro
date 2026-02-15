@@ -1,147 +1,104 @@
 {
-  "version": "1.2",
+  "version": "2.0",
   "description": "Duro Rules Index - Structured lessons that change behavior",
-  "last_updated": "2026-02-14",
+  "last_updated": "2026-02-15",
   "rule_types": {
     "hard": "Safety, constraints, 'never do X' - always enforced",
     "soft": "Preferences, heuristics, 'usually do Y' - can be overridden"
   },
+  "categories": {
+    "tools": "When to use which tool (10 rules)",
+    "workflows": "Step ordering, checkpoints (10 rules)",
+    "failures": "Known failure patterns (15 rules)",
+    "quality": "Output quality standards (10 rules)",
+    "safety": "Guardrails and constraints (5 rules)",
+    "artifacts": "Artifact handling rules",
+    "governance": "System governance rules"
+  },
   "rules": [
-    {
-      "id": "rule_001",
-      "name": "Face Distortion",
-      "file": "failures/face_distortion.json",
-      "type": "hard",
-      "priority": 1,
-      "trigger_keywords": [
-        "face",
-        "photorealistic",
-        "human",
-        "portrait",
-        "character image",
-        "distorted"
-      ],
-      "usage_count": 1,
-      "last_used": "2026-02-10"
-    },
-    {
-      "id": "rule_005",
-      "name": "Fact Verification Requirements",
-      "file": "artifacts/fact_verification.json",
-      "type": "hard",
-      "priority": 1,
-      "trigger_keywords": [
-        "store fact",
-        "duro_store_fact",
-        "claim",
-        "fact artifact",
-        "high confidence",
-        "verified"
-      ],
-      "usage_count": 1,
-      "last_used": "2026-02-10"
-    },
-    {
-      "id": "rule_002",
-      "name": "TTS Voice Selection",
-      "file": "tools/tts_generation.json",
-      "type": "soft",
-      "priority": 2,
-      "trigger_keywords": [
-        "voice",
-        "audio",
-        "speech",
-        "tts",
-        "dialogue",
-        "character voice"
-      ],
-      "usage_count": 3,
-      "last_used": "2026-02-10"
-    },
-    {
-      "id": "rule_003",
-      "name": "Tool Selection by Task",
-      "file": "tools/tool_selection.json",
-      "type": "soft",
-      "priority": 2,
-      "trigger_keywords": [
-        "which tool",
-        "what to use",
-        "generate",
-        "create",
-        "image",
-        "audio",
-        "video"
-      ],
-      "usage_count": 6,
-      "last_used": "2026-02-11"
-    },
-    {
-      "id": "rule_004",
-      "name": "Stop Conditions",
-      "file": "workflows/stop_conditions.json",
-      "type": "hard",
-      "priority": 1,
-      "trigger_keywords": [
-        "retry",
-        "failed",
-        "error",
-        "not working",
-        "try again"
-      ],
-      "usage_count": 1,
-      "last_used": "2026-02-10"
-    },
-    {
-      "id": "rule_006",
-      "name": "Layered Governance Constitution",
-      "file": "governance/layered_governance.json",
-      "type": "hard",
-      "priority": 1,
-      "trigger_keywords": [
-        "waiver",
-        "devkit",
-        "auto-generate",
-        "policy change",
-        "governance",
-        "contract version",
-        "ci enforcement",
-        "silent side-effect",
-        "exempt",
-        "skip check",
-        "bypass",
-        ".devkit-waiver.yml",
-        "devkit.config.json"
-      ],
-      "usage_count": 2,
-      "last_used": "2026-02-11"
-    },
-    {
-      "id": "rule_007",
-      "name": "Mockup Before Design Implementation",
-      "file": "workflows/mockup_before_design.json",
-      "type": "hard",
-      "priority": 1,
-      "trigger_keywords": [
-        "design",
-        "UI",
-        "UX",
-        "frontend",
-        "component",
-        "page design",
-        "layout",
-        "dashboard",
-        "screen",
-        "interface"
-      ],
-      "usage_count": 0,
-      "last_used": null
-    }
+    {"id": "rule_001", "name": "Face Distortion", "file": "failures/face_distortion.json", "type": "hard", "priority": 1, "trigger_keywords": ["face", "photorealistic", "human", "portrait", "character image", "distorted"], "usage_count": 1, "last_used": "2026-02-10"},
+    {"id": "rule_002", "name": "TTS Voice Selection", "file": "tools/tts_generation.json", "type": "soft", "priority": 2, "trigger_keywords": ["voice", "audio", "speech", "tts", "dialogue", "character voice"], "usage_count": 3, "last_used": "2026-02-10"},
+    {"id": "rule_003", "name": "Tool Selection by Task", "file": "tools/tool_selection.json", "type": "soft", "priority": 2, "trigger_keywords": ["which tool", "what to use", "generate", "create", "image", "audio", "video"], "usage_count": 6, "last_used": "2026-02-11"},
+    {"id": "rule_004", "name": "Stop Conditions", "file": "workflows/stop_conditions.json", "type": "hard", "priority": 1, "trigger_keywords": ["retry", "failed", "error", "not working", "try again"], "usage_count": 1, "last_used": "2026-02-10"},
+    {"id": "rule_005", "name": "Fact Verification Requirements", "file": "artifacts/fact_verification.json", "type": "hard", "priority": 1, "trigger_keywords": ["store fact", "duro_store_fact", "claim", "fact artifact", "high confidence", "verified"], "usage_count": 1, "last_used": "2026-02-10"},
+    {"id": "rule_006", "name": "Layered Governance Constitution", "file": "governance/layered_governance.json", "type": "hard", "priority": 1, "trigger_keywords": ["waiver", "devkit", "auto-generate", "policy change", "governance", "bypass"], "usage_count": 2, "last_used": "2026-02-11"},
+    {"id": "rule_007", "name": "Mockup Before Design Implementation", "file": "workflows/mockup_before_design.json", "type": "hard", "priority": 1, "trigger_keywords": ["design", "UI", "UX", "frontend", "component", "page design", "layout", "dashboard"], "usage_count": 0, "last_used": null},
+
+    {"id": "rule_tool_001", "name": "Image Generation Tool Selection", "file": "tools/image_generation.json", "type": "soft", "priority": 2, "trigger_keywords": ["generate image", "create image", "make image", "picture", "photo"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_002", "name": "Code Analysis Tool Selection", "file": "tools/code_analysis.json", "type": "soft", "priority": 2, "trigger_keywords": ["analyze code", "review code", "understand code", "find bugs", "search code"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_003", "name": "File Operation Tool Selection", "file": "tools/file_operations.json", "type": "hard", "priority": 1, "trigger_keywords": ["read file", "edit file", "write file", "create file", "modify file"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_004", "name": "Web Research Tool Selection", "file": "tools/web_research.json", "type": "soft", "priority": 2, "trigger_keywords": ["search web", "find information", "research", "look up", "web search"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_005", "name": "Git Operation Guidelines", "file": "tools/git_operations.json", "type": "hard", "priority": 1, "trigger_keywords": ["git", "commit", "push", "branch", "merge", "rebase"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_006", "name": "Audio Generation Tool Selection", "file": "tools/audio_generation.json", "type": "soft", "priority": 2, "trigger_keywords": ["generate audio", "text to speech", "tts", "voice", "dialogue", "narration"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_007", "name": "Video Composition Guidelines", "file": "tools/video_composition.json", "type": "soft", "priority": 2, "trigger_keywords": ["video", "compose video", "edit video", "ffmpeg", "movie"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_008", "name": "Task Agent Selection", "file": "tools/task_agents.json", "type": "soft", "priority": 2, "trigger_keywords": ["explore", "investigate", "search codebase", "find all", "complex task"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_009", "name": "MCP Tool Usage", "file": "tools/mcp_tools.json", "type": "soft", "priority": 2, "trigger_keywords": ["memory", "fact", "decision", "episode", "skill", "duro"], "usage_count": 0, "last_used": null},
+    {"id": "rule_tool_010", "name": "Parallel Tool Execution", "file": "tools/parallel_execution.json", "type": "soft", "priority": 2, "trigger_keywords": ["parallel", "multiple", "batch", "concurrent", "several"], "usage_count": 0, "last_used": null},
+
+    {"id": "rule_workflow_001", "name": "Read Before Edit", "file": "workflows/read_before_edit.json", "type": "hard", "priority": 1, "trigger_keywords": ["edit", "modify", "change", "update file"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_002", "name": "Test After Change", "file": "workflows/test_after_change.json", "type": "soft", "priority": 2, "trigger_keywords": ["fix bug", "add feature", "refactor", "change code"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_003", "name": "Git Commit Workflow", "file": "workflows/commit_workflow.json", "type": "hard", "priority": 1, "trigger_keywords": ["commit", "git commit", "save changes"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_004", "name": "Episode Production Workflow", "file": "workflows/episode_production.json", "type": "soft", "priority": 2, "trigger_keywords": ["episode", "video production", "fashanus", "produce video"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_005", "name": "Bug Fix Workflow", "file": "workflows/bug_fix.json", "type": "soft", "priority": 2, "trigger_keywords": ["fix bug", "debug", "error", "not working", "broken"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_006", "name": "Feature Implementation Workflow", "file": "workflows/feature_implementation.json", "type": "soft", "priority": 2, "trigger_keywords": ["add feature", "implement", "create new", "build"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_007", "name": "Pull Request Creation Workflow", "file": "workflows/pr_creation.json", "type": "hard", "priority": 1, "trigger_keywords": ["create pr", "pull request", "gh pr", "merge request"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_008", "name": "Skill Creation Workflow", "file": "workflows/skill_creation.json", "type": "soft", "priority": 2, "trigger_keywords": ["create skill", "new skill", "add skill", "duro skill"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_009", "name": "Session Start Workflow", "file": "workflows/session_start.json", "type": "hard", "priority": 1, "trigger_keywords": ["session start", "hello", "hi", "new conversation", "start"], "usage_count": 0, "last_used": null},
+    {"id": "rule_workflow_010", "name": "Session End Workflow", "file": "workflows/session_end.json", "type": "soft", "priority": 2, "trigger_keywords": ["end session", "learn and log", "goodbye", "done"], "usage_count": 0, "last_used": null},
+
+    {"id": "rule_failure_001", "name": "Network Timeout Handling", "file": "failures/network_timeout.json", "type": "hard", "priority": 1, "trigger_keywords": ["timeout", "connection", "network", "request failed"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_002", "name": "Missing Dependency", "file": "failures/missing_dependency.json", "type": "hard", "priority": 1, "trigger_keywords": ["import error", "module not found", "command not found", "dependency"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_003", "name": "File Not Found", "file": "failures/file_not_found.json", "type": "hard", "priority": 1, "trigger_keywords": ["file not found", "no such file", "missing file", "path"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_004", "name": "Permission Denied", "file": "failures/permission_denied.json", "type": "hard", "priority": 1, "trigger_keywords": ["permission", "access denied", "forbidden", "not allowed"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_005", "name": "JSON Parse Error", "file": "failures/json_parse_error.json", "type": "hard", "priority": 1, "trigger_keywords": ["json error", "parse error", "invalid json", "decode error"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_006", "name": "Edit Context Mismatch", "file": "failures/edit_context_mismatch.json", "type": "hard", "priority": 1, "trigger_keywords": ["edit failed", "old_string not found", "context mismatch"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_007", "name": "Infinite Loop Detection", "file": "failures/infinite_loop.json", "type": "hard", "priority": 1, "trigger_keywords": ["loop", "repeated", "stuck", "infinite", "retry limit"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_008", "name": "API Rate Limit", "file": "failures/api_rate_limit.json", "type": "hard", "priority": 1, "trigger_keywords": ["rate limit", "429", "too many requests", "throttled"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_009", "name": "Memory/Context Overflow", "file": "failures/memory_overflow.json", "type": "hard", "priority": 1, "trigger_keywords": ["context too long", "truncated", "memory", "overflow"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_010", "name": "Git Merge Conflict", "file": "failures/git_conflict.json", "type": "hard", "priority": 1, "trigger_keywords": ["conflict", "merge conflict", "CONFLICT", "cannot merge"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_011", "name": "Test Failure Handling", "file": "failures/test_failure.json", "type": "hard", "priority": 1, "trigger_keywords": ["test failed", "tests failing", "assertion error", "test error"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_012", "name": "Syntax Error in Code", "file": "failures/syntax_error.json", "type": "hard", "priority": 1, "trigger_keywords": ["syntax error", "parse error", "unexpected token", "invalid syntax"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_013", "name": "Wrong Git Branch", "file": "failures/wrong_branch.json", "type": "hard", "priority": 1, "trigger_keywords": ["wrong branch", "checkout", "branch"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_014", "name": "Encoding Error", "file": "failures/encoding_error.json", "type": "hard", "priority": 1, "trigger_keywords": ["encoding", "unicode", "decode error", "utf-8"], "usage_count": 0, "last_used": null},
+    {"id": "rule_failure_015", "name": "Hook Blocked Operation", "file": "failures/hook_blocked.json", "type": "hard", "priority": 1, "trigger_keywords": ["hook blocked", "denied", "PreToolUse", "blocked"], "usage_count": 0, "last_used": null},
+
+    {"id": "rule_quality_001", "name": "Code Formatting Standards", "file": "quality/code_formatting.json", "type": "soft", "priority": 2, "trigger_keywords": ["code style", "formatting", "indentation", "lint"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_002", "name": "Commit Message Quality", "file": "quality/commit_messages.json", "type": "soft", "priority": 2, "trigger_keywords": ["commit message", "git commit", "message format"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_003", "name": "Error Handling Quality", "file": "quality/error_handling.json", "type": "soft", "priority": 2, "trigger_keywords": ["error handling", "exception", "try catch", "error"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_004", "name": "Documentation Quality", "file": "quality/documentation.json", "type": "soft", "priority": 2, "trigger_keywords": ["documentation", "docs", "docstring", "readme"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_005", "name": "Test Coverage Quality", "file": "quality/test_coverage.json", "type": "soft", "priority": 2, "trigger_keywords": ["test", "coverage", "testing", "unit test"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_006", "name": "Audio Output Quality", "file": "quality/audio_output.json", "type": "soft", "priority": 2, "trigger_keywords": ["audio quality", "sound", "mp3", "audio output"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_007", "name": "Video Output Quality", "file": "quality/video_output.json", "type": "soft", "priority": 2, "trigger_keywords": ["video quality", "video output", "mp4", "movie"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_008", "name": "API Response Quality", "file": "quality/api_response.json", "type": "soft", "priority": 2, "trigger_keywords": ["api", "response", "endpoint", "rest"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_009", "name": "Skill Output Quality", "file": "quality/skill_output.json", "type": "soft", "priority": 2, "trigger_keywords": ["skill", "duro skill", "skill output"], "usage_count": 0, "last_used": null},
+    {"id": "rule_quality_010", "name": "Response Conciseness", "file": "quality/response_conciseness.json", "type": "soft", "priority": 2, "trigger_keywords": ["response", "answer", "concise", "brief"], "usage_count": 0, "last_used": null},
+
+    {"id": "rule_safety_001", "name": "No Secrets in Commits", "file": "safety/no_secrets_commit.json", "type": "hard", "priority": 0, "trigger_keywords": ["secret", "api key", "password", "credential", ".env", "token"], "usage_count": 0, "last_used": null},
+    {"id": "rule_safety_002", "name": "No Destructive Commands Without Confirmation", "file": "safety/no_destructive_commands.json", "type": "hard", "priority": 0, "trigger_keywords": ["rm -rf", "force", "delete", "drop", "destroy", "remove all"], "usage_count": 0, "last_used": null},
+    {"id": "rule_safety_003", "name": "Production Environment Safeguards", "file": "safety/production_safeguards.json", "type": "hard", "priority": 0, "trigger_keywords": ["production", "prod", "live", "deploy"], "usage_count": 0, "last_used": null},
+    {"id": "rule_safety_004", "name": "Input Validation", "file": "safety/input_validation.json", "type": "hard", "priority": 0, "trigger_keywords": ["user input", "validation", "sanitize", "injection"], "usage_count": 0, "last_used": null},
+    {"id": "rule_safety_005", "name": "Sensitive Data Handling", "file": "safety/sensitive_data_handling.json", "type": "hard", "priority": 0, "trigger_keywords": ["sensitive", "pii", "personal data", "private", "encrypt"], "usage_count": 0, "last_used": null}
   ],
   "lookup_order": [
     "1. Check trigger_keywords against current task",
-    "2. Sort matching rules by priority (1 = highest)",
+    "2. Sort matching rules by priority (0 = highest)",
     "3. Apply hard rules first, then soft rules",
     "4. Log rule application for tracking"
-  ]
+  ],
+  "statistics": {
+    "total_rules": 57,
+    "by_category": {
+      "tools": 10,
+      "workflows": 10,
+      "failures": 16,
+      "quality": 10,
+      "safety": 5,
+      "artifacts": 1,
+      "governance": 1
+    },
+    "by_type": {
+      "hard": 33,
+      "soft": 24
+    }
+  }
 }

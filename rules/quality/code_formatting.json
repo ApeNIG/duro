@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_001",
+  "name": "Code Formatting Standards",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["code"],
+    "contexts": ["production", "draft"]
+  },
+  "standards": {
+    "must_have": ["consistent indentation", "proper spacing", "clear naming"],
+    "should_have": ["comments for complex logic"],
+    "must_not_have": ["mixed tabs/spaces", "trailing whitespace"]
+  },
+  "confidence": 0.85,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

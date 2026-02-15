@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_011",
+  "name": "Test Failure Handling",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "Tests fail after code change",
+    "root_cause": "Regression introduced by change",
+    "detection": "Test runner reports failures"
+  },
+  "prevention": {
+    "before_action": "Run tests before and after changes",
+    "avoid": "Committing without testing",
+    "alternative": "Fix failures before proceeding"
+  },
+  "recovery": {
+    "if_detected": "Analyze failure, fix regression or update test",
+    "cleanup": "Ensure all tests pass"
+  },
+  "confidence": 0.9,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

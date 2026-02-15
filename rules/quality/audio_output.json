@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_006",
+  "name": "Audio Output Quality",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["audio"],
+    "contexts": ["production"]
+  },
+  "standards": {
+    "must_have": ["file size > 1KB", "proper format (mp3/wav)"],
+    "should_have": ["appropriate voice for content", "clear audio"],
+    "must_not_have": ["empty files", "corrupted audio"]
+  },
+  "confidence": 0.85,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

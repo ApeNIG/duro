@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_009",
+  "name": "Memory/Context Overflow",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "Context too long, output truncated",
+    "root_cause": "Reading too much data at once",
+    "detection": "Truncation warnings, memory errors"
+  },
+  "prevention": {
+    "before_action": "Use pagination, limit file reads",
+    "avoid": "Reading entire large files",
+    "alternative": "Use head/tail limits, Task agents"
+  },
+  "recovery": {
+    "if_detected": "Re-read with limits",
+    "cleanup": "Clear unnecessary context"
+  },
+  "confidence": 0.85,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

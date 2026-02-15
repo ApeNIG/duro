@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_004",
+  "name": "Documentation Quality",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["text", "code"],
+    "contexts": ["documentation"]
+  },
+  "standards": {
+    "must_have": ["clear purpose statement", "usage examples"],
+    "should_have": ["parameter descriptions", "return value docs"],
+    "must_not_have": ["outdated info", "placeholder text"]
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

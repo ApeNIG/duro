@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_008",
+  "name": "Task Agent Selection",
+  "category": "tools",
+  "type": "soft",
+  "description": "When to use Task tool with specialized agents",
+  "condition": {
+    "when": "Complex multi-step tasks or exploration needed",
+    "task_patterns": ["explore", "investigate", "search codebase", "find all"]
+  },
+  "action": {
+    "for_exploration": "Use Task with Explore agent",
+    "for_planning": "Use Task with Plan agent",
+    "for_bash_heavy": "Use Task with Bash agent",
+    "for_simple": "Don't use Task - do directly"
+  },
+  "rationale": "Agents reduce context usage and provide specialized capabilities",
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

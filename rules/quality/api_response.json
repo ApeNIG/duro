@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_008",
+  "name": "API Response Quality",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["code"],
+    "contexts": ["api development"]
+  },
+  "standards": {
+    "must_have": ["consistent response format", "proper status codes"],
+    "should_have": ["error details", "pagination for lists"],
+    "must_not_have": ["exposed internal errors", "missing content-type"]
+  },
+  "confidence": 0.85,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

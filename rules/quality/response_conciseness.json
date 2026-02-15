@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_010",
+  "name": "Response Conciseness",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["text"],
+    "contexts": ["user communication"]
+  },
+  "standards": {
+    "must_have": ["direct answer", "relevant information"],
+    "should_have": ["actionable next steps", "code if applicable"],
+    "must_not_have": ["excessive explanation", "redundant phrases", "unsolicited praise"]
+  },
+  "confidence": 0.9,
+  "validations": 4,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

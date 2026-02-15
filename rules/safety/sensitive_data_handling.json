@@ -1,0 +1,24 @@
+{
+  "id": "rule_safety_005",
+  "name": "Sensitive Data Handling",
+  "category": "safety",
+  "type": "hard",
+  "constraint": {
+    "never_do": "Log sensitive data, expose PII in errors",
+    "always_do": "Mark sensitive artifacts, use encryption when appropriate",
+    "scope": "All data handling"
+  },
+  "rationale": {
+    "risk": "Privacy violations, data leaks",
+    "impact": "high",
+    "reversible": false
+  },
+  "enforcement": {
+    "check_before": "Identify sensitive data patterns",
+    "on_violation": "warn"
+  },
+  "confidence": 0.9,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

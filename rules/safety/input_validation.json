@@ -1,0 +1,24 @@
+{
+  "id": "rule_safety_004",
+  "name": "Input Validation",
+  "category": "safety",
+  "type": "hard",
+  "constraint": {
+    "never_do": "Execute user input directly in shell or SQL",
+    "always_do": "Sanitize and validate all external input",
+    "scope": "All code that handles user input"
+  },
+  "rationale": {
+    "risk": "Command injection, SQL injection, XSS",
+    "impact": "critical",
+    "reversible": false
+  },
+  "enforcement": {
+    "check_before": "Review input handling patterns",
+    "on_violation": "block"
+  },
+  "confidence": 0.95,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

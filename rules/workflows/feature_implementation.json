@@ -1,0 +1,25 @@
+{
+  "id": "rule_workflow_006",
+  "name": "Feature Implementation Workflow",
+  "category": "workflows",
+  "type": "soft",
+  "description": "Standard workflow for implementing new features",
+  "condition": {
+    "when": "Adding new functionality",
+    "task_patterns": ["add feature", "implement", "create new"]
+  },
+  "steps": {
+    "required_order": [
+      "understand requirements",
+      "plan approach (use TodoWrite)",
+      "implement incrementally",
+      "test each increment",
+      "integrate and verify"
+    ],
+    "checkpoints": ["requirements clear", "approach planned", "feature works"]
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

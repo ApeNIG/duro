@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_005",
+  "name": "Git Operation Guidelines",
+  "category": "tools",
+  "type": "hard",
+  "description": "Safe git operation patterns",
+  "condition": {
+    "when": "Performing git operations",
+    "task_patterns": ["git", "commit", "push", "branch", "merge"]
+  },
+  "action": {
+    "before_commit": "Always check git status first",
+    "commit_message": "Use conventional commits format with HEREDOC",
+    "never_do": "Never use -f/--force without explicit user request",
+    "never_amend": "Never amend commits already pushed to remote"
+  },
+  "rationale": "Git mistakes can be hard to recover from; safety-first approach",
+  "confidence": 0.95,
+  "validations": 4,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

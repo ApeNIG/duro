@@ -1,0 +1,33 @@
+{
+  "$schema": "rule_template",
+  "template_type": "tool",
+  "description": "Template for tool selection and usage rules",
+  "fields": {
+    "id": "rule_tool_XXX",
+    "name": "Tool Rule Name",
+    "category": "tools",
+    "type": "soft|hard",
+    "priority": 2,
+    "trigger_keywords": ["tool-specific", "keywords"],
+    "condition": {
+      "when": "Description of when this rule applies",
+      "task_patterns": ["pattern1", "pattern2"]
+    },
+    "action": {
+      "use_tool": "tool_name",
+      "avoid_tool": "tool_to_avoid",
+      "reason": "Why this tool choice"
+    },
+    "examples": [
+      {
+        "task": "Example task description",
+        "correct": "What to do",
+        "incorrect": "What not to do"
+      }
+    ],
+    "confidence": 0.7,
+    "validations": 0,
+    "created": "2026-02-15",
+    "last_validated": null
+  }
+}

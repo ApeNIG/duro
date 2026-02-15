@@ -1,0 +1,26 @@
+{
+  "id": "rule_workflow_003",
+  "name": "Git Commit Workflow",
+  "category": "workflows",
+  "type": "hard",
+  "description": "Standard git commit workflow",
+  "condition": {
+    "when": "Creating a git commit",
+    "task_patterns": ["commit", "git commit"]
+  },
+  "steps": {
+    "required_order": [
+      "git status (check state)",
+      "git diff (review changes)",
+      "git log (check commit style)",
+      "git add (stage files)",
+      "git commit (with HEREDOC message)",
+      "git status (verify success)"
+    ],
+    "checkpoints": ["changes reviewed", "commit successful"]
+  },
+  "confidence": 0.95,
+  "validations": 4,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}
