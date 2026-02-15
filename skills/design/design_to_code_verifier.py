@@ -302,11 +302,35 @@ def resolve_tailwind_color(tw_class: str, css_var_map: 'CSSVariableMap' = None) 
                     source="best_effort"
                 )
 
-            # Check if it looks like a color class (has color name pattern)
-            # e.g., purple-500, red-600, zinc-900
-            color_pattern = re.match(r'^[a-z]+-\d{2,3}$', color_part)
-            if color_pattern:
-                # This IS a color class, we just can't resolve it
+            # Check if it looks like a color class
+            # Patterns that indicate color:
+            # - slate-500, zinc-900, purple-400 (color-shade)
+            # - white, black, transparent, current
+            # - slate-500/50 (with opacity modifier)
+            # - from-purple-500, to-teal-400, via-* (gradients)
+
+            # Strip opacity modifier for detection
+            base_color = color_part.split('/')[0]
+
+            # Common color names (single word)
+            single_colors = {'white', 'black', 'transparent', 'current', 'inherit'}
+            if base_color in single_colors:
+                if base_color in TAILWIND_COLORS_BEST_EFFORT:
+                    return ResolvedToken(
+                        value=TAILWIND_COLORS_BEST_EFFORT[base_color],
+                        confidence=CONFIDENCE_BEST_EFFORT,
+                        source="best_effort"
+                    )
+                return ResolvedToken(
+                    value=f"unresolved:{tw_class}",
+                    confidence=CONFIDENCE_UNRESOLVED,
+                    source="unresolved"
+                )
+
+            # Color-shade pattern: word-number or word-number/opacity
+            # Matches: purple-500, zinc-900, slate-950, sky-500
+            color_shade_pattern = re.match(r'^[a-z]+-\d{2,3}(?:/\d+)?$', color_part)
+            if color_shade_pattern:
                 return ResolvedToken(
                     value=f"unresolved:{tw_class}",
                     confidence=CONFIDENCE_UNRESOLVED,
@@ -315,6 +339,45 @@ def resolve_tailwind_color(tw_class: str, css_var_map: 'CSSVariableMap' = None) 
 
             # Doesn't look like a color class at all - skip
             return None
+
+    # Gradient prefixes: from-*, to-*, via-*
+    gradient_prefixes = ["from-", "to-", "via-"]
+    for prefix in gradient_prefixes:
+        if tw_class.startswith(prefix):
+            color_part = tw_class[len(prefix):]
+
+            # Arbitrary gradient value
+            if color_part.startswith('['):
+                arb_content = color_part[1:-1] if color_part.endswith(']') else color_part[1:]
+                if arb_content.startswith('#'):
+                    return ResolvedToken(
+                        value=arb_content.lower(),
+                        confidence=CONFIDENCE_ARBITRARY,
+                        source="arbitrary"
+                    )
+                elif arb_content.startswith('var('):
+                    return ResolvedToken(
+                        value=arb_content.lower(),
+                        confidence=CONFIDENCE_CSS_VAR,
+                        source="css_var"
+                    )
+                return None
+
+            # Standard gradient color
+            base_color = color_part.split('/')[0]
+            if base_color in TAILWIND_COLORS_BEST_EFFORT:
+                return ResolvedToken(
+                    value=TAILWIND_COLORS_BEST_EFFORT[base_color],
+                    confidence=CONFIDENCE_BEST_EFFORT,
+                    source="best_effort"
+                )
+            # Looks like gradient color class
+            if re.match(r'^[a-z]+-\d{2,3}(?:/\d+)?$', color_part):
+                return ResolvedToken(
+                    value=f"unresolved:{tw_class}",
+                    confidence=CONFIDENCE_UNRESOLVED,
+                    source="unresolved"
+                )
 
     return None
 
@@ -389,16 +452,33 @@ class CSSVariableMap:
             var_value = match.group(2).strip()
             self.variables[var_name] = var_value
 
-    def resolve(self, var_reference: str) -> Optional[str]:
+    def resolve(self, var_reference: str, depth: int = 0) -> Optional[str]:
         """
         Resolve var(--name) to actual value.
 
+        Supports one-level recursion for var-to-var references:
+        --color-background: var(--background) -> resolves --background
+
         Example: var(--color-primary) -> #8B5CF6
+
+        Args:
+            var_reference: The var() reference to resolve
+            depth: Current recursion depth (max 2 to avoid loops)
         """
+        if depth > 2:
+            return None  # Prevent infinite loops
+
         match = re.match(r'var\(--([a-zA-Z0-9-]+)\)', var_reference)
         if match:
             var_name = match.group(1)
-            return self.variables.get(var_name)
+            value = self.variables.get(var_name)
+
+            if value:
+                # If value is another var(), resolve it (one level deeper)
+                if value.startswith('var('):
+                    return self.resolve(value, depth + 1)
+                return value
+
         return None
 
     def find_variable_for_color(self, hex_color: str) -> Optional[str]:
@@ -495,6 +575,29 @@ class DriftReport:
 
 
 @dataclass
+class ResolutionStats:
+    """Token resolution statistics for visibility/debugging."""
+    # Tailwind classes
+    tailwind_total_classes: int = 0
+    tailwind_color_classes: int = 0
+    tailwind_color_resolved: int = 0      # Arbitrary or CSS var
+    tailwind_color_unresolved: int = 0    # Honest "I don't know"
+    tailwind_color_best_effort: int = 0   # Low confidence matches
+
+    # CSS variables
+    css_vars_loaded: int = 0
+    css_vars_resolved_hits: int = 0
+
+    # By source
+    by_source: Dict[str, int] = field(default_factory=lambda: {
+        "arbitrary": 0,
+        "css_var": 0,
+        "best_effort": 0,
+        "unresolved": 0
+    })
+
+
+@dataclass
 class VerificationResult:
     """Complete verification result."""
     success: bool
@@ -505,6 +608,7 @@ class VerificationResult:
     drifts: List[DriftReport] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     summary: str = ""
+    resolution_stats: Optional[ResolutionStats] = None
 
 
 # Color normalization utilities
@@ -1048,12 +1152,16 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     # V2: Load CSS variables from globals.css
     css_var_map = load_css_variables(code_dir, tools.get("read_file", lambda x: None))
 
+    # V2.1: Initialize resolution stats for visibility
+    res_stats = ResolutionStats(css_vars_loaded=len(css_var_map.variables))
+
     result = VerificationResult(
         success=True,
         pen_file=pen_file,
         code_dir=code_dir,
         tokens_checked=0,
-        tokens_matched=0
+        tokens_matched=0,
+        resolution_stats=res_stats
     )
 
     # Step 1: Extract design tokens from .pen file
@@ -1120,12 +1228,27 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
                 tw_usages = extract_tailwind_classes(content, code_file)
                 all_tailwind_usages.extend(tw_usages)
 
-                # V2.1: Convert Tailwind classes to CodeTokens with confidence
+                # V2.1: Convert Tailwind classes to CodeTokens with confidence + stats
                 for usage in tw_usages:
                     for tw_class in usage.classes:
+                        res_stats.tailwind_total_classes += 1
+
                         # Extract color with confidence tracking
                         color_result = resolve_tailwind_color(tw_class, css_var_map)
                         if color_result:
+                            res_stats.tailwind_color_classes += 1
+                            res_stats.by_source[color_result.source] = res_stats.by_source.get(color_result.source, 0) + 1
+
+                            if color_result.source == "arbitrary":
+                                res_stats.tailwind_color_resolved += 1
+                            elif color_result.source == "css_var":
+                                res_stats.tailwind_color_resolved += 1
+                                res_stats.css_vars_resolved_hits += 1
+                            elif color_result.source == "best_effort":
+                                res_stats.tailwind_color_best_effort += 1
+                            elif color_result.source == "unresolved":
+                                res_stats.tailwind_color_unresolved += 1
+
                             # Only add if we have some confidence, or track unresolved
                             if color_result.confidence > 0:
                                 all_code_tokens.append(CodeToken(
@@ -1245,6 +1368,61 @@ def _format_result(result: VerificationResult) -> Dict[str, Any]:
     }
 
 
+def _format_resolution_stats(stats: ResolutionStats) -> Dict[str, Any]:
+    """
+    Format resolution stats for devkit output.
+
+    This tells CI "is the verifier blind today?" - if unresolved is high,
+    the verifier can't actually verify much.
+    """
+    # ZERO LIES: if we saw no color classes, say "unknown" not fake 100%
+    note = None
+    if stats.tailwind_color_classes == 0:
+        health = "unknown"
+        resolved_pct = None
+        note = "No Tailwind color tokens observed; health not graded"
+    else:
+        resolved_pct = (stats.tailwind_color_resolved / stats.tailwind_color_classes) * 100
+        resolved_pct = round(resolved_pct, 1)
+
+        # Health grade based on Tailwind color resolution rate
+        # Future: expand to include CSS var refs, literal colors, etc.
+        if resolved_pct >= 80:
+            health = "excellent"
+        elif resolved_pct >= 50:
+            health = "good"
+        elif resolved_pct >= 20:
+            health = "degraded"
+        else:
+            health = "blind"
+            note = "Most color tokens unresolved; check CSS var loading or use arbitrary values"
+
+    result = {
+        "health": health,
+        "health_metric": "tailwind_color_resolution",  # What health is measuring
+        "resolved_pct": resolved_pct,
+        "tailwind": {
+            "total_classes": stats.tailwind_total_classes,
+            "color_classes": stats.tailwind_color_classes,
+            "color_resolved": stats.tailwind_color_resolved,
+            "color_unresolved": stats.tailwind_color_unresolved,
+            "color_best_effort": stats.tailwind_color_best_effort,
+        },
+        "css_vars": {
+            "loaded": stats.css_vars_loaded,
+            "hits": stats.css_vars_resolved_hits,
+        },
+        # Ensure plain dict for JSON serialization
+        "by_source": dict(stats.by_source),
+    }
+
+    # Add note only when there's something to explain
+    if note:
+        result["note"] = note
+
+    return result
+
+
 def _format_devkit_result(result: VerificationResult, run_id: str = None) -> Dict[str, Any]:
     """
     Format result in devkit-compatible JSON format.
@@ -1297,6 +1475,9 @@ def _format_devkit_result(result: VerificationResult, run_id: str = None) -> Dic
                 "info": len([d for d in result.drifts if d.severity == DriftSeverity.INFO]),
             }
         },
+
+        # V2.1: Token resolution visibility - "is the verifier blind today?"
+        "resolution": _format_resolution_stats(result.resolution_stats) if result.resolution_stats else None,
 
         "errors": result.errors
     }

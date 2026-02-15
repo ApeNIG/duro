@@ -200,8 +200,51 @@ Add to your project's `devkit.config.json`:
   "success": true,
   "checks": [{"name": "...", "success": true, "duration_ms": 150}],
   "findings": [...],
-  "metrics": {...}
+  "metrics": {...},
+  "resolution": {
+    "health": "excellent",
+    "health_metric": "tailwind_color_resolution",
+    "resolved_pct": 96.7,
+    "tailwind": {
+      "total_classes": 150,
+      "color_classes": 30,
+      "color_resolved": 29,
+      "color_unresolved": 1,
+      "color_best_effort": 0
+    },
+    "css_vars": {
+      "loaded": 24,
+      "hits": 5
+    },
+    "by_source": {
+      "arbitrary": 25,
+      "css_var": 4,
+      "best_effort": 0,
+      "unresolved": 1
+    }
+  }
 }
+```
+
+### Resolution Health Grades
+
+The `resolution.health` field tells CI "is the verifier blind today?":
+
+| Grade | Resolved % | Meaning |
+|-------|------------|---------|
+| `excellent` | ≥80% | Verifier can validate most colors |
+| `good` | ≥50% | Verifier has decent coverage |
+| `degraded` | ≥20% | Many unresolved tokens - results unreliable |
+| `blind` | <20% | Verifier cannot validate - check CSS var loading |
+| `unknown` | n/a | No color tokens seen - can't grade (not a failure) |
+
+**Note:** When `resolved_pct` is `null`, the verifier saw no color signals to measure. This is honest "I don't know" rather than fake confidence.
+
+## Running Tests
+
+```bash
+# Resolution invariant guardrails (no pytest needed)
+python tests/test_resolution_invariants.py
 ```
 
 ## Core Infrastructure
