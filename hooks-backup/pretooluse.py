@@ -36,6 +36,11 @@ LEDGER_TTL_MINUTES = 30  # "recent read" window
 # Risky tools that should be blocked if bootstrap fails
 RISKY_TOOLS = {'Bash', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit'}
 
+# Waiver protocol settings
+UNWAIVABLE_RULES = {'secrets_in_git', 'bootstrap_failure'}
+WAIVER_SCOREBOARD = AGENT_DIR / 'metrics' / 'waiver_scoreboard.json'
+MIN_WAIVER_REASON_LENGTH = 10
+
 # Bootstrap state
 _bootstrap_ok = None
 _bootstrap_error = None
@@ -107,6 +112,109 @@ def make_bootstrap_failure_response(error: str) -> Dict:
     }
 
 
+# ============================================================================
+# WAIVER PROTOCOL
+# ============================================================================
+
+def parse_waiver(raw: str) -> Optional[Dict]:
+    """Parse waiver from environment variable.
+
+    Expected format: "rule_id:Your reason here (≥10 chars)"
+    Returns {"rule_id": str, "reason": str} or None if invalid.
+    """
+    if not raw or ':' not in raw:
+        return None
+
+    rule_id, reason = raw.split(':', 1)
+    rule_id, reason = rule_id.strip(), reason.strip()
+
+    if not rule_id:
+        return None
+
+    if len(reason) < MIN_WAIVER_REASON_LENGTH:
+        debug_log(f"Waiver reason too short: {len(reason)} < {MIN_WAIVER_REASON_LENGTH}")
+        return None
+
+    return {"rule_id": rule_id, "reason": reason}
+
+
+def should_waive(waiver: Optional[Dict], triggered_rule_id: str) -> bool:
+    """Check if waiver is valid for the triggered rule.
+
+    Returns True if waiver should allow the operation.
+    """
+    if not waiver:
+        return False
+
+    # Never waive unwaivable rules
+    if triggered_rule_id in UNWAIVABLE_RULES:
+        debug_log(f"Rule '{triggered_rule_id}' is unwaivable")
+        return False
+
+    # Exact match only - no substring matching
+    if waiver["rule_id"] != triggered_rule_id:
+        debug_log(f"Waiver mismatch: '{waiver['rule_id']}' != '{triggered_rule_id}'")
+        return False
+
+    return True
+
+
+def update_waiver_scoreboard(rule_id: str, reason: str, command_preview: str) -> None:
+    """Record waiver use to scoreboard."""
+    try:
+        WAIVER_SCOREBOARD.parent.mkdir(parents=True, exist_ok=True)
+
+        # Load or initialize scoreboard
+        if WAIVER_SCOREBOARD.exists():
+            scoreboard = json.loads(WAIVER_SCOREBOARD.read_text(encoding='utf-8'))
+        else:
+            scoreboard = {
+                "updated": None,
+                "period": "weekly",
+                "total_waivers": 0,
+                "by_rule": {},
+                "by_day": {},
+                "recent": []
+            }
+
+        # Update counts
+        now = datetime.now()
+        today = now.strftime('%Y-%m-%d')
+
+        scoreboard["updated"] = now.isoformat() + "Z"
+        scoreboard["total_waivers"] += 1
+        scoreboard["by_rule"][rule_id] = scoreboard["by_rule"].get(rule_id, 0) + 1
+        scoreboard["by_day"][today] = scoreboard["by_day"].get(today, 0) + 1
+
+        # Add to recent (keep last 50)
+        scoreboard["recent"].insert(0, {
+            "ts": now.isoformat() + "Z",
+            "rule": rule_id,
+            "reason": reason,
+            "command_preview": command_preview[:100]
+        })
+        scoreboard["recent"] = scoreboard["recent"][:50]
+
+        # Prune old days (keep 30 days)
+        cutoff = (now - timedelta(days=30)).strftime('%Y-%m-%d')
+        scoreboard["by_day"] = {
+            k: v for k, v in scoreboard["by_day"].items() if k >= cutoff
+        }
+
+        WAIVER_SCOREBOARD.write_text(json.dumps(scoreboard, indent=2), encoding='utf-8')
+        debug_log(f"Waiver recorded: {rule_id}")
+
+    except Exception as e:
+        debug_log(f"Error recording waiver: {e}")
+
+
+def make_waived_response(rule_id: str, reason: str) -> Dict:
+    """Create a response that allows operation but shows receipt."""
+    return {
+        "systemMessage": f"**[WAIVED: {rule_id}]**\n\nOperation allowed via waiver.\n\nReason: \"{reason}\"\n\nLogged to scoreboard."
+    }
+
+
 def debug_log(msg: str) -> None:
     """Log debug message to stderr if DEBUG is enabled."""
     if DEBUG:
@@ -114,7 +222,7 @@ def debug_log(msg: str) -> None:
         print(f"[hookify {timestamp}] {msg}", file=sys.stderr)
 
 
-def telemetry_log(tool_name: str, tool_input: Dict, decision: str, rule_matched: str = None) -> None:
+def telemetry_log(tool_name: str, tool_input: Dict, decision: str, rule_matched: str = None, waiver_reason: str = None) -> None:
     """Log tool execution to telemetry file (S8 invariant)."""
     try:
         TELEMETRY_DIR.mkdir(parents=True, exist_ok=True)
@@ -137,6 +245,10 @@ def telemetry_log(tool_name: str, tool_input: Dict, decision: str, rule_matched:
             "decision": decision,
             "rule": rule_matched
         }
+
+        # Add waiver reason if present
+        if waiver_reason:
+            entry["waiver_reason"] = waiver_reason
 
         with open(log_file, 'a', encoding='utf-8') as f:
             f.write(json.dumps(entry) + '\n')
@@ -180,10 +292,10 @@ def load_enforcement_patterns() -> List[Dict]:
         return []
 
 
-def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Optional[Dict]:
+def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Tuple[Optional[Dict], Optional[str]]:
     """Check tool call against enforcement patterns.
 
-    Returns blocking response dict if blocked, None if allowed.
+    Returns (response_dict, rule_id) if blocked/warned, (None, None) if allowed.
     """
     rules = load_enforcement_patterns()
 
@@ -193,6 +305,7 @@ def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Optional[Dic
             continue
 
         action = rule.get('action', 'block')
+        rule_id = rule.get('id', 'enforcement')
 
         # For Bash tool - check command against patterns
         if tool_name == 'Bash':
@@ -201,7 +314,7 @@ def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Optional[Dic
             for p in rule.get('_compiled', []):
                 if p['regex'].search(command):
                     msg = rule.get('message', 'Command blocked by enforcement rule.')
-                    rule_name = rule.get('name', rule.get('id', 'enforcement'))
+                    rule_name = rule.get('name', rule_id)
 
                     debug_log(f"BLOCKED by {rule_name}: matched '{p['description']}'")
 
@@ -210,12 +323,12 @@ def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Optional[Dic
                             rule_name,
                             msg,
                             f"Pattern: {p['description']}"
-                        )
+                        ), rule_id
                     else:
-                        return make_warn_response(rule_name, msg)
+                        return make_warn_response(rule_name, msg), rule_id
 
         # For Edit tool - check read-before-edit
-        if tool_name == 'Edit' and rule.get('id') == 'read_before_edit':
+        if tool_name == 'Edit' and rule_id == 'read_before_edit':
             file_path = tool_input.get('file_path', '')
             if file_path:
                 ok, reason = check_read_before_edit(file_path)
@@ -224,9 +337,9 @@ def check_enforcement_patterns(tool_name: str, tool_input: Dict) -> Optional[Dic
                         'Read Before Edit',
                         rule.get('message', 'File must be read before editing.'),
                         reason
-                    )
+                    ), rule_id
 
-    return None
+    return None, None
 
 
 def make_block_response(rule_name: str, message: str, detail: str = None) -> Dict:
@@ -471,10 +584,26 @@ def main():
             print(json.dumps({}), file=sys.stdout)
             sys.exit(0)
 
+        # --- Parse waiver from environment ---
+        waiver = parse_waiver(os.environ.get('DURO_WAIVE', ''))
+        if waiver:
+            debug_log(f"Waiver present: rule={waiver['rule_id']}, reason={waiver['reason'][:30]}...")
+
         # --- Check enforcement patterns (FIRST) ---
-        result = check_enforcement_patterns(tool_name, tool_input)
+        result, rule_id = check_enforcement_patterns(tool_name, tool_input)
         if result:
             decision = result.get('hookSpecificOutput', {}).get('permissionDecision', 'allow')
+
+            # Check if waiver applies
+            if decision == 'deny' and should_waive(waiver, rule_id):
+                # Waiver is valid - allow with receipt
+                command_preview = tool_input.get('command', str(tool_input))[:100]
+                update_waiver_scoreboard(rule_id, waiver['reason'], command_preview)
+                telemetry_log(tool_name, tool_input, 'waived', rule_id, waiver['reason'])
+                print(json.dumps(make_waived_response(rule_id, waiver['reason'])), file=sys.stdout)
+                sys.exit(0)
+
+            # No valid waiver - enforce the rule
             rule_name = None
             if 'systemMessage' in result:
                 msg = result['systemMessage']
