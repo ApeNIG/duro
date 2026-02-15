@@ -98,12 +98,35 @@ jobs:
             print(f"::warning::Waiver rate elevated: {count} in last {WINDOW_DAYS} days (warn > {WARN})")
           PY
 
+      - name: Generate waiver dashboard
+        if: always()
+        run: |
+          cd evals
+          python generate_waiver_dashboard.py
+
+      - name: Auto-commit dashboard (scheduled runs only)
+        if: github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metrics/WAIVERS_DASHBOARD.md
+          git diff --staged --quiet || git commit -m "chore: update waiver dashboard [skip ci]"
+          git push || echo "Push failed - likely no changes or permissions issue"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: enforcement-results
           path: evals/enforcement_results.json
+
+      - name: Upload waiver dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: waiver-dashboard
+          path: metrics/WAIVERS_DASHBOARD.md
+          retention-days: 90
 
       - name: Comment on PR with results
         if: github.event_name == 'pull_request' && failure()
