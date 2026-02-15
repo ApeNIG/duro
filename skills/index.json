@@ -533,6 +533,34 @@
       "keywords": ["lighting", "light", "photography", "portrait", "studio", "softbox", "reflector", "rembrandt", "butterfly", "shadow", "strobe", "flash", "key light", "fill light"],
       "has_precompiled_renderings": true,
       "notes": "Comprehensive coverage of the four properties of light, classic portrait patterns, three-point lighting, equipment and modifiers"
+    },
+    {
+      "id": "skill_image_001",
+      "name": "image_generate",
+      "path": "image/image_generate.py",
+      "description": "Generate images with multi-backend fallback chain (Pollinations, DALL-E, stock)",
+      "tier": "tested",
+      "phase": "3.2",
+      "keywords": [
+        "image", "generate", "ai", "picture", "photo",
+        "pollinations", "dalle", "stock", "illustration",
+        "art", "create", "render"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": true,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 15,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file",
+        "network_request"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "network_available"
+      ],
+      "notes": "Phase 3.2 skill. Multi-backend with fallback chain, face detection routing, prompt enhancement, caching. Supports batch generation."
     }
   ],
   "selection_priority": [
