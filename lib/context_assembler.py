@@ -187,25 +187,37 @@ FOUNDATIONAL_SKILLS = {
     "api": ["stub_api_rest"],
 }
 
+# Expansion limits (prevent foundation flood)
+MAX_EXPANSIONS_PER_DOMAIN = 6
+MAX_TOTAL_EXPANSIONS = 8
+MAX_DOMAINS_TO_EXPAND = 2  # Only expand top N domains by hit count
+EXPANSION_SCORE = 0.01  # Below any real match, preserves anchor ordering
 
-def detect_task_domains(task_description: str) -> List[str]:
-    """Detect which domains a task belongs to based on keywords."""
+
+def detect_task_domains(task_description: str) -> List[Tuple[str, int]]:
+    """
+    Detect which domains a task belongs to based on keywords.
+
+    Returns: List of (domain, hit_count) tuples, sorted by hit count descending.
+    """
     task_lower = task_description.lower()
-    detected = []
+    scored = []
 
     for domain, keywords in DOMAIN_KEYWORDS.items():
         matches = sum(1 for kw in keywords if kw in task_lower)
-        if matches >= 1:  # At least one keyword match
-            detected.append(domain)
+        if matches >= 1:
+            scored.append((domain, matches))
 
-    return detected
+    # Sort by hit count descending
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return scored
 
 
 def select_skills_for_task(
     task_description: str,
     budget_tokens: int = 30000,
     mode: RenderMode = RenderMode.COMPACT
-) -> List[Tuple[Dict[str, Any], str, float]]:
+) -> List[Tuple[Dict[str, Any], str, float, str]]:
     """
     Select and rank skills for a task within token budget.
 
@@ -213,10 +225,10 @@ def select_skills_for_task(
     1. Anchor match (strict) - skills with base_score > 0
     2. Domain expansion - pull foundational skills if domain detected + anchors exist
 
-    Returns: List of (skill, rendered_content, score) tuples.
+    Returns: List of (skill, rendered_content, score, reason) tuples.
     """
     stats = load_skill_stats()
-    task_domains = detect_task_domains(task_description)
+    task_domains = detect_task_domains(task_description)  # Now returns [(domain, hits), ...]
 
     # Load all skills and compute scores
     all_skills = {}  # id -> (skill, score)
@@ -227,42 +239,60 @@ def select_skills_for_task(
             all_skills[skill.get("id")] = (skill, score)
 
     # === STAGE 1: Anchor match (strict) ===
-    anchors = [(skill, score) for skill, score in all_skills.values() if score > 0]
+    anchors = []
+    for skill, score in all_skills.values():
+        if score > 0:
+            # Determine anchor reason (simplified - could be more specific)
+            reason = f"anchor(score:{score:.1f})"
+            anchors.append((skill, score, reason))
     anchors.sort(key=lambda x: x[1], reverse=True)
 
     # === STAGE 2: Domain expansion (only if anchors exist) ===
-    expansion_ids = set()
+    expansions = []  # (skill, score, reason)
     if anchors:
-        for domain in task_domains:
+        total_expanded = 0
+        # Only expand top N domains by hit count
+        domains_to_expand = task_domains[:MAX_DOMAINS_TO_EXPAND]
+
+        for domain, hits in domains_to_expand:
+            if total_expanded >= MAX_TOTAL_EXPANSIONS:
+                break
+
+            domain_expanded = 0
             foundational = FOUNDATIONAL_SKILLS.get(domain, [])
+
             for skill_id in foundational:
+                if domain_expanded >= MAX_EXPANSIONS_PER_DOMAIN:
+                    break
+                if total_expanded >= MAX_TOTAL_EXPANSIONS:
+                    break
+
                 # Don't expand if already an anchor
                 if skill_id in all_skills:
                     existing_score = all_skills[skill_id][1]
                     if existing_score == 0:  # Only expand non-anchors
-                        expansion_ids.add(skill_id)
+                        skill, _ = all_skills[skill_id]
+                        reason = f"expansion(foundational:{domain})"
+                        expansions.append((skill, EXPANSION_SCORE, reason))
+                        domain_expanded += 1
+                        total_expanded += 1
 
-    # Combine: anchors + expansions (expansions get a small base score for sorting)
-    EXPANSION_SCORE = 1.0  # Below any real match, but included
-    combined = list(anchors)
-    for skill_id in expansion_ids:
-        if skill_id in all_skills:
-            skill, _ = all_skills[skill_id]
-            combined.append((skill, EXPANSION_SCORE))
+    # Combine: anchors first, then expansions
+    combined = anchors + expansions
 
-    # Sort by score descending (anchors first, then expansions)
+    # Sort by score descending (anchors first due to higher scores, expansions last)
     combined.sort(key=lambda x: x[1], reverse=True)
 
     # Select within budget
     selected = []
     tokens_used = 0
 
-    for skill, score in combined:
+    for skill, score, reason in combined:
         rendered = get_skill_rendering(skill, mode)
         tokens = estimate_tokens(rendered)
 
         if tokens_used + tokens <= budget_tokens:
-            selected.append((skill, rendered, score))
+            selected.append((skill, rendered, score, reason))
             tokens_used += tokens
         else:
             # Try with minimal rendering
@@ -270,7 +300,7 @@ def select_skills_for_task(
                 rendered = get_skill_rendering(skill, RenderMode.MINIMAL)
                 tokens = estimate_tokens(rendered)
                 if tokens_used + tokens <= budget_tokens:
-                    selected.append((skill, rendered, score))
+                    selected.append((skill, rendered, score, reason))
                     tokens_used += tokens
 
     return selected
@@ -429,12 +459,13 @@ def assemble_context(
     )
 
     skills_data = []
-    for skill, rendered, score in selected_skills:
+    for skill, rendered, score, reason in selected_skills:
         skills_data.append({
             "id": skill.get("id"),
             "name": skill.get("name"),
             "rendered": rendered,
-            "score": score
+            "score": score,
+            "reason": reason
         })
         budget_used["skills"] += estimate_tokens(rendered)
 
