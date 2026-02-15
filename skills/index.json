@@ -561,6 +561,37 @@
         "network_available"
       ],
       "notes": "Phase 3.2 skill. Multi-backend with fallback chain, face detection routing, prompt enhancement, caching. Supports batch generation."
+    },
+    {
+      "id": "skill_video_001",
+      "name": "video_compose",
+      "path": "video/video_compose.py",
+      "description": "Compose video from image sequences and audio using ffmpeg",
+      "tier": "tested",
+      "phase": "3.2",
+      "keywords": [
+        "video", "compose", "ffmpeg", "images", "audio",
+        "slideshow", "render", "movie", "mp4", "encode"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 600,
+      "expected_runtime_seconds": 60,
+      "dependencies": ["ffmpeg"],
+      "side_effects": [
+        "writes_file",
+        "subprocess"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "ffmpeg_available"
+      ],
+      "composes": [
+        "image/image_generate.py",
+        "audio/generate_tts.py"
+      ],
+      "notes": "Phase 3.2 skill. Resource limits: 500 images max, 600s duration max. Supports H.264/H.265/VP9 codecs, audio integration with fade effects."
     }
   ],
   "selection_priority": [
