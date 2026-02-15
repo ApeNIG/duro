@@ -52,36 +52,32 @@ SKILL_META = {
 REQUIRES = ["pencil_batch_get", "read_file", "glob_files"]
 
 
-# === TAILWIND CLASS EXTRACTION (V2) ===
+# === TAILWIND CLASS EXTRACTION (V2.1 - Honest Mode) ===
 
-# Complete Tailwind color palette mapping
-TAILWIND_COLORS = {
-    # Gray
-    "gray-50": "#f9fafb", "gray-100": "#f3f4f6", "gray-200": "#e5e7eb",
-    "gray-300": "#d1d5db", "gray-400": "#9ca3af", "gray-500": "#6b7280",
-    "gray-600": "#4b5563", "gray-700": "#374151", "gray-800": "#1f2937",
-    "gray-900": "#111827", "gray-950": "#030712",
-    # Zinc
-    "zinc-50": "#fafafa", "zinc-100": "#f4f4f5", "zinc-200": "#e4e4e7",
-    "zinc-300": "#d4d4d8", "zinc-400": "#a1a1aa", "zinc-500": "#71717a",
-    "zinc-600": "#52525b", "zinc-700": "#3f3f46", "zinc-800": "#27272a",
-    "zinc-900": "#18181b", "zinc-950": "#09090b",
-    # Purple
-    "purple-50": "#faf5ff", "purple-100": "#f3e8ff", "purple-200": "#e9d5ff",
-    "purple-300": "#d8b4fe", "purple-400": "#c084fc", "purple-500": "#a855f7",
-    "purple-600": "#9333ea", "purple-700": "#7c3aed", "purple-800": "#6b21a8",
-    "purple-900": "#581c87", "purple-950": "#3b0764",
-    # Violet (MSJ primary #8B5CF6 is between violet-500 and violet-400)
-    "violet-400": "#a78bfa", "violet-500": "#8b5cf6", "violet-600": "#7c3aed",
-    # Teal (MSJ secondary #14B8A6 is teal-500)
-    "teal-400": "#2dd4bf", "teal-500": "#14b8a6", "teal-600": "#0d9488",
-    # Green
-    "green-500": "#22c55e", "green-600": "#16a34a",
-    # Red
-    "red-500": "#ef4444", "red-600": "#dc2626",
-    # Common colors
-    "white": "#ffffff", "black": "#000000",
+# IMPORTANT: We do NOT maintain a "complete" Tailwind palette.
+# That would drift and cause silent wrong matches.
+#
+# Authoritative sources (confidence=0.95+):
+# 1. Arbitrary values: bg-[#8B5CF6], p-[20px], rounded-[16px]
+# 2. CSS var references: bg-[var(--color-primary)]
+# 3. Values resolved from project's tailwind.config or globals.css
+#
+# Best-effort sources (confidence=0.3):
+# - Default Tailwind palette lookups (may not match project config)
+
+# Minimal palette for BEST-EFFORT matching only
+# These are Tailwind v3 defaults - project may override them
+TAILWIND_COLORS_BEST_EFFORT = {
+    "white": "#ffffff",
+    "black": "#000000",
+    # Only the most stable defaults - everything else is "unresolved"
 }
+
+# Confidence levels
+CONFIDENCE_ARBITRARY = 0.95   # bg-[#8B5CF6] - we know exactly what this is
+CONFIDENCE_CSS_VAR = 0.90     # var(--x) resolved from globals.css
+CONFIDENCE_BEST_EFFORT = 0.30 # Tailwind class without arbitrary value
+CONFIDENCE_UNRESOLVED = 0.0   # Could not resolve
 
 # Tailwind spacing scale (rem to px, assuming 16px base)
 TAILWIND_SPACING = {
@@ -118,33 +114,36 @@ class TailwindUsage:
 
 def extract_tailwind_classes(content: str, file_path: str) -> List[TailwindUsage]:
     """
-    Extract ALL Tailwind classes from TSX/HTML content.
+    Extract Tailwind classes from TSX/HTML content.
+
+    Two-phase approach:
+    1. Find className= positions and extract the value block
+    2. Extract all quoted strings within (handles cn(), clsx(), multiline)
 
     Handles:
     - className="..."
     - className={`...`}
-    - className={cn("...", condition && "...")}
-    - class="..." (HTML)
+    - className={cn("a", cond && "b")}
+    - className={clsx("a", { "b": condition })}
+    - Multiline className blocks
     """
     usages = []
-    lines = content.splitlines()
 
-    # Patterns for className extraction
-    patterns = [
-        r'className="([^"]+)"',  # className="..."
-        r"className='([^']+)'",  # className='...'
-        r'className=\{`([^`]+)`\}',  # className={`...`}
-        r'className=\{[^}]*"([^"]+)"[^}]*\}',  # className={cn("...")}
-        r'class="([^"]+)"',  # class="..." (HTML)
+    # Phase 1: Find className blocks with a state machine approach
+    # This handles multiline better than single-line regex
+
+    # Simple quoted strings (most common, fast path)
+    simple_patterns = [
+        (r'className="([^"]+)"', 'double_quote'),
+        (r"className='([^']+)'", 'single_quote'),
+        (r'class="([^"]+)"', 'html_class'),
     ]
 
+    lines = content.splitlines()
     for line_num, line in enumerate(lines, 1):
-        for pattern in patterns:
-            matches = re.finditer(pattern, line)
-            for match in matches:
-                class_string = match.group(1)
-                # Split into individual classes
-                classes = [c.strip() for c in class_string.split() if c.strip()]
+        for pattern, source in simple_patterns:
+            for match in re.finditer(pattern, line):
+                classes = _extract_classes_from_string(match.group(1))
                 if classes:
                     usages.append(TailwindUsage(
                         file_path=file_path,
@@ -153,29 +152,170 @@ def extract_tailwind_classes(content: str, file_path: str) -> List[TailwindUsage
                         context=line.strip()[:100]
                     ))
 
+    # Phase 2: Handle complex expressions (cn, clsx, template literals)
+    # Find className={ and capture until balanced }
+
+    complex_pattern = r'className=\{([^}]*(?:\{[^}]*\}[^}]*)*)\}'
+    for match in re.finditer(complex_pattern, content, re.DOTALL):
+        expr = match.group(1)
+        # Find the line number
+        line_num = content[:match.start()].count('\n') + 1
+
+        # Extract all quoted strings from the expression
+        # Handles: cn("a b", cond && "c d", { "e": true })
+        quoted_strings = re.findall(r'["\']([^"\']+)["\']', expr)
+
+        all_classes = []
+        for qs in quoted_strings:
+            all_classes.extend(_extract_classes_from_string(qs))
+
+        # Also handle template literals
+        template_strings = re.findall(r'`([^`]+)`', expr)
+        for ts in template_strings:
+            # Remove ${...} interpolations for now
+            clean = re.sub(r'\$\{[^}]+\}', ' ', ts)
+            all_classes.extend(_extract_classes_from_string(clean))
+
+        if all_classes:
+            # Dedupe while preserving order
+            seen = set()
+            unique_classes = []
+            for c in all_classes:
+                if c not in seen:
+                    seen.add(c)
+                    unique_classes.append(c)
+
+            usages.append(TailwindUsage(
+                file_path=file_path,
+                line_number=line_num,
+                classes=unique_classes,
+                context=expr[:100].replace('\n', ' ')
+            ))
+
     return usages
 
 
-def resolve_tailwind_color(tw_class: str) -> Optional[str]:
-    """
-    Resolve a Tailwind color class to hex value.
+def _extract_classes_from_string(s: str) -> List[str]:
+    """Extract individual class names from a space-separated string."""
+    # Filter out things that definitely aren't classes
+    classes = []
+    for part in s.split():
+        part = part.strip()
+        if not part:
+            continue
+        # Skip obvious non-classes
+        if part.startswith('$') or part.startswith('{') or '(' in part:
+            continue
+        # Skip JavaScript keywords that might appear
+        if part in ('true', 'false', 'null', 'undefined', '&&', '||', '?', ':'):
+            continue
+        classes.append(part)
+    return classes
 
-    Examples:
-        bg-purple-500 -> #a855f7
-        text-zinc-900 -> #18181b
-        border-teal-500 -> #14b8a6
+
+@dataclass
+class ResolvedToken:
+    """A resolved token with confidence level."""
+    value: Any
+    confidence: float
+    source: str  # "arbitrary", "css_var", "best_effort", "unresolved"
+
+
+def resolve_tailwind_color(tw_class: str, css_var_map: 'CSSVariableMap' = None) -> Optional[ResolvedToken]:
     """
-    # Extract color from class
+    Resolve a Tailwind color class to hex value WITH confidence.
+
+    Confidence levels:
+    - 0.95: Arbitrary value bg-[#8B5CF6] - we know exactly what this is
+    - 0.90: CSS var resolved from globals.css
+    - 0.30: Best-effort palette lookup (may not match project config)
+    - 0.00: Unresolved (class exists but value unknown)
+    """
+    # Skip known non-color text-* classes (font sizes)
+    text_non_colors = {"text-xs", "text-sm", "text-base", "text-lg", "text-xl",
+                       "text-2xl", "text-3xl", "text-4xl", "text-5xl", "text-6xl",
+                       "text-7xl", "text-8xl", "text-9xl",
+                       "text-left", "text-center", "text-right", "text-justify",
+                       "text-wrap", "text-nowrap", "text-balance", "text-pretty"}
+    if tw_class in text_non_colors:
+        return None  # Not a color class
+
     prefixes = ["bg-", "text-", "border-", "fill-", "stroke-", "ring-", "accent-"]
+
     for prefix in prefixes:
         if tw_class.startswith(prefix):
             color_part = tw_class[len(prefix):]
-            if color_part in TAILWIND_COLORS:
-                return TAILWIND_COLORS[color_part]
-            # Handle arbitrary values: bg-[#8B5CF6]
-            arb_match = re.match(r'\[([^\]]+)\]', color_part)
-            if arb_match:
-                return arb_match.group(1).lower()
+
+            # Skip arbitrary non-color values like [28px], [100%], [1rem]
+            if color_part.startswith('['):
+                # Only process if it looks like a color value
+                arb_content = color_part[1:-1] if color_part.endswith(']') else color_part[1:]
+
+                # AUTHORITATIVE: Arbitrary hex value bg-[#8B5CF6]
+                if arb_content.startswith('#'):
+                    arb_hex = re.match(r'#[0-9A-Fa-f]{3,8}$', arb_content)
+                    if arb_hex:
+                        return ResolvedToken(
+                            value=arb_content.lower(),
+                            confidence=CONFIDENCE_ARBITRARY,
+                            source="arbitrary"
+                        )
+
+                # AUTHORITATIVE: Arbitrary CSS var bg-[var(--color-primary)]
+                elif arb_content.startswith('var('):
+                    arb_var = re.match(r'var\((--[\w-]+)\)', arb_content)
+                    if arb_var:
+                        var_name = arb_var.group(1)
+                        # Try to resolve from CSS var map
+                        if css_var_map:
+                            resolved = css_var_map.variables.get(var_name.lstrip('-'))
+                            if resolved:
+                                return ResolvedToken(
+                                    value=resolved.lower(),
+                                    confidence=CONFIDENCE_CSS_VAR,
+                                    source="css_var"
+                                )
+                        # Return the var reference itself (still useful for matching)
+                        return ResolvedToken(
+                            value=f"var({var_name})",
+                            confidence=CONFIDENCE_CSS_VAR,
+                            source="css_var"
+                        )
+
+                # AUTHORITATIVE: rgb/rgba values
+                elif arb_content.startswith('rgb'):
+                    return ResolvedToken(
+                        value=arb_content.lower(),
+                        confidence=CONFIDENCE_ARBITRARY,
+                        source="arbitrary"
+                    )
+
+                # Not a color arbitrary value - skip (don't mark as unresolved)
+                else:
+                    return None
+
+            # BEST-EFFORT: Known stable colors only
+            if color_part in TAILWIND_COLORS_BEST_EFFORT:
+                return ResolvedToken(
+                    value=TAILWIND_COLORS_BEST_EFFORT[color_part],
+                    confidence=CONFIDENCE_BEST_EFFORT,
+                    source="best_effort"
+                )
+
+            # Check if it looks like a color class (has color name pattern)
+            # e.g., purple-500, red-600, zinc-900
+            color_pattern = re.match(r'^[a-z]+-\d{2,3}$', color_part)
+            if color_pattern:
+                # This IS a color class, we just can't resolve it
+                return ResolvedToken(
+                    value=f"unresolved:{tw_class}",
+                    confidence=CONFIDENCE_UNRESOLVED,
+                    source="unresolved"
+                )
+
+            # Doesn't look like a color class at all - skip
+            return None
+
     return None
 
 
@@ -337,6 +477,8 @@ class CodeToken:
     file_path: str
     line_number: int
     context: str  # The surrounding code
+    confidence: float = 1.0  # How confident we are in this value (0-1)
+    source: str = "direct"   # Where this came from: direct, arbitrary, css_var, best_effort, unresolved
 
 
 @dataclass
@@ -418,53 +560,62 @@ def normalize_spacing(value: Any) -> List[int]:
     return [0, 0, 0, 0]
 
 
-def colors_match(design_color: str, code_color: str, tolerance: int = 0, css_var_map: Dict[str, str] = None) -> bool:
-    """Check if two colors match, with optional tolerance for RGB values."""
+def colors_match(
+    design_color: str,
+    code_color: str,
+    css_var_map: 'CSSVariableMap' = None,
+    tolerance: int = 0
+) -> Tuple[bool, float]:
+    """
+    Check if two colors match.
+
+    Returns: (matches: bool, confidence: float)
+
+    V2.1: Uses actual CSS variable map instead of hardcoded mappings.
+    If we can't resolve, we say so honestly instead of guessing.
+    """
     dc = normalize_color(design_color)
     cc = normalize_color(code_color)
 
-    # Direct match
+    # Direct hex match - high confidence
     if dc == cc:
-        return True
+        return True, 0.95
 
-    # Check variable mapping
-    # e.g., "$--primary" in design might map to "var(--color-primary)" in code
+    # Both are hex colors that don't match
+    if dc.startswith("#") and cc.startswith("#"):
+        return False, 0.95
+
+    # Design uses variable reference ($--primary)
     if dc.startswith("$") and cc.startswith("var("):
         design_var = dc[1:].replace("--", "").replace("-", "")
         code_var = cc.replace("var(", "").replace(")", "").replace("--color-", "").replace("-", "")
-        return design_var.lower() == code_var.lower()
+        if design_var.lower() == code_var.lower():
+            return True, 0.85
 
-    # Check if code uses CSS variable that maps to design hex color
-    # Common MSJ-style mapping: #8B5CF6 -> var(--color-primary)
-    default_css_var_map = {
-        "#8b5cf6": ["var(--color-primary)", "var(--primary)"],
-        "#14b8a6": ["var(--color-secondary)", "var(--secondary)"],
-        "#18181b": ["var(--color-text-primary)", "var(--color-foreground)"],
-        "#71717a": ["var(--color-text-secondary)", "var(--color-muted-foreground)"],
-        "#a1a1aa": ["var(--color-text-muted)"],
-        "#ffffff": ["var(--color-background)", "var(--color-primary-foreground)", "white"],
-        "#fafafa": ["var(--color-card)"],
-        "#f4f4f5": ["var(--color-muted)"],
-        "#e4e4e7": ["var(--color-border)"],
-    }
+    # Code uses CSS variable - try to resolve from loaded CSS
+    if cc.startswith("var(") and css_var_map:
+        var_name = cc.replace("var(", "").replace(")", "").lstrip("-")
+        resolved = css_var_map.variables.get(var_name)
+        if resolved:
+            # Compare resolved value to design color
+            if normalize_color(resolved) == dc:
+                return True, CONFIDENCE_CSS_VAR
+        # Also try reverse lookup: does design hex map to this variable?
+        if dc.startswith("#"):
+            found_var = css_var_map.find_variable_for_color(dc)
+            if found_var and normalize_color(found_var) == normalize_color(cc):
+                return True, CONFIDENCE_CSS_VAR
 
-    # Merge with provided map
-    var_map = {**default_css_var_map, **(css_var_map or {})}
+    # Code is a direct hex, design is variable - try reverse
+    if dc.startswith("$") and cc.startswith("#") and css_var_map:
+        var_name = dc[1:].lstrip("-")
+        if var_name in css_var_map.variables:
+            if normalize_color(css_var_map.variables[var_name]) == cc:
+                return True, CONFIDENCE_CSS_VAR
 
-    # Check if design hex matches code CSS variable
-    if dc in var_map:
-        for var in var_map[dc]:
-            if var.lower() in cc.lower() or cc.lower() in var.lower():
-                return True
-
-    # Check if code has CSS variable pattern
-    if "var(--color-" in cc:
-        # Extract variable name and check against hex
-        for hex_color, vars in var_map.items():
-            if dc == hex_color and any(v in cc for v in vars):
-                return True
-
-    return False
+    # We can't determine a match with confidence
+    # DON'T use hardcoded mappings - that's dishonest
+    return False, CONFIDENCE_UNRESOLVED
 
 
 def spacing_matches(design_spacing: Any, code_spacing: str) -> bool:
@@ -692,9 +843,14 @@ def scan_code_for_tokens(
 def compare_tokens(
     design_tokens: List[DesignToken],
     code_tokens: List[CodeToken],
-    component_name: str
+    component_name: str,
+    css_var_map: 'CSSVariableMap' = None
 ) -> List[DriftReport]:
-    """Compare design tokens to code tokens and report drift."""
+    """
+    Compare design tokens to code tokens and report drift.
+
+    V2.1: Tracks match confidence and reports unresolved tokens honestly.
+    """
     drifts = []
 
     # Group tokens by type
@@ -707,35 +863,49 @@ def compare_tokens(
     for ct in code_tokens:
         code_by_type.setdefault(ct.token_type, []).append(ct)
 
-    # Check colors - need to check ALL code tokens, not just COLOR type
-    # since CSS variables appear in various contexts
-    all_code_values = " ".join([str(ct.value) + " " + str(ct.context) for ct in code_tokens])
-
+    # Check colors with confidence tracking
     for design_color in design_by_type.get(TokenType.COLOR, []):
         found_match = False
+        best_confidence = 0.0
 
         # Check against color tokens
         for code_color in code_by_type.get(TokenType.COLOR, []):
-            if colors_match(design_color.value, code_color.value):
-                found_match = True
-                break
+            # Skip unresolved tokens for matching (but report them separately)
+            if code_color.source == "unresolved":
+                continue
 
-        # Also check if color appears in any code context (CSS variables)
-        if not found_match:
-            if colors_match(design_color.value, all_code_values):
+            matches, confidence = colors_match(
+                design_color.value,
+                code_color.value,
+                css_var_map
+            )
+            if matches and confidence > best_confidence:
                 found_match = True
+                best_confidence = confidence
 
         if not found_match and not str(design_color.value).startswith("$"):
             # Only report if it's a concrete color, not a variable
+            severity = DriftSeverity.WARNING
+            message = f"Color {design_color.value} from design not found in code"
+
+            # Check if we have unresolved tokens that MIGHT match
+            unresolved_count = len([
+                ct for ct in code_by_type.get(TokenType.COLOR, [])
+                if ct.source == "unresolved"
+            ])
+            if unresolved_count > 0:
+                message += f" ({unresolved_count} Tailwind colors could not be resolved - check tailwind.config)"
+                severity = DriftSeverity.INFO  # Downgrade if we're uncertain
+
             drifts.append(DriftReport(
-                severity=DriftSeverity.WARNING,
+                severity=severity,
                 token_type=TokenType.COLOR,
                 design_value=design_color.value,
                 code_value="not found",
                 design_location=design_color.path,
                 code_location=f"{component_name}",
-                message=f"Color {design_color.value} from design not found in code",
-                suggestion=f"Add color: {design_color.value}"
+                message=message,
+                suggestion=f"Add color: {design_color.value} or use bg-[{design_color.value}]"
             ))
 
     # Check font sizes
@@ -950,19 +1120,34 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
                 tw_usages = extract_tailwind_classes(content, code_file)
                 all_tailwind_usages.extend(tw_usages)
 
-                # V2: Convert Tailwind classes to CodeTokens for matching
+                # V2.1: Convert Tailwind classes to CodeTokens with confidence
                 for usage in tw_usages:
                     for tw_class in usage.classes:
-                        # Extract color
-                        color = resolve_tailwind_color(tw_class)
-                        if color:
-                            all_code_tokens.append(CodeToken(
-                                token_type=TokenType.COLOR,
-                                value=color,
-                                file_path=usage.file_path,
-                                line_number=usage.line_number,
-                                context=f"tailwind: {tw_class}"
-                            ))
+                        # Extract color with confidence tracking
+                        color_result = resolve_tailwind_color(tw_class, css_var_map)
+                        if color_result:
+                            # Only add if we have some confidence, or track unresolved
+                            if color_result.confidence > 0:
+                                all_code_tokens.append(CodeToken(
+                                    token_type=TokenType.COLOR,
+                                    value=color_result.value,
+                                    file_path=usage.file_path,
+                                    line_number=usage.line_number,
+                                    context=f"tailwind: {tw_class}",
+                                    confidence=color_result.confidence,
+                                    source=color_result.source
+                                ))
+                            else:
+                                # Track unresolved tokens separately for reporting
+                                all_code_tokens.append(CodeToken(
+                                    token_type=TokenType.COLOR,
+                                    value=color_result.value,
+                                    file_path=usage.file_path,
+                                    line_number=usage.line_number,
+                                    context=f"tailwind: {tw_class} (unresolved)",
+                                    confidence=0.0,
+                                    source="unresolved"
+                                ))
 
                         # Extract spacing
                         spacing = resolve_tailwind_spacing(tw_class)
@@ -1014,11 +1199,12 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         result.success = False
         return _format_result(result)
 
-    # Step 3: Compare tokens
+    # Step 3: Compare tokens with CSS variable context
     result.drifts = compare_tokens(
         design_tokens,
         all_code_tokens,
-        os.path.basename(code_dir)
+        os.path.basename(code_dir),
+        css_var_map
     )
 
     # Calculate match rate
