@@ -1,0 +1,46 @@
+{
+  "id": "ep_20260215_025908_lnesij",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-15T02:59:08.318131Z",
+  "updated_at": "2026-02-15T02:59:08.464187Z",
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "decision-auto-outcome"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Smoke test - decision auto-outcome via evaluation",
+    "status": "closed",
+    "plan": [
+      "Apply decision",
+      "Measure results"
+    ],
+    "context": {
+      "testing_auto_decision_outcome": true
+    },
+    "actions": [],
+    "result": "success",
+    "result_summary": "Semantic search improved recall as expected",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [
+        "decision_20260215_025908_97wbf6"
+      ],
+      "skills_used": [
+        "planning"
+      ],
+      "evaluation_id": "eval_20260215_025908_mms24r"
+    },
+    "started_at": "2026-02-15T02:59:08.318131Z",
+    "closed_at": "2026-02-15T02:59:08.381845Z",
+    "duration_mins": 0.0,
+    "warnings": []
+  }
+}
