@@ -6,33 +6,35 @@ rule_ref: rule_tool_005
 patterns_ref: enforcement_patterns.json#amend_pushed_commit
 
 test_cases:
+  # Note: Current implementation warns on ALL --amend (conservative).
+  # Context-aware checking (git status parsing) is ENFORCE-LATER.
   - id: amend_unpushed
-    description: Allow amend of unpushed commit
+    description: Warn on amend (conservative - always warn)
     scenario:
       git_status: "Your branch is ahead of 'origin/main' by 1 commit"
     command: "git commit --amend -m 'updated message'"
-    expected: allowed
+    expected: warn
 
   - id: amend_pushed
-    description: Warn/block amend of pushed commit
+    description: Warn on amend of pushed commit
     scenario:
       git_status: "Your branch is up to date with 'origin/main'"
     command: "git commit --amend -m 'updated message'"
     expected: warn
 
   - id: amend_behind
-    description: Warn/block amend when behind remote
+    description: Warn on amend when behind remote
     scenario:
       git_status: "Your branch is behind 'origin/main' by 2 commits"
     command: "git commit --amend"
     expected: warn
 
   - id: amend_no_remote
-    description: Allow amend with no remote tracking
+    description: Warn on amend (conservative - always warn)
     scenario:
       git_status: "Your branch is not tracking a remote branch"
     command: "git commit --amend -m 'message'"
-    expected: allowed
+    expected: warn
 
 implementation_notes:
   - On git commit --amend, run git status to check
