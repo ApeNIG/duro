@@ -209,6 +209,42 @@
       "notes": "Workaround for hookify PreToolUse hook hang on MCP tools. Commands: crash-drill, health, reembed N, prune, status"
     },
     {
+      "id": "skill_design_002",
+      "name": "design_to_code_verifier",
+      "path": "design/design_to_code_verifier.py",
+      "description": "Compare Pencil designs to implemented code and detect drift between design tokens and code values",
+      "tier": "core",
+      "keywords": [
+        "design",
+        "code",
+        "verify",
+        "drift",
+        "pencil",
+        "compare",
+        "tokens",
+        "colors",
+        "spacing",
+        "typography",
+        "implementation"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 15,
+      "dependencies": [],
+      "side_effects": [
+        "reads_pen_file",
+        "reads_code_files"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "mcp_pencil_available"
+      ],
+      "linked_rules": [],
+      "notes": "Closes the design-to-code feedback loop. Extracts design tokens from .pen files, scans code for matching values, reports drift with suggestions."
+    },
+    {
       "id": "skill_design_001",
       "name": "dual_direction_design",
       "path": "design/dual_direction_design.py",

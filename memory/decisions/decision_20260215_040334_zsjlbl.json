@@ -1,0 +1,39 @@
+{
+  "id": "decision_20260215_040334_zsjlbl",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-15T04:03:34.029848Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "design",
+    "code",
+    "verification",
+    "skill",
+    "duro",
+    "pencil"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Created design_to_code_verifier skill to close the design-to-code feedback loop",
+    "rationale": "This skill complements dual_direction_design by verifying implementations match approved designs. It extracts tokens from .pen files, scans code for matching values, and reports drift with severity levels. Key feature: maps CSS variables to hex colors so var(--color-primary) matches #8B5CF6. This enables taste compounding - design decisions can now be validated against code automatically.",
+    "alternatives": [
+      "Manual visual comparison",
+      "Storybook-based testing",
+      "Screenshot diff tools"
+    ],
+    "context": "Building the design-code feedback loop for MSJ and future projects",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
