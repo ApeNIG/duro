@@ -54,15 +54,17 @@ jobs:
 
       - name: Run adversarial tests
         working-directory: agent/tests/adversarial
+        shell: bash
         run: |
-          python -m pytest . -v --tb=short --ignore=test_property_*.py
+          python -m pytest . -v --tb=short --ignore=test_property_embedding.py --ignore=test_property_index.py --ignore=test_property_lifecycle.py --ignore=test_property_search.py
         env:
           PYTHONPATH: ${{ github.workspace }}/duro-mcp
 
       - name: Run property-based tests (slower)
         working-directory: agent/tests/adversarial
+        shell: bash
         run: |
-          python -m pytest test_property_*.py -v --tb=short --hypothesis-seed=12345
+          python -m pytest test_property_embedding.py test_property_index.py test_property_lifecycle.py test_property_search.py -v --tb=short --hypothesis-seed=12345
         env:
           PYTHONPATH: ${{ github.workspace }}/duro-mcp
 
