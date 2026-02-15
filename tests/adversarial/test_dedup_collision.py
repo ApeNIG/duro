@@ -221,16 +221,23 @@ class TestDedupCollisionRisk:
         assert len(embedding_hash) == 16  # 64 bits - good!
 
 
+PROMOTE_LEARNINGS_PATH = Path.home() / ".agent" / "skills" / "memory" / "promote_learnings.py"
+
+
 class TestDedupIntegration:
     """Integration tests with actual promote_learnings module."""
 
+    @pytest.mark.skipif(
+        not PROMOTE_LEARNINGS_PATH.exists(),
+        reason="promote_learnings.py not found (CI environment)"
+    )
     def test_promote_learnings_hash_behavior(self):
         """Test actual hash generation in promote_learnings."""
         # Import with proper path handling
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "promote_learnings",
-            Path.home() / ".agent" / "skills" / "memory" / "promote_learnings.py"
+            PROMOTE_LEARNINGS_PATH
         )
         promote_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(promote_module)
@@ -253,13 +260,17 @@ class TestDedupIntegration:
         tags = learning.tags
         assert "technical" in tags
 
+    @pytest.mark.skipif(
+        not PROMOTE_LEARNINGS_PATH.exists(),
+        reason="promote_learnings.py not found (CI environment)"
+    )
     def test_check_already_promoted_function(self):
         """Test the actual check_already_promoted function."""
         # Import with proper path handling
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "promote_learnings",
-            Path.home() / ".agent" / "skills" / "memory" / "promote_learnings.py"
+            PROMOTE_LEARNINGS_PATH
         )
         promote_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(promote_module)
