@@ -2,6 +2,14 @@
   "updated": "2026-02-15T20:10:32.609350Z",
   "period": "weekly",
   "total_waivers": 1,
+  "weights": {
+    "destructive_bash_commands": 3,
+    "path_sandbox": 3,
+    "force_push": 3,
+    "amend_pushed_commit": 2,
+    "read_before_edit": 2,
+    "_default": 1
+  },
   "by_rule": {
     "destructive_bash_commands": 1
   },

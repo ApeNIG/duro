@@ -50,16 +50,26 @@ jobs:
           cd evals
           python enforcement_runner.py --ci --verbose
 
-      - name: Waiver threshold check (last 7 days)
+      - name: Waiver threshold check (last 7 days, points-based)
         run: |
           python - <<'PY'
           import json, os
           from datetime import datetime, timedelta, timezone
 
           PATH = "metrics/waiver_scoreboard.json"
-          WARN = 5
-          FAIL = 10
+          WARN_POINTS = 10  # ~4 high-risk waivers/week
+          FAIL_POINTS = 20  # ~7 high-risk waivers/week
           WINDOW_DAYS = 7
+
+          # Default weights if not in scoreboard
+          DEFAULT_WEIGHTS = {
+            "destructive_bash_commands": 3,
+            "path_sandbox": 3,
+            "force_push": 3,
+            "amend_pushed_commit": 2,
+            "read_before_edit": 2,
+            "_default": 1
+          }
 
           if not os.path.exists(PATH):
             print(f"[waivers] {PATH} not found; assuming 0 waivers.")
@@ -67,6 +77,10 @@ jobs:
 
           with open(PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
+
+          weights = data.get("weights") or DEFAULT_WEIGHTS
+          def weight_for(rule_id):
+            return int(weights.get(rule_id, weights.get("_default", 1)))
 
           recent = data.get("recent", []) or []
           now = datetime.now(timezone.utc)
@@ -85,17 +99,19 @@ jobs:
             return dt.astimezone(timezone.utc)
 
           count = 0
+          points = 0
           for item in recent:
             ts = parse_ts(item.get("ts"))
             if ts and ts >= cutoff:
               count += 1
+              points += weight_for(item.get("rule") or "")
 
-          print(f"[waivers] last {WINDOW_DAYS} days: {count}")
-          if count > FAIL:
-            print(f"::error::Waiver rate too high: {count} in last {WINDOW_DAYS} days (fail > {FAIL})")
+          print(f"[waivers] last {WINDOW_DAYS} days: {count} waivers, {points} points")
+          if points > FAIL_POINTS:
+            print(f"::error::Waiver risk too high: {points} points in last {WINDOW_DAYS} days (fail > {FAIL_POINTS})")
             raise SystemExit(1)
-          elif count > WARN:
-            print(f"::warning::Waiver rate elevated: {count} in last {WINDOW_DAYS} days (warn > {WARN})")
+          elif points > WARN_POINTS:
+            print(f"::warning::Waiver risk elevated: {points} points in last {WINDOW_DAYS} days (warn > {WARN_POINTS})")
           PY
 
       - name: Generate waiver dashboard

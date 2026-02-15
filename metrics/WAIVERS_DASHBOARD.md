@@ -1,20 +1,21 @@
 # Waiver Dashboard
 
-*Generated: 2026-02-15 20:26:40 UTC*
+*Generated: 2026-02-15 20:34:26 UTC*
 
 ## Last 7 Days
 
 | Metric | Value |
 |--------|-------|
 | Waivers | **1** |
+| Points | **3** |
 | Status | **PASS** |
-| Threshold | warn > 5, fail > 10 |
+| Threshold | warn > 10 pts, fail > 20 pts |
 
 ## Top Rules
 
-| Rule | 7d | All-time |
-|------|----:|--------:|
-| `destructive_bash_commands` | 1 | 1 |
+| Rule | Weight | 7d Count | 7d Pts | All-time |
+|------|-------:|--------:|-------:|--------:|
+| `destructive_bash_commands` | 3 | 1 | 3 | 1 |
 
 ## Daily Trend (Last 14 Days)
 
