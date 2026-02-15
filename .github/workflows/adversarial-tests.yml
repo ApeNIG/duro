@@ -1,0 +1,73 @@
+name: Adversarial Tests
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'tests/**'
+      - '.github/workflows/adversarial-tests.yml'
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13']
+
+    steps:
+      - name: Checkout test repo
+        uses: actions/checkout@v4
+        with:
+          path: agent
+
+      - name: Checkout duro-mcp
+        uses: actions/checkout@v4
+        with:
+          repository: ApeNIG/duro-mcp
+          path: duro-mcp
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r agent/tests/requirements.txt
+
+      - name: Create duro-mcp symlink (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          ln -s ${{ github.workspace }}/duro-mcp ~/duro-mcp
+
+      - name: Create duro-mcp symlink (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          mklink /D "%USERPROFILE%\duro-mcp" "${{ github.workspace }}\duro-mcp"
+
+      - name: Run adversarial tests
+        working-directory: agent/tests/adversarial
+        run: |
+          python -m pytest . -v --tb=short --ignore=test_property_*.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}/duro-mcp
+
+      - name: Run property-based tests (slower)
+        working-directory: agent/tests/adversarial
+        run: |
+          python -m pytest test_property_*.py -v --tb=short --hypothesis-seed=12345
+        env:
+          PYTHONPATH: ${{ github.workspace }}/duro-mcp
+
+      - name: Test summary
+        if: always()
+        working-directory: agent/tests/adversarial
+        run: |
+          python -m pytest . --tb=no -q || true
