@@ -29,7 +29,7 @@ DURO_MCP_PATH = Path.home() / "duro-mcp"
 if str(DURO_MCP_PATH) not in sys.path:
     sys.path.insert(0, str(DURO_MCP_PATH))
 
-from harness import IsolatedTestDB, MockEmbedder, TestArtifact, concurrent_executor
+from harness import IsolatedTestDB, MockEmbedder, MockArtifact, concurrent_executor
 
 
 class TestReembedPruneRace:
@@ -39,7 +39,7 @@ class TestReembedPruneRace:
         """Baseline: Sequential operations work correctly."""
         # Add artifacts
         for i in range(5):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_seq_{i}",
                 type="fact",
                 claim=f"Sequential test fact {i}"
@@ -73,7 +73,7 @@ class TestReembedPruneRace:
         Expected: Final state should be consistent (one valid embedding row).
         """
         artifact_id = "fact_double_upsert"
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id=artifact_id,
             type="fact",
             claim="Test fact for double upsert"
@@ -129,12 +129,12 @@ class TestReembedPruneRace:
         This tests the window between embedding creation and artifact existence.
         """
         # Create two artifacts
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id="fact_to_delete",
             type="fact",
             claim="This artifact will be deleted"
         ))
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id="fact_to_embed",
             type="fact",
             claim="This artifact will get new embedding"
@@ -212,7 +212,7 @@ class TestReembedPruneRace:
 
         # Create artifacts
         for i in range(NUM_ARTIFACTS):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_bulk_{i}",
                 type="fact",
                 claim=f"Bulk test fact number {i}"
@@ -294,7 +294,7 @@ class TestEmbeddingStateConsistency:
         Race condition could leave inconsistent state.
         """
         artifact_id = "fact_delete_upsert"
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id=artifact_id,
             type="fact",
             claim="Test for delete-upsert race"

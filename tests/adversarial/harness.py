@@ -28,7 +28,7 @@ if str(DURO_MCP_PATH) not in sys.path:
 
 
 @dataclass
-class TestArtifact:
+class MockArtifact:
     """A test artifact with controlled properties."""
     id: str
     type: str
@@ -162,7 +162,7 @@ class IsolatedTestDB:
 
         return False
 
-    def add_artifact(self, artifact: TestArtifact) -> str:
+    def add_artifact(self, artifact: MockArtifact) -> str:
         """Add a test artifact to the isolated environment."""
         artifact_dict = artifact.to_dict()
 
@@ -180,10 +180,29 @@ class IsolatedTestDB:
         # Index artifact
         self.index.upsert(artifact_dict, str(file_path), file_hash)
 
+        # Manually populate FTS (since we don't have triggers in test env)
+        self._populate_fts(artifact)
+
         # Track internally
         self._artifacts[artifact.id] = artifact_dict
 
         return artifact.id
+
+    def _populate_fts(self, artifact: MockArtifact):
+        """Manually populate FTS table for test artifact."""
+        title = artifact.claim[:100] if artifact.claim else ""
+        tags_str = " ".join(artifact.tags)
+        text = artifact.claim
+
+        with sqlite3.connect(self.db_path) as conn:
+            # Delete existing entry if any
+            conn.execute("DELETE FROM artifact_fts WHERE id = ?", (artifact.id,))
+            # Insert new entry
+            conn.execute(
+                "INSERT INTO artifact_fts (id, title, tags, text) VALUES (?, ?, ?, ?)",
+                (artifact.id, title, tags_str, text)
+            )
+            conn.commit()
 
     def get_artifact(self, artifact_id: str) -> Optional[dict]:
         """Get artifact from index."""

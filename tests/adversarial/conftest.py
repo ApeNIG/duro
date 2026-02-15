@@ -14,7 +14,7 @@ if str(DURO_MCP_PATH) not in sys.path:
 # Add parent for harness import
 sys.path.insert(0, str(Path(__file__).parent))
 
-from harness import IsolatedTestDB, MockEmbedder, TestArtifact
+from harness import IsolatedTestDB, MockEmbedder, MockArtifact
 
 
 @pytest.fixture
@@ -34,19 +34,19 @@ def mock_embedder():
 def sample_facts(isolated_db):
     """Create sample facts for testing."""
     facts = [
-        TestArtifact(
+        MockArtifact(
             id="fact_test_001",
             type="fact",
             claim="Python uses indentation for code blocks",
             tags=["python", "syntax"]
         ),
-        TestArtifact(
+        MockArtifact(
             id="fact_test_002",
             type="fact",
             claim="JavaScript uses curly braces for code blocks",
             tags=["javascript", "syntax"]
         ),
-        TestArtifact(
+        MockArtifact(
             id="fact_test_003",
             type="fact",
             claim="SQL uses semicolons to terminate statements",

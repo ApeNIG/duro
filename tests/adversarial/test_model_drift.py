@@ -24,7 +24,7 @@ DURO_MCP_PATH = Path.home() / "duro-mcp"
 if str(DURO_MCP_PATH) not in sys.path:
     sys.path.insert(0, str(DURO_MCP_PATH))
 
-from harness import IsolatedTestDB, MockEmbedder, TestArtifact
+from harness import IsolatedTestDB, MockEmbedder, MockArtifact
 
 
 class TestModelDrift:
@@ -44,7 +44,7 @@ class TestModelDrift:
     def test_embedding_state_stores_model(self, isolated_db, mock_embedder):
         """Verify embedding state tracks which model was used."""
         artifact_id = "fact_model_track"
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id=artifact_id,
             type="fact",
             claim="Test fact for model tracking"
@@ -81,7 +81,7 @@ class TestModelDrift:
 
         # Create artifacts
         for i in range(4):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_mixed_{i}",
                 type="fact",
                 claim=f"Mixed model test fact {i}"
@@ -206,7 +206,7 @@ class TestModelDrift:
 
         # Create mixed-model scenario
         for i in range(3):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_search_{i}",
                 type="fact",
                 claim=f"Search test fact {i}"
@@ -247,7 +247,7 @@ class TestModelUpgradeScenarios:
         """
         # Create and embed with old model
         for i in range(3):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_upgrade_{i}",
                 type="fact",
                 claim=f"Upgrade test fact {i}"
@@ -305,7 +305,7 @@ class TestModelUpgradeScenarios:
         """
         # Create and embed with old model
         for i in range(5):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_partial_{i}",
                 type="fact",
                 claim=f"Partial reembed test fact {i}"
@@ -369,7 +369,7 @@ class TestModelDriftDetection:
         models_list = ["v1", "v1", "v2", "v2", "v3"]
 
         # Create first artifact and check if vectors available
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id="fact_dist_0",
             type="fact",
             claim="Distribution test fact 0"
@@ -387,7 +387,7 @@ class TestModelDriftDetection:
 
         # Create and embed remaining
         for i in range(1, 5):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_dist_{i}",
                 type="fact",
                 claim=f"Distribution test fact {i}"
@@ -428,7 +428,7 @@ class TestModelDriftDetection:
         models = ["v1"] * 8 + ["v2"] * 2
 
         # First artifact to check availability
-        isolated_db.add_artifact(TestArtifact(
+        isolated_db.add_artifact(MockArtifact(
             id="fact_dom_0",
             type="fact",
             claim="Dominant model test fact 0"
@@ -446,7 +446,7 @@ class TestModelDriftDetection:
 
         # Create and embed remaining
         for i in range(1, 10):
-            isolated_db.add_artifact(TestArtifact(
+            isolated_db.add_artifact(MockArtifact(
                 id=f"fact_dom_{i}",
                 type="fact",
                 claim=f"Dominant model test fact {i}"
