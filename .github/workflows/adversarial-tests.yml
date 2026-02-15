@@ -16,8 +16,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: ['3.11', '3.12', '3.13']
+        include:
+          - os: windows-latest
+            python-version: '3.12'
 
     steps:
       - name: Checkout test repo
@@ -35,6 +38,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: agent/tests/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -68,8 +73,3 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}/duro-mcp
 
-      - name: Test summary
-        if: always()
-        working-directory: agent/tests/adversarial
-        run: |
-          python -m pytest . --tb=no -q || true
