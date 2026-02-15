@@ -12,6 +12,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Hypothesis test database
+.hypothesis/
+
 # OS files
 .DS_Store
 Thumbs.db
