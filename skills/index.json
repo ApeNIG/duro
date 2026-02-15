@@ -592,6 +592,34 @@
         "audio/generate_tts.py"
       ],
       "notes": "Phase 3.2 skill. Resource limits: 500 images max, 600s duration max. Supports H.264/H.265/VP9 codecs, audio integration with fade effects."
+    },
+    {
+      "id": "skill_video_002",
+      "name": "video_subtitle",
+      "path": "video/video_subtitle.py",
+      "description": "Add subtitles to video - parse SRT/VTT, generate from text, burn-in or embed",
+      "tier": "tested",
+      "phase": "3.2",
+      "keywords": [
+        "video", "subtitle", "srt", "vtt", "caption",
+        "text", "burn", "embed", "ffmpeg", "overlay"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 300,
+      "expected_runtime_seconds": 30,
+      "dependencies": ["ffmpeg"],
+      "side_effects": [
+        "writes_file",
+        "subprocess"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "ffmpeg_available"
+      ],
+      "composes": [],
+      "notes": "Phase 3.2 skill. Parses SRT/VTT formats, generates subtitles from text list, supports burn-in (hardcode) or soft (embedded) modes with style customization."
     }
   ],
   "selection_priority": [

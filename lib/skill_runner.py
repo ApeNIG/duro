@@ -15,8 +15,11 @@ import os
 import re
 import time
 import fnmatch
+import shutil
+import subprocess
+import socket
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable, Union, Protocol
+from typing import Any, Dict, List, Optional, Callable, Union, Protocol, Tuple
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 import threading
@@ -36,6 +39,344 @@ ALLOWED_ROOTS = [
     Path.home() / "stride-server",
     Path.home() / "homecoach",
 ]
+
+
+# === Pre-Check System ===
+
+@dataclass
+class PreCheckResult:
+    """Result of a pre-check."""
+    check_name: str
+    passed: bool
+    message: str
+    details: Optional[Dict[str, Any]] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+class PreCheckRunner:
+    """
+    Runs pre-checks before skill execution.
+
+    Supported checks:
+    - ffmpeg_available: Check if ffmpeg is installed and working
+    - network_available: Check basic network connectivity
+    - dependency_installed:<package>: Check if a Python package is installed
+    - mcp_pencil_available: Check if Pencil MCP server is accessible (always passes in skill context)
+    - git_repo: Check if current directory is a git repository
+
+    Usage:
+        checker = PreCheckRunner()
+        results = checker.run_checks(["ffmpeg_available", "network_available"])
+        if all(r.passed for r in results):
+            # proceed with skill execution
+    """
+
+    # Cache for expensive checks (cleared per session)
+    _cache: Dict[str, PreCheckResult] = {}
+    _cache_ttl_seconds: int = 300  # 5 minutes
+    _cache_timestamps: Dict[str, float] = {}
+
+    def __init__(self, cache_enabled: bool = True):
+        self.cache_enabled = cache_enabled
+
+    def _get_cached(self, check_name: str) -> Optional[PreCheckResult]:
+        """Get cached result if valid."""
+        if not self.cache_enabled:
+            return None
+        if check_name in self._cache:
+            timestamp = self._cache_timestamps.get(check_name, 0)
+            if time.time() - timestamp < self._cache_ttl_seconds:
+                return self._cache[check_name]
+            # Expired - remove from cache
+            del self._cache[check_name]
+            del self._cache_timestamps[check_name]
+        return None
+
+    def _set_cached(self, check_name: str, result: PreCheckResult) -> None:
+        """Cache a result."""
+        if self.cache_enabled:
+            self._cache[check_name] = result
+            self._cache_timestamps[check_name] = time.time()
+
+    def clear_cache(self) -> None:
+        """Clear the pre-check cache."""
+        self._cache.clear()
+        self._cache_timestamps.clear()
+
+    def run_check(self, check_name: str) -> PreCheckResult:
+        """Run a single pre-check."""
+        # Check cache first
+        cached = self._get_cached(check_name)
+        if cached:
+            return cached
+
+        # Parse check name
+        if check_name.startswith("dependency_installed:"):
+            package = check_name.split(":", 1)[1]
+            result = self._check_dependency_installed(package)
+        elif check_name == "ffmpeg_available":
+            result = self._check_ffmpeg()
+        elif check_name == "network_available":
+            result = self._check_network()
+        elif check_name == "mcp_pencil_available":
+            result = self._check_mcp_pencil()
+        elif check_name == "git_repo":
+            result = self._check_git_repo()
+        else:
+            result = PreCheckResult(
+                check_name=check_name,
+                passed=False,
+                message=f"Unknown pre-check: {check_name}"
+            )
+
+        # Cache and return
+        self._set_cached(check_name, result)
+        return result
+
+    def run_checks(self, checks: List[str]) -> List[PreCheckResult]:
+        """Run multiple pre-checks."""
+        return [self.run_check(check) for check in checks]
+
+    def _check_ffmpeg(self) -> PreCheckResult:
+        """Check if ffmpeg is installed and get version."""
+        try:
+            # Try to find ffmpeg
+            ffmpeg_path = shutil.which("ffmpeg")
+            if not ffmpeg_path:
+                return PreCheckResult(
+                    check_name="ffmpeg_available",
+                    passed=False,
+                    message="ffmpeg not found in PATH",
+                    details={"searched_path": os.environ.get("PATH", "")}
+                )
+
+            # Get version
+            try:
+                result = subprocess.run(
+                    [ffmpeg_path, "-version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                version_line = result.stdout.split("\n")[0] if result.stdout else "unknown"
+                # Parse version: "ffmpeg version 6.0 Copyright..."
+                version_match = re.search(r"ffmpeg version (\S+)", version_line)
+                version = version_match.group(1) if version_match else version_line
+
+                return PreCheckResult(
+                    check_name="ffmpeg_available",
+                    passed=True,
+                    message=f"ffmpeg {version} available",
+                    details={
+                        "path": ffmpeg_path,
+                        "version": version,
+                        "version_line": version_line
+                    }
+                )
+            except subprocess.TimeoutExpired:
+                return PreCheckResult(
+                    check_name="ffmpeg_available",
+                    passed=False,
+                    message="ffmpeg found but version check timed out",
+                    details={"path": ffmpeg_path}
+                )
+            except Exception as e:
+                return PreCheckResult(
+                    check_name="ffmpeg_available",
+                    passed=False,
+                    message=f"ffmpeg found but version check failed: {e}",
+                    details={"path": ffmpeg_path}
+                )
+
+        except Exception as e:
+            return PreCheckResult(
+                check_name="ffmpeg_available",
+                passed=False,
+                message=f"ffmpeg check failed: {e}"
+            )
+
+    def _check_network(self) -> PreCheckResult:
+        """Check basic network connectivity."""
+        try:
+            # Try to connect to a reliable host
+            hosts = [
+                ("8.8.8.8", 53),  # Google DNS
+                ("1.1.1.1", 53),  # Cloudflare DNS
+            ]
+
+            for host, port in hosts:
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(3)
+                    result = sock.connect_ex((host, port))
+                    sock.close()
+
+                    if result == 0:
+                        return PreCheckResult(
+                            check_name="network_available",
+                            passed=True,
+                            message="Network connectivity confirmed",
+                            details={"tested_host": host, "port": port}
+                        )
+                except Exception:
+                    continue
+
+            return PreCheckResult(
+                check_name="network_available",
+                passed=False,
+                message="No network connectivity - could not reach DNS servers",
+                details={"tested_hosts": [h[0] for h in hosts]}
+            )
+
+        except Exception as e:
+            return PreCheckResult(
+                check_name="network_available",
+                passed=False,
+                message=f"Network check failed: {e}"
+            )
+
+    def _check_dependency_installed(self, package: str) -> PreCheckResult:
+        """Check if a Python package is installed."""
+        try:
+            import importlib
+
+            # Handle package name normalization (e.g., edge-tts -> edge_tts)
+            module_name = package.replace("-", "_")
+
+            try:
+                module = importlib.import_module(module_name)
+                version = getattr(module, "__version__", "unknown")
+
+                return PreCheckResult(
+                    check_name=f"dependency_installed:{package}",
+                    passed=True,
+                    message=f"{package} installed (version: {version})",
+                    details={"package": package, "version": version, "module": module_name}
+                )
+            except ImportError:
+                # Try alternative import paths
+                try:
+                    # Some packages use different import names
+                    __import__(package)
+                    return PreCheckResult(
+                        check_name=f"dependency_installed:{package}",
+                        passed=True,
+                        message=f"{package} installed",
+                        details={"package": package}
+                    )
+                except ImportError:
+                    return PreCheckResult(
+                        check_name=f"dependency_installed:{package}",
+                        passed=False,
+                        message=f"Package {package} not installed. Install with: pip install {package}",
+                        details={"package": package, "install_command": f"pip install {package}"}
+                    )
+
+        except Exception as e:
+            return PreCheckResult(
+                check_name=f"dependency_installed:{package}",
+                passed=False,
+                message=f"Dependency check failed: {e}"
+            )
+
+    def _check_mcp_pencil(self) -> PreCheckResult:
+        """Check if Pencil MCP server is available."""
+        # In the skill context, we assume MCP tools are available if we're running
+        # This is a soft check - skills that require Pencil should handle errors gracefully
+        return PreCheckResult(
+            check_name="mcp_pencil_available",
+            passed=True,
+            message="MCP Pencil assumed available (skill context)",
+            details={"note": "Actual availability depends on MCP server configuration"}
+        )
+
+    def _check_git_repo(self) -> PreCheckResult:
+        """Check if current directory is a git repository."""
+        try:
+            # Check for .git directory
+            git_dir = Path.cwd() / ".git"
+            if git_dir.is_dir():
+                return PreCheckResult(
+                    check_name="git_repo",
+                    passed=True,
+                    message="Git repository detected",
+                    details={"git_dir": str(git_dir)}
+                )
+
+            # Check using git command
+            git_path = shutil.which("git")
+            if git_path:
+                result = subprocess.run(
+                    [git_path, "rev-parse", "--git-dir"],
+                    capture_output=True,
+                    text=True,
+                    timeout=3
+                )
+                if result.returncode == 0:
+                    return PreCheckResult(
+                        check_name="git_repo",
+                        passed=True,
+                        message="Git repository detected",
+                        details={"git_dir": result.stdout.strip()}
+                    )
+
+            return PreCheckResult(
+                check_name="git_repo",
+                passed=False,
+                message="Not a git repository",
+                details={"cwd": str(Path.cwd())}
+            )
+
+        except Exception as e:
+            return PreCheckResult(
+                check_name="git_repo",
+                passed=False,
+                message=f"Git repo check failed: {e}"
+            )
+
+
+# Global pre-check runner instance
+_pre_check_runner: Optional[PreCheckRunner] = None
+
+
+def get_pre_check_runner() -> PreCheckRunner:
+    """Get or create the global PreCheckRunner instance."""
+    global _pre_check_runner
+    if _pre_check_runner is None:
+        _pre_check_runner = PreCheckRunner()
+    return _pre_check_runner
+
+
+def run_pre_checks(checks: List[str]) -> Tuple[bool, List[PreCheckResult]]:
+    """
+    Convenience function to run pre-checks.
+
+    Args:
+        checks: List of check names to run
+
+    Returns:
+        Tuple of (all_passed, results)
+    """
+    runner = get_pre_check_runner()
+    results = runner.run_checks(checks)
+    all_passed = all(r.passed for r in results)
+    return all_passed, results
+
+
+def check_ffmpeg() -> Tuple[bool, str, Optional[str]]:
+    """
+    Check if ffmpeg is available.
+
+    Returns:
+        Tuple of (available, version_string, error_message)
+    """
+    result = get_pre_check_runner().run_check("ffmpeg_available")
+    if result.passed:
+        version = result.details.get("version", "unknown") if result.details else "unknown"
+        return True, version, None
+    return False, "", result.message
 
 
 class Severity(Enum):
@@ -805,6 +1146,74 @@ class SkillRunner:
 
         return path.read_text(encoding='utf-8')
 
+    def run_with_pre_checks(
+        self,
+        skill_func: Callable[..., SkillResult],
+        args: Dict[str, Any],
+        pre_checks: List[str],
+        schema: Optional[Dict[str, Any]] = None,
+        progress_callback: Optional[ProgressCallback] = None,
+        fail_fast: bool = True
+    ) -> SkillResult:
+        """
+        Execute a skill with pre-checks.
+
+        Args:
+            skill_func: The skill function to execute
+            args: Arguments to pass to the skill
+            pre_checks: List of pre-checks to run before execution
+            schema: Optional argument schema for validation
+            progress_callback: Optional callback for progress updates
+            fail_fast: If True, fail immediately on first pre-check failure
+
+        Returns:
+            SkillResult with standardized output
+        """
+        run_id = generate_run_id()
+        timestamp = get_timestamp()
+        start_time = time.time()
+
+        # Run pre-checks
+        if pre_checks:
+            checker = get_pre_check_runner()
+            failed_checks = []
+            check_results = []
+
+            for check in pre_checks:
+                result = checker.run_check(check)
+                check_results.append(result)
+
+                if not result.passed:
+                    failed_checks.append(result)
+                    if fail_fast:
+                        break
+
+            if failed_checks:
+                # Build error message
+                error_messages = [f"{r.check_name}: {r.message}" for r in failed_checks]
+
+                if progress_callback:
+                    progress_callback(ProgressUpdate(
+                        event=ProgressEvent.ERROR,
+                        current=0,
+                        total=100,
+                        message=f"Pre-check failed: {failed_checks[0].message}",
+                        percentage=0.0,
+                        elapsed_ms=(time.time() - start_time) * 1000
+                    ))
+
+                return SkillResult(
+                    success=False,
+                    summary=f"Pre-checks failed: {'; '.join(error_messages)}",
+                    run_id=run_id,
+                    timestamp=timestamp,
+                    errors=error_messages,
+                    timings={"pre_checks_ms": (time.time() - start_time) * 1000}
+                )
+
+        # All pre-checks passed, run the skill
+        return self.run(skill_func, args, schema, progress_callback)
+
 
 # === Rule Engine ===
 
@@ -933,6 +1342,7 @@ if __name__ == "__main__":
     print(f"Allowed roots: {[str(r) for r in ALLOWED_ROOTS]}")
 
     # Test path validation
+    print("\n=== Path Validation ===")
     validator = PathValidator()
     test_paths = [
         "C:/Users/sibag/Desktop/BUILD/msj/src/app.tsx",
@@ -942,3 +1352,30 @@ if __name__ == "__main__":
 
     for p in test_paths:
         print(f"  {p}: {'SAFE' if validator.is_safe(p) else 'BLOCKED'}")
+
+    # Test pre-checks
+    print("\n=== Pre-Checks ===")
+    checker = PreCheckRunner()
+
+    # Test ffmpeg check
+    ffmpeg_result = checker.run_check("ffmpeg_available")
+    print(f"  ffmpeg: {'PASS' if ffmpeg_result.passed else 'FAIL'} - {ffmpeg_result.message}")
+
+    # Test network check
+    network_result = checker.run_check("network_available")
+    print(f"  network: {'PASS' if network_result.passed else 'FAIL'} - {network_result.message}")
+
+    # Test git repo check
+    git_result = checker.run_check("git_repo")
+    print(f"  git_repo: {'PASS' if git_result.passed else 'FAIL'} - {git_result.message}")
+
+    # Test dependency check
+    dep_result = checker.run_check("dependency_installed:pytest")
+    print(f"  pytest: {'PASS' if dep_result.passed else 'FAIL'} - {dep_result.message}")
+
+    # Test convenience function
+    print("\n=== Batch Pre-Checks ===")
+    all_passed, results = run_pre_checks(["ffmpeg_available", "network_available"])
+    print(f"  All passed: {all_passed}")
+    for r in results:
+        print(f"    {r.check_name}: {'PASS' if r.passed else 'FAIL'}")
