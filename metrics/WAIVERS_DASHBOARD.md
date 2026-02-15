@@ -1,6 +1,6 @@
 # Waiver Dashboard
 
-*Generated: 2026-02-15 20:21:56 UTC*
+*Generated: 2026-02-15 20:26:40 UTC*
 
 ## Last 7 Days
 
@@ -34,6 +34,10 @@
 02-14 | -------------------- 0
 02-15 | #################### 1
 ```
+
+## Clusters (Last 7 Days)
+
+*No significant clusters detected*
 
 ## Recent Waivers (Last 10)
 

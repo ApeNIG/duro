@@ -2,11 +2,12 @@
 """Generate waiver dashboard from scoreboard data.
 
 Reads metrics/waiver_scoreboard.json and outputs metrics/WAIVERS_DASHBOARD.md
-with trend visualization, risk flags, and recent waiver details.
+with trend visualization, clustering analysis, risk flags, and recent waiver details.
 """
 
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -19,6 +20,20 @@ WINDOW_DAYS = 7
 TREND_DAYS = 14
 BURST_THRESHOLD = 3  # Same rule X times in 24h = risk flag
 BURST_WINDOW_HOURS = 24
+
+# Clustering config
+MIN_CLUSTER_SIZE = 3
+REASON_SIMILARITY_THRESHOLD = 0.55
+CLUSTER_WARNING_THRESHOLD = 5  # Emit CI warning if cluster size >= this
+
+# Stopwords for reason tokenization
+STOPWORDS = {
+    "the", "a", "an", "and", "or", "to", "of", "in", "on", "for", "with", "is", "it",
+    "this", "that", "i", "we", "you", "my", "our", "be", "as", "at", "by", "from",
+    "so", "but", "if", "then", "than", "can", "will", "do", "did", "done", "was",
+    "were", "been", "being", "have", "has", "had", "not", "no", "yes", "just",
+    "need", "needs", "needed", "want", "wants", "wanted", "because", "since"
+}
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
@@ -39,6 +54,235 @@ def parse_ts(x: str):
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(timezone.utc)
+
+
+# =============================================================================
+# CLUSTERING FUNCTIONS
+# =============================================================================
+
+def tokenize_reason(text: str) -> set:
+    """Normalize and tokenize reason text for similarity comparison."""
+    if not text:
+        return set()
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9\s]+", " ", text)
+    toks = [t for t in text.split() if len(t) >= 3 and t not in STOPWORDS]
+    return set(toks[:60])  # Cap runaway text
+
+
+def command_fingerprint(cmd: str, n_tokens: int = 6) -> str:
+    """Get first N tokens of command as fingerprint."""
+    if not cmd:
+        return ""
+    cmd = cmd.strip()
+    cmd = re.sub(r"\s+", " ", cmd)
+    parts = cmd.split(" ")
+    return " ".join(parts[:n_tokens]).lower()
+
+
+def jaccard(a: set, b: set) -> float:
+    """Calculate Jaccard similarity between two sets."""
+    if not a and not b:
+        return 1.0
+    if not a or not b:
+        return 0.0
+    inter = len(a & b)
+    union = len(a | b)
+    return inter / union if union else 0.0
+
+
+def top_terms(group: list) -> list:
+    """Extract top reason terms from a group of waivers."""
+    freq = defaultdict(int)
+    for g in group:
+        for t in g.get("reason_tokens", set()):
+            freq[t] += 1
+    top = sorted(freq.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
+    return [t for t, _ in top]
+
+
+def cluster_waivers(recent: list, window_days: int = 7) -> list:
+    """Cluster waivers by rule, command, and reason similarity.
+
+    Returns list of clusters with:
+    - kind: rule_burst | command_repeat | reason_similarity
+    - key: identifier for the cluster
+    - count: number of waivers
+    - start/end: time window
+    - sample_cmd: example command
+    - top_reason_terms: common words in reasons
+    - suggestion: recommended action
+    """
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=window_days)
+
+    # Build enriched items list
+    items = []
+    for w in recent or []:
+        ts = parse_ts(w.get("ts"))
+        if ts and ts >= cutoff:
+            rule = w.get("rule") or "unknown_rule"
+            reason = w.get("reason") or ""
+            cmd = w.get("command_preview") or ""
+            items.append({
+                "ts": ts,
+                "rule": rule,
+                "reason": reason,
+                "reason_tokens": tokenize_reason(reason),
+                "cmd": cmd,
+                "cmd_fp": command_fingerprint(cmd),
+            })
+
+    if not items:
+        return []
+
+    # Group by rule and command fingerprint
+    by_rule = defaultdict(list)
+    by_cmd = defaultdict(list)
+    for it in items:
+        by_rule[it["rule"]].append(it)
+        if it["cmd_fp"]:
+            by_cmd[it["cmd_fp"]].append(it)
+
+    clusters = []
+    seen_items = set()  # Track items already in clusters to avoid duplicates
+
+    def add_cluster(kind: str, key: str, group: list, suggestion: str):
+        if len(group) < MIN_CLUSTER_SIZE:
+            return
+        group = sorted(group, key=lambda x: x["ts"])
+        clusters.append({
+            "kind": kind,
+            "key": key,
+            "count": len(group),
+            "start": group[0]["ts"],
+            "end": group[-1]["ts"],
+            "sample_cmd": next((g["cmd"] for g in group if g["cmd"]), ""),
+            "top_reason_terms": top_terms(group),
+            "suggestion": suggestion,
+            "items": group[-5:],  # Keep last 5 for display
+        })
+
+    # 1) Rule burst clusters
+    for rule, group in by_rule.items():
+        if len(group) >= MIN_CLUSTER_SIZE:
+            add_cluster(
+                "rule_burst",
+                rule,
+                group,
+                "Rule may be too strict, or workflow needs a safe alternative path"
+            )
+
+    # 2) Command repeat clusters
+    for cmd_fp, group in by_cmd.items():
+        if len(group) >= MIN_CLUSTER_SIZE:
+            # Check if this overlaps significantly with a rule cluster
+            rules_in_group = set(g["rule"] for g in group)
+            if len(rules_in_group) > 1:
+                # Multi-rule command repeat is interesting
+                add_cluster(
+                    "command_repeat",
+                    cmd_fp,
+                    group,
+                    "Same command hitting multiple rules - consider a helper or whitelist"
+                )
+
+    # 3) Reason similarity clusters (greedy matching)
+    used = set()
+    for i in range(len(items)):
+        if i in used:
+            continue
+        base = items[i]
+        if not base["reason_tokens"]:
+            continue
+        group = [base]
+
+        for j in range(i + 1, len(items)):
+            if j in used:
+                continue
+            cand = items[j]
+            if not cand["reason_tokens"]:
+                continue
+            # Only compare within same rule family to avoid nonsense matches
+            if cand["rule"] != base["rule"]:
+                continue
+            if jaccard(base["reason_tokens"], cand["reason_tokens"]) >= REASON_SIMILARITY_THRESHOLD:
+                group.append(cand)
+
+        if len(group) >= MIN_CLUSTER_SIZE:
+            for k, item in enumerate(items):
+                if item in group:
+                    used.add(k)
+            add_cluster(
+                "reason_similarity",
+                f"{base['rule']}|similar_reasons",
+                group,
+                "Repeated justification pattern - may indicate recurring workflow gap"
+            )
+
+    # Sort clusters by count desc, then recency
+    clusters.sort(key=lambda c: (-c["count"], -(c["end"].timestamp())))
+
+    # Deduplicate overlapping clusters (keep highest count)
+    # This is a simple approach - just return top unique ones
+    return clusters[:10]
+
+
+def render_clusters(clusters: list) -> list:
+    """Render clusters section as markdown lines."""
+    lines = []
+    lines.append("## Clusters (Last 7 Days)")
+    lines.append("")
+
+    if not clusters:
+        lines.append("*No significant clusters detected*")
+        lines.append("")
+        return lines
+
+    for i, cluster in enumerate(clusters[:5], 1):
+        kind = cluster["kind"]
+        key = cluster["key"]
+        count = cluster["count"]
+        start = cluster["start"].strftime("%Y-%m-%d")
+        end = cluster["end"].strftime("%Y-%m-%d")
+
+        # Kind label
+        kind_label = {
+            "rule_burst": "Rule Burst",
+            "command_repeat": "Command Repeat",
+            "reason_similarity": "Similar Reasons"
+        }.get(kind, kind)
+
+        lines.append(f"### {i}) {kind_label} — `{key}` ({count} waivers)")
+        lines.append("")
+        lines.append(f"- **Window:** {start} → {end}")
+
+        if cluster["sample_cmd"]:
+            cmd_preview = cluster["sample_cmd"][:60]
+            if len(cluster["sample_cmd"]) > 60:
+                cmd_preview += "..."
+            lines.append(f"- **Sample command:** `{cmd_preview}`")
+
+        if cluster["top_reason_terms"]:
+            terms = ", ".join(cluster["top_reason_terms"][:6])
+            lines.append(f"- **Common reason terms:** {terms}")
+
+        lines.append(f"- **Suggestion:** {cluster['suggestion']}")
+        lines.append("")
+
+    return lines
+
+
+def get_cluster_warnings(clusters: list) -> list:
+    """Get CI warning messages for large clusters."""
+    warnings = []
+    for cluster in clusters:
+        if cluster["count"] >= CLUSTER_WARNING_THRESHOLD:
+            kind = cluster["kind"]
+            key = cluster["key"]
+            count = cluster["count"]
+            warnings.append(f"Cluster detected: {kind} '{key}' ({count} waivers in 7d)")
+    return warnings
 
 
 def get_status_badge(count: int) -> str:
@@ -155,6 +399,10 @@ def generate_dashboard(data: dict, now: datetime) -> str:
     lines.append("```")
     lines.append("")
 
+    # --- Clusters ---
+    clusters = cluster_waivers(recent, WINDOW_DAYS)
+    lines.extend(render_clusters(clusters))
+
     # --- Recent Waivers ---
     lines.append("## Recent Waivers (Last 10)")
     lines.append("")
@@ -245,9 +493,24 @@ def main():
 
     print(f"\n[dashboard] Last 7 days: {count_7d} waivers ({status})")
 
+    # Clustering analysis
+    clusters = cluster_waivers(recent, WINDOW_DAYS)
+    if clusters:
+        print(f"[dashboard] Clusters detected: {len(clusters)}")
+        for c in clusters[:3]:
+            print(f"  - {c['kind']}: {c['key']} ({c['count']} waivers)")
+    else:
+        print("[dashboard] Clusters: None")
+
+    # Emit CI warnings for large clusters (GitHub Actions annotation format)
+    warnings = get_cluster_warnings(clusters)
+    for warning in warnings:
+        print(f"::warning::{warning}")
+
+    # Risk flags (24h bursts)
     bursts = detect_rule_bursts(recent, now)
     if bursts:
-        print(f"[dashboard] Risk flags: {len(bursts)} rule burst(s) detected")
+        print(f"[dashboard] Risk flags: {len(bursts)} rule burst(s) in 24h")
     else:
         print("[dashboard] Risk flags: None")
 
