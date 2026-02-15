@@ -435,6 +435,18 @@
       "type": "prompt",
       "keywords": ["dashboard", "analytics", "data", "metrics", "kpi", "chart", "graph", "stats", "report"],
       "has_precompiled_renderings": true
+    },
+    {
+      "id": "skill_photography_lighting",
+      "name": "photography_lighting",
+      "path": "photography/lighting.yaml",
+      "description": "Photography lighting principles, setups, and equipment",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": ["lighting", "light", "photography", "portrait", "studio", "softbox", "reflector", "rembrandt", "butterfly", "shadow", "strobe", "flash", "key light", "fill light"],
+      "has_precompiled_renderings": true,
+      "notes": "Comprehensive coverage of the four properties of light, classic portrait patterns, three-point lighting, equipment and modifiers"
     }
   ],
   "selection_priority": [

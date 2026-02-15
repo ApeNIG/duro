@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260215_064021_yhfecq",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:40:21.238648Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "system-design",
+    "architecture",
+    "telemetry",
+    "schema-design",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "When building verification/telemetry systems, always include a \"health_metric\" field that declares what you're measuring. This prevents semantic drift when the system grows - future changes become explicit schema migrations rather than silent meaning shifts.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

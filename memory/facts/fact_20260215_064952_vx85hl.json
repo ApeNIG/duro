@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260215_064952_vx85hl",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:49:52.731280Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "architecture",
+    "verification",
+    "zero-lies",
+    "honesty",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Verification tools must be HONEST about what they can and cannot resolve. A confident-sounding lie (hardcoded Tailwind palette that may not match project config) is worse than saying \"I don't know\" (unresolved with confidence=0). Truth sources: (1) Arbitrary values like bg-[#8B5CF6], (2) CSS vars resolved from actual project files. Everything else should be marked as \"best-effort\" or \"unresolved\" with appropriate low confidence.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

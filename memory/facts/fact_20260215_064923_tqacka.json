@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260215_064923_tqacka",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:49:23.285502Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "process",
+    "design-workflow",
+    "feedback-loop",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "The design-to-code feedback loop creates taste compounding: dual_direction_design creates evaluated designs, design_to_code_verifier validates implementations match. Over time, this builds traceable design rationale - decisions about why certain patterns score well for specific project types.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

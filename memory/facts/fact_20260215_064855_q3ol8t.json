@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260215_064855_q3ol8t",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:48:55.808585Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "technical",
+    "skill-selection",
+    "multi-domain",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Multi-domain queries need priority rules. Sort detected domains by keyword hit count, expand only top N (e.g., 2). Prevents foundation flood when query touches multiple domains.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

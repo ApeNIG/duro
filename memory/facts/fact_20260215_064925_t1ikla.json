@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260215_064925_t1ikla",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:49:25.392151Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "process",
+    "devkit",
+    "ci-cd",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "devkit.config.json pattern: blocking checks (typecheck, lint, tests), advisory checks (lighthouse, ai-visual-qa), and Duro's design_to_code_verifier skill as the AI visual QA provider. This creates a feedback loop where each deploy trains Duro.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

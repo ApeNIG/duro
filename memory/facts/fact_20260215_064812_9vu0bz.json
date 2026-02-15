@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260215_064812_9vu0bz",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T06:48:12.385839Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "technical",
+    "error-handling",
+    "modularity",
+    "auto-promoted"
+  ],
+  "source": {
+    "workflow": "promote_learnings",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Separate availability flags for independent modules (CONSTITUTION_AVAILABLE, ASSEMBLER_AVAILABLE, COMPACTOR_AVAILABLE). One missing import shouldn't break unrelated tools. Preserve ImportError strings for debugging.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}
