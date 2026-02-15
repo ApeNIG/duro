@@ -248,6 +248,39 @@
         "rule_007"
       ],
       "notes": "No user approval needed during mockup phase. Creates two contrasting directions, evaluates on 8 criteria, blends into optimal solution."
+    },
+    {
+      "id": "skill_core_001",
+      "name": "git_commit",
+      "path": "core/git_commit.yaml",
+      "description": "Create well-structured git commits with conventional format",
+      "tier": "core",
+      "scope": "core",
+      "type": "prompt",
+      "keywords": [
+        "commit",
+        "git",
+        "save",
+        "checkpoint",
+        "changes",
+        "push",
+        "version"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [
+        "git_commit"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "git_repo"
+      ],
+      "has_precompiled_renderings": true,
+      "notes": "Prompt-based skill with precompiled renderings at minimal/compact/full token levels"
     }
   ],
   "selection_priority": [

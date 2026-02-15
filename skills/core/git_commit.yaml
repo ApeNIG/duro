@@ -4,7 +4,7 @@
 id: skill_core_001
 name: git_commit
 version: "1.0.0"
-scope: global  # Can be used across all projects
+scope: core  # core = universal, domain = tech-specific, project = single project
 tier: core
 
 # Classification

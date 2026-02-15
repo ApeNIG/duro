@@ -65,6 +65,15 @@
       "last_used": null,
       "avg_runtime_seconds": null,
       "confidence": 0.50
+    },
+    "skill_core_001": {
+      "usage_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": null,
+      "avg_runtime_seconds": null,
+      "confidence": 0.50
     }
   },
   "update_policy": {
