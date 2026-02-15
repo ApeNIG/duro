@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-15",
+  "last_updated": "2026-02-15T16:45:00",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -237,6 +237,35 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Workaround for hookify PreToolUse hook hang on MCP tools. Commands: crash-drill, health, reembed N, prune, status"
+    },
+    {
+      "id": "skill_verify_001",
+      "name": "code_review_verifier",
+      "path": "verification/code_review_verifier.py",
+      "description": "AST-based code review with configurable rules",
+      "tier": "tested",
+      "phase": "3.1",
+      "keywords": [
+        "review",
+        "code",
+        "ast",
+        "complexity",
+        "security",
+        "naming",
+        "lint",
+        "verify",
+        "quality"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 10,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": "code_quality_verifier",
+      "pre_checks": [],
+      "notes": "Phase 3.1 skill. AST-based analysis for Python, goes beyond regex patterns. Detects complexity, nesting, security issues, naming violations."
     },
     {
       "id": "skill_design_002",
