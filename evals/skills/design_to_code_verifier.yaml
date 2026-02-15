@@ -1,0 +1,45 @@
+# Eval: Design to Code Verifier
+id: eval_skill_design_002
+name: Design to Code Verifier
+description: Test design-code consistency verification
+category: skills
+skill_path: design/design_to_code_verifier.py
+
+flaky: false
+mock_mode: false
+
+inputs:
+  design_file:
+    type: file
+    default: ".agent/evals/fixtures/sample_design.json"
+  code_file:
+    type: file
+    default: ".agent/evals/fixtures/sample_component.tsx"
+
+expected_outputs:
+  - name: comparison_complete
+    type: boolean
+    description: Comparison analysis completed
+  - name: has_discrepancies
+    type: exists
+    description: Discrepancy list exists (may be empty)
+  - name: has_recommendations
+    type: exists
+    description: Recommendations produced
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+  discrepancies_found:
+    type: integer
+
+baseline:
+  time_seconds: 5
+  discrepancies_found: 0
+
+tags:
+  - design
+  - verify
+  - local

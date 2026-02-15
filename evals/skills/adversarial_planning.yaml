@@ -1,0 +1,54 @@
+# Eval: Adversarial Planning
+id: eval_skill_meta_002
+name: Adversarial Planning
+description: Test 3-phase planning with Architect/Critic/Integrator pattern
+category: skills
+skill_path: meta/adversarial_planning.py
+
+flaky: false
+mock_mode: false
+
+inputs:
+  task:
+    type: string
+    default: "Add user authentication to a Flask API"
+  context:
+    type: object
+    default:
+      language: python
+      framework: flask
+      constraints: ["no external auth providers", "JWT-based"]
+
+expected_outputs:
+  - name: has_architect_phase
+    type: boolean
+    description: Plan includes architect analysis
+  - name: has_critic_phase
+    type: boolean
+    description: Plan includes critic review
+  - name: has_integrator_phase
+    type: boolean
+    description: Plan includes integrated recommendations
+  - name: identifies_risks
+    type: boolean
+    description: Plan identifies at least one risk
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+  risks_identified:
+    type: integer
+  alternatives_proposed:
+    type: integer
+
+baseline:
+  time_seconds: 5
+  risks_identified: 2
+  alternatives_proposed: 1
+
+tags:
+  - meta
+  - planning
+  - local

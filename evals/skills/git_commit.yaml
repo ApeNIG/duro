@@ -1,0 +1,45 @@
+# Eval: Git Commit
+id: eval_skill_core_001
+name: Git Commit
+description: Test git commit skill with message generation
+category: skills
+skill_path: core/git_commit.py
+
+flaky: false
+mock_mode: true  # Don't actually commit during evals
+
+inputs:
+  repo_path:
+    type: directory
+    default: "/tmp/eval_git_repo/"
+  message:
+    type: string
+    default: null  # Auto-generate
+  dry_run:
+    type: boolean
+    default: true
+
+expected_outputs:
+  - name: message_generated
+    type: boolean
+    description: Commit message was generated
+  - name: follows_convention
+    type: boolean
+    description: Message follows conventional commits
+  - name: files_identified
+    type: boolean
+    description: Changed files were identified
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+
+baseline:
+  time_seconds: 3
+
+tags:
+  - core
+  - git
+  - local

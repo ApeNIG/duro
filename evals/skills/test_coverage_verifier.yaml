@@ -1,0 +1,48 @@
+# Eval: Test Coverage Verifier
+id: eval_skill_verify_002
+name: Test Coverage Verifier
+description: Test coverage analysis skill
+category: skills
+skill_path: code/test_coverage_verifier.py
+
+flaky: false
+mock_mode: false
+
+inputs:
+  source_dir:
+    type: directory
+    default: ".agent/skills/"
+  test_dir:
+    type: directory
+    default: ".agent/tests/"
+  min_coverage:
+    type: number
+    default: 0.5
+
+expected_outputs:
+  - name: coverage_calculated
+    type: boolean
+    description: Coverage percentage computed
+  - name: untested_files_listed
+    type: exists
+    description: List of untested files produced
+  - name: meets_threshold
+    type: boolean
+    description: Coverage meets minimum threshold
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+  coverage_percent:
+    type: number
+
+baseline:
+  time_seconds: 10
+  coverage_percent: 50
+
+tags:
+  - verify
+  - testing
+  - local

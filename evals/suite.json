@@ -1,15 +1,93 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "description": "Duro Evaluation Suite - Measure improvement, stop vibing",
   "created": "2026-02-10",
-  "last_updated": "2026-02-10",
+  "last_updated": "2026-02-15",
+  "categories": {
+    "skills": "Individual skill evals - test one skill in isolation",
+    "fashanus": "Fashanus project-specific production evals",
+    "general": "General-purpose workflow evals"
+  },
   "evals": [
+    {
+      "id": "eval_skill_tts_001",
+      "name": "Generate TTS Audio",
+      "file": "skills/generate_tts.yaml",
+      "category": "skills",
+      "frequency": "on_demand",
+      "flaky": true
+    },
+    {
+      "id": "eval_skill_meta_002",
+      "name": "Adversarial Planning",
+      "file": "skills/adversarial_planning.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_meta_001",
+      "name": "Create Skill",
+      "file": "skills/create_skill.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_ops_001",
+      "name": "Crash Drill Verify",
+      "file": "skills/crash_drill_verify.yaml",
+      "category": "skills",
+      "frequency": "daily"
+    },
+    {
+      "id": "eval_skill_verify_001",
+      "name": "Code Review Verifier",
+      "file": "skills/code_review_verifier.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_core_001",
+      "name": "Git Commit",
+      "file": "skills/git_commit.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_design_002",
+      "name": "Design to Code Verifier",
+      "file": "skills/design_to_code_verifier.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_verify_002",
+      "name": "Test Coverage Verifier",
+      "file": "skills/test_coverage_verifier.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
+    {
+      "id": "eval_skill_research_001",
+      "name": "Verify and Store Fact",
+      "file": "skills/verify_and_store_fact.yaml",
+      "category": "skills",
+      "frequency": "on_demand",
+      "flaky": true
+    },
+    {
+      "id": "eval_skill_verify_003",
+      "name": "Accessibility Verifier",
+      "file": "skills/accessibility_verifier.yaml",
+      "category": "skills",
+      "frequency": "on_demand"
+    },
     {
       "id": "eval_fashanus_001",
       "name": "Generate Episode Audio",
       "file": "fashanus/generate_episode_audio.yaml",
       "category": "fashanus",
-      "frequency": "per_episode"
+      "frequency": "per_episode",
+      "flaky": true
     },
     {
       "id": "eval_fashanus_002",
@@ -23,7 +101,8 @@
       "name": "Generate Character Image",
       "file": "fashanus/generate_character_image.yaml",
       "category": "fashanus",
-      "frequency": "per_character"
+      "frequency": "per_character",
+      "flaky": true
     },
     {
       "id": "eval_general_001",
@@ -46,5 +125,10 @@
     "tool_calls",
     "human_edits",
     "quality_score"
-  ]
+  ],
+  "flaky_policy": {
+    "skip_in_ci": false,
+    "retry_count": 2,
+    "track_separately": true
+  }
 }

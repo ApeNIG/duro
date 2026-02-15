@@ -24,6 +24,7 @@ from constitution_loader import load_constitution, render_constitution, list_con
 
 SKILLS_DIR = Path.home() / ".agent" / "skills"
 STATS_FILE = SKILLS_DIR / "stats.json"
+INDEX_FILE = SKILLS_DIR / "index.json"
 
 
 class RenderMode(Enum):
@@ -79,6 +80,59 @@ def load_skill_stats() -> Dict[str, Dict[str, Any]]:
     with open(STATS_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
     return data.get("stats", {})
+
+
+def load_skills_from_index() -> Dict[str, Dict[str, Any]]:
+    """
+    Load all skills from index.json (canonical source).
+
+    Returns dict of skill_id -> skill metadata.
+    For YAML skills, also loads triggers from the YAML file.
+    """
+    if not INDEX_FILE.exists():
+        return {}
+
+    with open(INDEX_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    skills = {}
+    for skill_meta in data.get("skills", []):
+        skill_id = skill_meta.get("id")
+        if not skill_id:
+            continue
+
+        # Start with index metadata
+        skill = {
+            "id": skill_id,
+            "name": skill_meta.get("name", ""),
+            "description": skill_meta.get("description", ""),
+            "keywords": skill_meta.get("keywords", []),
+            "tier": skill_meta.get("tier", "unknown"),
+            "path": skill_meta.get("path", ""),
+        }
+
+        # For YAML files, try to load triggers
+        skill_path = skill_meta.get("path", "")
+        if skill_path.endswith(".yaml"):
+            full_path = SKILLS_DIR / skill_path
+            if full_path.exists():
+                try:
+                    with open(full_path, 'r', encoding='utf-8') as f:
+                        yaml_data = yaml.safe_load(f)
+                    if yaml_data:
+                        # Merge in triggers and renderings from YAML
+                        if "triggers" in yaml_data:
+                            skill["triggers"] = yaml_data["triggers"]
+                        if "renderings" in yaml_data:
+                            skill["renderings"] = yaml_data["renderings"]
+                        if "description" in yaml_data and isinstance(yaml_data["description"], dict):
+                            skill["description"] = yaml_data["description"]
+                except Exception:
+                    pass  # Use index metadata only
+
+        skills[skill_id] = skill
+
+    return skills
 
 
 def load_skill(skill_path: Path) -> Optional[Dict[str, Any]]:
@@ -230,13 +284,12 @@ def select_skills_for_task(
     stats = load_skill_stats()
     task_domains = detect_task_domains(task_description)  # Now returns [(domain, hits), ...]
 
-    # Load all skills and compute scores
+    # Load all skills from index.json (canonical source - includes YAML and Python skills)
     all_skills = {}  # id -> (skill, score)
-    for skill_file in SKILLS_DIR.rglob("*.yaml"):
-        skill = load_skill(skill_file)
-        if skill and "id" in skill:
-            score = score_skill_for_task(skill, task_description, stats)
-            all_skills[skill.get("id")] = (skill, score)
+    indexed_skills = load_skills_from_index()
+    for skill_id, skill in indexed_skills.items():
+        score = score_skill_for_task(skill, task_description, stats)
+        all_skills[skill_id] = (skill, score)
 
     # === STAGE 1: Anchor match (strict) ===
     anchors = []
@@ -431,21 +484,19 @@ def assemble_context(
         overflow = budget_used["constitution"] - budget.constitution
         available_skill_budget = max(10000, budget.skills - overflow)
 
-    # Count total skills scanned
+    # Count total skills scanned (from index.json - canonical source)
     stats = load_skill_stats()
+    indexed_skills = load_skills_from_index()
     all_skills = []
-    skills_scanned = 0
-    for skill_file in SKILLS_DIR.rglob("*.yaml"):
-        skill = load_skill(skill_file)
-        if skill and "id" in skill:
-            skills_scanned += 1
-            score = score_skill_for_task(skill, task_description, stats)
-            all_skills.append({
-                "id": skill.get("id"),
-                "name": skill.get("name"),
-                "score": score,
-                "matched": score > 0
-            })
+    skills_scanned = len(indexed_skills)
+    for skill_id, skill in indexed_skills.items():
+        score = score_skill_for_task(skill, task_description, stats)
+        all_skills.append({
+            "id": skill_id,
+            "name": skill.get("name"),
+            "score": score,
+            "matched": score > 0
+        })
 
     # Sort and get top 10 candidates for debug
     all_skills.sort(key=lambda x: x["score"], reverse=True)

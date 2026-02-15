@@ -1,0 +1,47 @@
+# Eval: Generate TTS Audio
+id: eval_skill_tts_001
+name: Generate TTS Audio
+description: Test edge-tts speech generation skill
+category: skills
+skill_path: audio/generate_tts.py
+
+flaky: true
+mock_mode: true
+retry_count: 2
+flaky_reason: "Network dependency on edge-tts service"
+
+inputs:
+  text:
+    type: string
+    default: "Testing one two three. This is a Duro eval."
+  voice:
+    type: string
+    default: "en-GB-SoniaNeural"
+  output_path:
+    type: file
+    default: "/tmp/eval_tts_test.mp3"
+
+expected_outputs:
+  - name: file_exists
+    type: boolean
+    description: Audio file was created
+  - name: file_size
+    type: constraint
+    threshold: 1000
+    description: File is at least 1KB
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+
+baseline:
+  time_seconds: 5
+  file_size: 10000
+
+tags:
+  - audio
+  - tts
+  - network-dependent
+  - flaky

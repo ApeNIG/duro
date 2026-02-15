@@ -1,0 +1,48 @@
+# Eval: Create Skill (Meta)
+id: eval_skill_meta_001
+name: Create Skill
+description: Test meta-skill that generates new skill scaffolds
+category: skills
+skill_path: meta/create_skill.py
+
+flaky: false
+mock_mode: false
+
+inputs:
+  skill_name:
+    type: string
+    default: "eval_test_skill"
+  description:
+    type: string
+    default: "A test skill created by eval runner"
+  category:
+    type: string
+    default: "test"
+  output_dir:
+    type: directory
+    default: "/tmp/eval_skills/"
+
+expected_outputs:
+  - name: skill_file_created
+    type: boolean
+    description: Python skill file was created
+  - name: has_run_function
+    type: boolean
+    description: Skill has run() function
+  - name: has_docstring
+    type: boolean
+    description: Skill has module docstring
+
+metrics:
+  pass_fail:
+    type: boolean
+  time_seconds:
+    type: integer
+
+baseline:
+  time_seconds: 2
+
+tags:
+  - meta
+  - scaffold
+  - local
