@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "description": "Skill statistics - separated from skill definitions to avoid write amplification",
+  "last_updated": "2026-02-15T12:00:00Z",
+  "stats": {
+    "skill_audio_001": {
+      "usage_count": 13,
+      "success_count": 11,
+      "failure_count": 2,
+      "success_rate": 0.8462,
+      "last_used": "2026-02-10T20:17:32.817455",
+      "avg_runtime_seconds": 4.2,
+      "confidence": 0.85
+    },
+    "skill_audio_002": {
+      "usage_count": 2,
+      "success_count": 2,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": "2026-02-05T14:30:00.000000",
+      "avg_runtime_seconds": 58.0,
+      "confidence": 0.70
+    },
+    "skill_meta_001": {
+      "usage_count": 1,
+      "success_count": 1,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": "2026-02-01T10:00:00.000000",
+      "avg_runtime_seconds": 1.5,
+      "confidence": 0.60
+    },
+    "skill_research_001": {
+      "usage_count": 2,
+      "success_count": 1,
+      "failure_count": 1,
+      "success_rate": 0.5,
+      "last_used": "2026-02-10T22:57:13.722528",
+      "avg_runtime_seconds": 25.0,
+      "confidence": 0.45
+    },
+    "skill_ops_001": {
+      "usage_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": null,
+      "avg_runtime_seconds": null,
+      "confidence": 0.50
+    },
+    "skill_ops_002": {
+      "usage_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": null,
+      "avg_runtime_seconds": null,
+      "confidence": 0.50
+    },
+    "skill_design_001": {
+      "usage_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "last_used": null,
+      "avg_runtime_seconds": null,
+      "confidence": 0.50
+    }
+  },
+  "update_policy": {
+    "on_success": "+0.02 confidence (capped at 0.99)",
+    "on_failure": "-0.03 confidence (floor at 0.05)",
+    "decay_after_days": 30,
+    "decay_rate": "-0.01 per 30 days unused"
+  }
+}

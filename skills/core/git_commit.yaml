@@ -1,0 +1,175 @@
+# Skill Schema v1.1 - Git Commit
+# Core skill with precompiled renderings for token-efficient context injection
+
+id: skill_core_001
+name: git_commit
+version: "1.0.0"
+scope: global  # Can be used across all projects
+tier: core
+
+# Classification
+classification:
+  type: prompt  # prompt | code | hybrid
+  domain: [git, workflow, commit]
+  primary_action: commit_changes
+
+# Description
+description:
+  short: "Create well-structured git commits with conventional format"
+  full: |
+    Creates git commits following conventional commit format.
+    Analyzes staged changes, generates meaningful commit messages,
+    handles co-authorship, and validates against repository conventions.
+
+# Triggers - 3-layer system
+triggers:
+  hard:
+    intents:
+      - "commit changes"
+      - "git commit"
+      - "save my work"
+      - "commit this"
+    file_patterns: []
+  soft:
+    keywords:
+      - commit
+      - save
+      - checkpoint
+      - done
+    embedding_threshold: 0.75
+  budget:
+    priority: 10  # Higher = more likely to be selected when budget-constrained
+    min_tokens: 50
+    max_tokens: 800
+
+# Constraints
+constraints:
+  requires:
+    - git_repo  # Must be in a git repository
+  forbids:
+    - uncommitted_secrets  # Never commit .env, credentials, etc.
+  timeout_seconds: 60
+
+# Content - the actual skill instructions
+content:
+  steps:
+    - name: analyze_changes
+      action: "Run git status and git diff to understand changes"
+    - name: check_secrets
+      action: "Verify no secrets or sensitive files are staged"
+    - name: generate_message
+      action: "Create conventional commit message based on changes"
+    - name: commit
+      action: "Execute commit with co-authorship attribution"
+    - name: verify
+      action: "Run git status to confirm successful commit"
+
+  conventions:
+    format: "conventional"
+    types:
+      - feat: "New feature"
+      - fix: "Bug fix"
+      - docs: "Documentation only"
+      - style: "Formatting, no code change"
+      - refactor: "Code restructure, no behavior change"
+      - test: "Adding/updating tests"
+      - chore: "Maintenance tasks"
+    co_author: "Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+
+  safety:
+    never_commit:
+      - ".env"
+      - "credentials.json"
+      - "*.pem"
+      - "*secret*"
+      - "*password*"
+    warn_on:
+      - "*.lock"
+      - "node_modules/*"
+      - "__pycache__/*"
+
+# Precompiled Renderings - the key innovation
+# These are pre-generated at different token budgets to avoid runtime summarization
+renderings:
+  minimal:
+    tokens: 50
+    content: |
+      **Git Commit**: Analyze changes, create conventional commit message (type: scope: description), add co-author, verify success.
+
+  compact:
+    tokens: 200
+    content: |
+      ## Git Commit Skill
+
+      1. Run `git status` and `git diff` to analyze staged changes
+      2. Check for secrets (.env, credentials, *.pem) - NEVER commit these
+      3. Generate conventional commit: `type(scope): description`
+         - Types: feat, fix, docs, style, refactor, test, chore
+      4. Commit with: `Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>`
+      5. Verify with `git status`
+
+  full:
+    tokens: 500
+    content: |
+      ## Git Commit Skill (v1.0.0)
+
+      ### Purpose
+      Create well-structured git commits following conventional commit format.
+
+      ### Steps
+
+      **1. Analyze Changes**
+      - Run `git status` (never use -uall flag)
+      - Run `git diff --staged` for staged changes
+      - Run `git log -3 --oneline` to match repo style
+
+      **2. Security Check**
+      Never commit:
+      - .env files
+      - credentials.json
+      - *.pem (private keys)
+      - Files with 'secret' or 'password' in name
+
+      Warn on:
+      - Lock files (*.lock)
+      - node_modules/
+      - __pycache__/
+
+      **3. Generate Message**
+      Format: `type(scope): description`
+
+      Types:
+      - `feat`: New feature
+      - `fix`: Bug fix
+      - `docs`: Documentation only
+      - `style`: Formatting (no code change)
+      - `refactor`: Code restructure (no behavior change)
+      - `test`: Adding/updating tests
+      - `chore`: Maintenance
+
+      **4. Execute Commit**
+      ```bash
+      git commit -m "$(cat <<'EOF'
+      type(scope): description
+
+      Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+      EOF
+      )"
+      ```
+
+      **5. Verify**
+      Run `git status` to confirm success.
+
+# Composition - what this skill uses/provides
+composition:
+  uses: []  # No dependencies
+  provides:
+    - git_commit_template
+    - conventional_commit_format
+
+# Lifecycle
+lifecycle:
+  created_at: "2026-02-15T12:00:00Z"
+  last_verified: "2026-02-15T12:00:00Z"
+  provenance:
+    - "decision_20260215_cartridge_memory_system"
