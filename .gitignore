@@ -33,3 +33,8 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# SQLite database files (don't sync - use JSON exports)
+memory/*.db
+memory/*.db-wal
+memory/*.db-shm
