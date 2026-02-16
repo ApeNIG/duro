@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260215_214033_pmbufb",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-15T21:40:33.153585Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "strategy",
+    "builder-compass",
+    "framework",
+    "pinned",
+    "never-decay"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "The Builder's Compass Framework: In the AI age, differentiation comes from (1) Orchestration - coordinating multiple AI systems, (2) Verification - ensuring AI output is correct/safe, (3) Memory - structured knowledge that compounds, (4) Domain expertise - deep understanding codified into skills. AI is commoditized; verification intelligence and skill composition are the highest-ROI investments.",
+    "source_urls": [],
+    "snippet": "A new world is being built ahead of us and I want to be part of the builders but do it staying true to our core values. The builders who matter won't be those who can generate the most. They'll be those who can verify what's true, compose what's useful, and remember what's learned.",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "quote",
+    "provenance": "user",
+    "reinforcement_count": 1,
+    "last_reinforced_at": "2026-02-15T21:41:27.877627Z"
+  }
+}

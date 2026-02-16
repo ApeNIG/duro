@@ -1,0 +1,39 @@
+{
+  "id": "decision_20260215_214032_jjtj9o",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-15T21:40:32.487833Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "strategy",
+    "builder-compass",
+    "verification",
+    "meta-learning",
+    "core-values",
+    "pinned"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Builder's Compass: Verification Intelligence is the highest-ROI skill domain for the AI age",
+    "rationale": "Four-lens strategic analysis: (1) ROI - verification is the new bottleneck as AI generates more, every verified output = trust earned; (2) Future-proof - generation gets commoditized, verification stays hard; (3) Enriching - forces deep understanding of what \"good\" looks like, learning by critique; (4) Values-aligned - local standards, actual execution, compounds knowledge. Second domain: Skill Composition/Meta-Learning - \"The most powerful skill is the skill that creates and combines skills.\"",
+    "alternatives": [
+      "Focus on generation skills (rejected: commoditized)",
+      "Focus on prompt engineering (rejected: platform-dependent)",
+      "Focus on single-use skills (rejected: doesn't compound)"
+    ],
+    "context": "Strategic conversation about what skills to build as a builder in the AI age. Core thesis: \"As AI generates more, the skill to verify becomes more valuable than the skill to generate.\" The builders who matter won't be those who can generate the most - they'll be those who can verify what's true, compose what's useful, and remember what's learned.",
+    "reversible": false,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

@@ -23,6 +23,8 @@
     "confidence": 0.5,
     "verified": false,
     "evidence_type": "none",
-    "provenance": "user"
+    "provenance": "user",
+    "reinforcement_count": 1,
+    "last_reinforced_at": "2026-02-15T21:41:27.476342Z"
   }
 }

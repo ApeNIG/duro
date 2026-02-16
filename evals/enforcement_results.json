@@ -1,0 +1,385 @@
+{
+  "timestamp": "2026-02-15T20:09:54.252364",
+  "summary": {
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "eval_id": "eval_enforce_amend_pushed",
+      "test_id": "amend_unpushed",
+      "description": "Warn on amend (conservative - always warn)",
+      "command": "git commit --amend -m 'updated message'",
+      "expected": "warn",
+      "actual": "warn",
+      "rule_matched": "Block Amending Pushed Commits",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_amend_pushed",
+      "test_id": "amend_pushed",
+      "description": "Warn on amend of pushed commit",
+      "command": "git commit --amend -m 'updated message'",
+      "expected": "warn",
+      "actual": "warn",
+      "rule_matched": "Block Amending Pushed Commits",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_amend_pushed",
+      "test_id": "amend_behind",
+      "description": "Warn on amend when behind remote",
+      "command": "git commit --amend",
+      "expected": "warn",
+      "actual": "warn",
+      "rule_matched": "Block Amending Pushed Commits",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_amend_pushed",
+      "test_id": "amend_no_remote",
+      "description": "Warn on amend (conservative - always warn)",
+      "command": "git commit --amend -m 'message'",
+      "expected": "warn",
+      "actual": "warn",
+      "rule_matched": "Block Amending Pushed Commits",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "rm_rf_root",
+      "description": "Block rm -rf with root path",
+      "command": "rm -rf /",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "rm_rf_recursive",
+      "description": "Block rm -rf with any path",
+      "command": "rm -rf /tmp/test",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "git_force_push",
+      "description": "Block git push --force",
+      "command": "git push --force origin main",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "git_force_push_short",
+      "description": "Block git push -f",
+      "command": "git push -f origin main",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "git_reset_hard",
+      "description": "Block git reset --hard",
+      "command": "git reset --hard HEAD~1",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "sql_drop_table",
+      "description": "Block DROP TABLE",
+      "command": "psql -c 'DROP TABLE users'",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "windows_del_recursive",
+      "description": "Block del /s /q",
+      "command": "del /s /q C:\\temp",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "test_id": "safe_rm_allowed",
+      "description": "Allow safe rm (single file)",
+      "command": "rm test.txt",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "force_push_long",
+      "description": "Block git push --force",
+      "command": "git push --force origin main",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "force_push_short",
+      "description": "Block git push -f",
+      "command": "git push -f origin feature",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "force_with_lease",
+      "description": "Block force-with-lease (still risky)",
+      "command": "git push --force-with-lease origin main",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "force_push_all",
+      "description": "Block force push to all branches",
+      "command": "git push --force --all",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "normal_push",
+      "description": "Allow normal push",
+      "command": "git push origin main",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "push_tags",
+      "description": "Allow push tags",
+      "command": "git push --tags",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "test_id": "push_upstream",
+      "description": "Allow push with upstream",
+      "command": "git push -u origin feature",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_system32",
+      "description": "Block rm on Windows system directory",
+      "command": "rm -rf /Windows/System32",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_etc",
+      "description": "Block rm on Linux /etc",
+      "command": "rm -rf /etc/passwd",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_var",
+      "description": "Block rm on Linux /var",
+      "command": "rm -rf /var/log",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_boot",
+      "description": "Block rm on Linux /boot",
+      "command": "rm -rf /boot",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "del_windows",
+      "description": "Block del on Windows directory",
+      "command": "del /s C:\\Windows",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Destructive Shell Commands",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_home_dotfiles",
+      "description": "Block rm on home dotfiles",
+      "command": "rm -rf ~/.ssh",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Operations Outside Safe Paths",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_project_safe",
+      "description": "Allow rm in project directory",
+      "command": "rm -rf ./build",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_tmp_safe",
+      "description": "Allow rm in tmp (relative)",
+      "command": "rm test.txt",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "test_id": "rm_node_modules",
+      "description": "Allow rm node_modules",
+      "command": "rm -rf node_modules",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_read_before_edit",
+      "test_id": "edit_without_read",
+      "status": "skipped",
+      "reason": "Scenario-based test not yet supported"
+    },
+    {
+      "eval_id": "eval_enforce_read_before_edit",
+      "test_id": "edit_with_read",
+      "status": "skipped",
+      "reason": "Scenario-based test not yet supported"
+    },
+    {
+      "eval_id": "eval_enforce_read_before_edit",
+      "test_id": "edit_wrong_file",
+      "status": "skipped",
+      "reason": "Scenario-based test not yet supported"
+    },
+    {
+      "eval_id": "eval_enforce_read_before_edit",
+      "test_id": "edit_after_multiple_reads",
+      "status": "skipped",
+      "reason": "Scenario-based test not yet supported"
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_env",
+      "description": "Block git add .env",
+      "command": "git add .env",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Secrets in Git Operations",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_credentials",
+      "description": "Block git add credentials.json",
+      "command": "git add credentials.json",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Secrets in Git Operations",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_pem",
+      "description": "Block git add private.pem",
+      "command": "git add private.pem",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Secrets in Git Operations",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_secret_file",
+      "description": "Block git add with secret in filename",
+      "command": "git add api_secret.txt",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Secrets in Git Operations",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_id_rsa",
+      "description": "Block git add id_rsa",
+      "command": "git add ~/.ssh/id_rsa",
+      "expected": "blocked",
+      "actual": "blocked",
+      "rule_matched": "Block Secrets in Git Operations",
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_add_normal_file",
+      "description": "Allow git add normal files",
+      "command": "git add src/app.js",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "test_id": "git_commit_normal",
+      "description": "Allow normal git commit",
+      "command": "git commit -m 'fix bug'",
+      "expected": "allowed",
+      "actual": "allowed",
+      "rule_matched": null,
+      "passed": true
+    }
+  ]
+}
