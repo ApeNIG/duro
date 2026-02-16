@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_h3yzj9",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T04:27:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Claude Code MCP server config location on Windows: ~/.claude/settings.json contains mcpServers object with command, args, env, and cwd for each server.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

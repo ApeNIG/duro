@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_dlhggv",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:24:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When restructuring an existing codebase, first explore the current architecture before making changes. The Cinematch experiment revealed the codebase already followed best practices (route groups, feature components, services layer). Main value was organizational cleanup, not architectural changes.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

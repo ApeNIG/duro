@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_18uj6m",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T12:26:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Pencil MCP batch_design operations write directly to .pen files - no explicit save command needed. Each operation immediately persists changes to disk.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

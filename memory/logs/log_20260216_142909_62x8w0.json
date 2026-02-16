@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142909_62x8w0",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T20:39:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Waiver clustering detects patterns that raw counts miss. Three cluster types work well: rule_burst (same rule repeated), command_repeat (same command fingerprint), reason_similarity (Jaccard >= 0.55 on tokenized reasons). Clusters should show both count AND points with risk labels.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

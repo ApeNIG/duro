@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260216_134709_ejxs2k",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-16T13:47:09.569233Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "roadmap",
+    "strategic",
+    "duro",
+    "phase-4",
+    "production"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Duro Roadmap v3 - Phases 2.2-2.5 and Phase 4.1-4.3 complete",
+    "rationale": "Yesterday (2026-02-15) we completed: Phase 2.2-2.5 (adversarial testing, property tests, stress tests, fuzzing - 280 tests total), Phase 4.2 (eval suite with 15 evals), Phase 4.3 (rules expansion + enforcement CI). Next: Phase 4.4 Production Testing (synthetic episode, then Fashanus).",
+    "alternatives": [
+      "Continue with Phase 4.4 Production Testing",
+      "Review Phase 4.5 Deferred Features",
+      "Start Phase 5 planning"
+    ],
+    "context": "Previous roadmap decision was stale. User confirmed we did production work. Phase 3.0 entry criteria all checked. Current focus should be Phase 4.4 Production Testing.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_jhs1ws",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T08:53:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Pencil MCP: The clip property on frames doesn't reliably clip child elements that extend beyond bounds. Instead of relying on clipping, resize and reposition elements to naturally fit within the canvas dimensions. This creates cleaner compositions anyway since the gestural elements become intentionally framed rather than arbitrarily cut off.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

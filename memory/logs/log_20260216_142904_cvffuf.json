@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_cvffuf",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:27:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Analysis",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Glassmorphism V1 vs V2 Analysis: V1 failed (40% match) because circles were too small/visible, no vignette, no sheen, wrong typography layout, too saturated colors. V2 succeeded (85% match) by using giant off-canvas blobs (120%+ size, -55% offset), layered depth hierarchy (dark\u2192accent\u2192accent\u2192vignette), 7% white card fill with 24px blur, diagonal sheen, and top haze. Key insight: you should NOT be able to identify the background shapes as circles.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

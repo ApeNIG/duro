@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_pmw6op",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:45:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "For conditional expensive operations (like FTS rebuild), check if the work is actually needed before doing it. In reindex(), checking missing_text_count > 0 before calling rebuild_fts() avoids O(n) overhead when FTS is already complete.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

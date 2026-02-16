@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_01rct6",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T14:44:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Process",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When doing UI/UX work, NEVER drive blind. Always visually verify changes. I have access to pencil.dev MCP tools for design mockups and screenshot verification - I should use them. A passing build does NOT mean the design is correct or looks good. The process should be: 1) Create visual mockups in pencil.dev first, 2) Implement code, 3) Take screenshots to verify, 4) Compare against mockups, 5) Iterate. Without visual verification, I have no idea if I actually reached the destination.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

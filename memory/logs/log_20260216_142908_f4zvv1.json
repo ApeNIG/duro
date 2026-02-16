@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_f4zvv1",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T12:31:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Testing",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "For isolated test databases, run migrations manually in harness setup to add columns like valid_from, valid_until, embedding_state table. The ArtifactIndex init only creates base schema, not migration columns.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

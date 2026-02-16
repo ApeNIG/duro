@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142907_p97p9q",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T05:57:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When building a verification stack, start with the boring infrastructure (runner, timeouts, suppressions) before the fancy rules. The spine (skill_runner.py) makes everything else easier to build and test. Also: rules must be data-only (RuleSpec), not executable code - this prevents eval() vulnerabilities in the verifier itself.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

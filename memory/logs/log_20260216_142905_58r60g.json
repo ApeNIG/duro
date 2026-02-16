@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_58r60g",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T15:55:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Design critique framework for fintech landing pages: 1) \"Template smell\" - if structure is hero+stats+features+testimonials+CTA, need 2+ unique moments that feel ownable (process diagram, impact framework, regional emphasis). 2) Specificity beats abstraction - show exact deal types, region tags, verification badges not generic \"AI Deal Discovery\". 3) Social proof must read as proof not decoration - logo rows need contrast/containers. 4) Financial claims like \"32% returns\" trigger skepticism - reframe as \"Top 20%\" or \"up to X\" with disclaimers.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

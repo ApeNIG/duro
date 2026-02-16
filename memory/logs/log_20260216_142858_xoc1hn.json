@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_xoc1hn",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T02:58:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Implement Lean Context v1 - three-mode context loading for duro_load_context: Complete. Added full/lean/minimal modes. Lean mode: 77% token reduction (28K\u21926.5K chars). New helpers: load_today_tasks_only(), load_core_trimmed(), load_recent_summary(), get_active_decisions(). Updated CLAUDE.md to call mode=\"lean\". All smoke tests pass. Pushed as commits 577cc0c (duro-mcp) and a132863 (.claude).",
+    "task": "Implement Lean Context v1 - three-mode context loading for duro_load_context",
+    "outcome": "Complete. Added full/lean/minimal modes. Lean mode: 77% token reduction (28K\u21926.5K chars). New helpers: load_today_tasks_only(), load_core_trimmed(), load_recent_summary(), get_active_decisions(). Updated CLAUDE.md to call mode=\"lean\". All smoke tests pass. Pushed as commits 577cc0c (duro-mcp) and a132863 (.claude).",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

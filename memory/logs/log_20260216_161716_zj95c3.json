@@ -1,0 +1,25 @@
+{
+  "id": "log_20260216_161716_zj95c3",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-16T16:17:16.569635Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "54.2% embedding coverage is expected and healthy when most missing embeddings are log entries. Logs don't need semantic search - they're task records, not searchable knowledge. Only facts, decisions, and episodes need embeddings.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

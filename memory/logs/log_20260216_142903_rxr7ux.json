@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142903_rxr7ux",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T09:41:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "InterSphere uses auto-generated type files (card.d.ts) with versioned type names like `KnowledgeCardV1B`. When components need simpler names, add type aliases for backwards compatibility rather than renaming everywhere.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

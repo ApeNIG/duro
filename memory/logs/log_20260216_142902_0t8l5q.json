@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_0t8l5q",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T19:03:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Supabase CLI workflow: `npx supabase link --project-ref <ref>` to connect, `npx supabase migration repair --status reverted <version>` to fix history, `echo \"y\" | npx supabase db push` to apply migrations. Access token goes in SUPABASE_ACCESS_TOKEN env var.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

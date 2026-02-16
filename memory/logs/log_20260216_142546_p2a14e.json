@@ -1,0 +1,26 @@
+{
+  "id": "log_20260216_142546_p2a14e",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-16T14:25:46.185573Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Repair broken audit chain integrity in Duro MCP server: Successfully migrated 6 entries to chain_version 1 with proper SHA-256 hashing and prev_hash linkage. Created backup, meta-audit record, and frozen migration script. Chain now validates completely.",
+    "task": "Repair broken audit chain integrity in Duro MCP server",
+    "outcome": "Successfully migrated 6 entries to chain_version 1 with proper SHA-256 hashing and prev_hash linkage. Created backup, meta-audit record, and frozen migration script. Chain now validates completely.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

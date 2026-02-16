@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_po2gyw",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T21:54:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "UX",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Path highlighting persistence in React: When toggling UI panels (like Path Finder), don't clear visualization state (highlightedPath) on open/close. Users expect the visual state to persist until they explicitly start a new action. Only clear error states, not result states.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

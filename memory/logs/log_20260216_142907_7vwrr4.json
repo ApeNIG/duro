@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142907_7vwrr4",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T03:01:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Precompiled renderings at 3 token levels (minimal ~80, compact ~200, full ~450) eliminate summarization drift and make skill selection budget-aware. This is the key innovation of the Cartridge Memory System.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

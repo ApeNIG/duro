@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_l4llp8",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T11:59:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix queue_for_embedding import error in duro_mcp_server.py for vector search activation: Fixed import bug at line 2019 - was importing non-existent standalone function instead of EmbeddingQueue class. Changed to instantiate EmbeddingQueue(MEMORY_DIR) and call method on instance. Pending MCP restart to test.",
+    "task": "Fix queue_for_embedding import error in duro_mcp_server.py for vector search activation",
+    "outcome": "Fixed import bug at line 2019 - was importing non-existent standalone function instead of EmbeddingQueue class. Changed to instantiate EmbeddingQueue(MEMORY_DIR) and call method on instance. Pending MCP restart to test.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

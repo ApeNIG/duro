@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142901_is08yl",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T10:32:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Hookify governance rules use PreToolUse hooks to block Write/Edit/Bash operations before they execute. The rule engine returns JSON with permissionDecision: deny and systemMessage for blocked operations. Claude Code may only show \"Blocked by hook\" in UI but the full message is in the hook response.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

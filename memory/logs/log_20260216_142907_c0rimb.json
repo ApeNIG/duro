@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142907_c0rimb",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T02:08:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Skill Schema v1.1 architecture: (1) Split skill definition from telemetry (skill_stats.json) to avoid write amplification, (2) Add constraints field with must_do/must_not_do for hard rules, (3) Pre-compile minimal/compact/full renderings - never summarize on the fly, (4) Triggers are 3-layer: hard (intent/file pattern) \u2192 soft (embeddings/keywords) \u2192 budget ranking",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

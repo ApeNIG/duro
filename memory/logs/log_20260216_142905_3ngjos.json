@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_3ngjos",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T19:55:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When exporting images from Pencil for HTML/PDF presentations, the exported filenames often include spaces and parentheses (e.g., \"V1 Brand - Asset Rich (Final).png\"). HTML img src paths must match the exact filename - update paths to match exported names rather than expecting users to rename files.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

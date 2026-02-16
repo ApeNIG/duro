@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142903_xmf0w3",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T21:50:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Hybrid memory compression pattern: Keep today's raw log (full detail), compress older days to summaries (80% reduction), archive raw logs for retrieval. Auto-compress on context load keeps sessions lean without losing information. Key extraction: learnings, task outcomes, failures - these carry forward; verbose session noise doesn't.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

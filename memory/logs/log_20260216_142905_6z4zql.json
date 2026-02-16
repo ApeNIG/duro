@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_6z4zql",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T23:34:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "sqlite-vec requires conn.enable_load_extension(True) before loading, and vectors must be stored using sqlite_vec.serialize_float32(embedding) - not JSON strings.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

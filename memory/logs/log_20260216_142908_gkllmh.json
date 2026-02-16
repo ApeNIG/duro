@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_gkllmh",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T07:57:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Light Mode \"Great Lighting\" means SOFT NATURAL SHADOWS - not dark mode glows. Key techniques: 1) Soft lifted shadows: 0 4px 20px rgba(0,0,0,0.04) + 0 1px 3px rgba(0,0,0,0.03). 2) Warm cream backgrounds (#FAF8F5, #FDFCFA). 3) Pure white cards \"floating\" on cream. 4) Directional shadows suggesting light from above. 5) Tinted icon backgrounds (coral tint #FEF2F0, green tint #F0FDF4). References: Apollo.io, Homies Lab dashboard - clean, sunlit, breathable design.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

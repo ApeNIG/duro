@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_1jakk9",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T11:03:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Card style scoring insights: Editorial/Magazine cards score highest (30/30) when they commit fully to bold typography and deliberate whitespace. Dark enterprise cards score well (29/30) with gold accents on dark backgrounds. Glassmorphism needs subtle execution to avoid looking dated. Neubrutalism works best for brand-heavy contexts where bold borders reinforce identity. Data cards benefit from color-coded change indicators (green positive, red negative).",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

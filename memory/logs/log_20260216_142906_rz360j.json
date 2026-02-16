@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_rz360j",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T02:58:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Lean context loading pattern: Extract only task completions from today's log (skip learnings/session noise), trim core memory to specific sections (User Preferences, Important Context), include only recently-validated decisions (updated within 7 days, confidence >= 0.5), and cap yesterday's summary. Result: 77% token reduction (7K \u2192 1.6K tokens) while preserving actionable context.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

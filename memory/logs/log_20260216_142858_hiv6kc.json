@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_hiv6kc",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:06:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Write Phase 1B integration tests: Complete. tests/test_phase1b_integration.py with golden-path (store->FTS populated) and failure-path (FTS fail->save succeeds) tests. All 8 tests pass.",
+    "task": "Write Phase 1B integration tests",
+    "outcome": "Complete. tests/test_phase1b_integration.py with golden-path (store->FTS populated) and failure-path (FTS fail->save succeeds) tests. All 8 tests pass.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

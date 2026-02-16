@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_3w5xud",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T02:29:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Process",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Code review catches that prevent future haunting: 1) Comments that say \"negative\" next to positive values will cause someone to \"fix\" what isn't broken. 2) Truthy checks on numeric values (`if delta`) are footguns - use explicit None checks. 3) Semantic field names matter - \"verified_at\" shouldn't update when status stays \"unverified\".",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

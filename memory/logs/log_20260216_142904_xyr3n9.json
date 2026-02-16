@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_xyr3n9",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T08:35:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Design iteration formula: Match % = Structure \u00d7 Material \u00d7 Physics \u00d7 Contrast \u00d7 Polish. Each multiplier matters - miss one and the whole design falls short. Structure alone (V2 50%) is not enough without material properties (V3 90%).",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_0jt8xy",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T21:51:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "MCP Async/Background Processing (2025-11-25 spec): 1) Tasks primitive allows \"call-now, fetch-later\" with states: working, input_required, completed, failed, cancelled. 2) FastMCP uses Docket (from Prefect) for background tasks - add task=True to decorators. 3) MCP cron servers: mcp-cron, scheduler-mcp (supports shell commands, API calls, AI tasks, notifications with cron expressions). 4) OAuth client-credentials now supports cron jobs and agent-to-agent setups.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

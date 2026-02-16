@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_rg0z8p",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:57:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Technique",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Ultimate Glassmorphism Recipe: Combine 3 visible circles (for 3D depth) with transparent glass effect (for proper blur-through). Circles: dark top-left, red top-right, red bottom-center. Glass: #FFFFFF12 fill (7% white), 24px blur, #FFFFFF25 border, diagonal sheen gradient, subtle top haze. The visible circle edges create depth while the transparent glass lets the environment show through.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

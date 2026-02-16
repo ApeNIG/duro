@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_l36ek7",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T06:45:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Mesh gradient implementation: 1) Layer multiple radial-gradient() with 'at X% Y%' positioning. 2) Each gradient fades to transparent at 50% for soft blending. 3) Animate with background-size: 1400% 1400% and background-position keyframes 0% 2% -> 100% 99% -> 0% 2%. 4) Use 30-45s duration for subtle, ambient movement. 5) For performance-critical apps, use WebGL (Stripe's approach) - only 10kb, GPU-rendered. CSS animations cause CPU/RAM strain on complex gradients.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

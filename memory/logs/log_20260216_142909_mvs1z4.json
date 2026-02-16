@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142909_mvs1z4",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T21:16:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "UserPromptSubmit hook error was a transient issue - resolved without code changes. Hook system is stable: PreToolUse blocks dangerous commands (git force push, rm -rf), read-before-edit validation works, and no spurious errors appear during normal operation.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

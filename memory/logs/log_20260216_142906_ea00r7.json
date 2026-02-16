@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_ea00r7",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T11:03:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Card Grammar Patterns from 30-card drill: (1) Structure: Container + Header + Content + Footer. (2) Badges: top-left or inline with title. (3) Price: large number + small period, baseline-aligned. (4) Data cards: Label\u2192Value\u2192Change with color coding. (5) Feature lists: checkmark + text, 8-12px gap. (6) CTAs: full-width bottom for conversion, inline for info. (7) Corner radius scale: 0=editorial, 8=neutral, 12-16=friendly, 20+=playful. (8) Shadow: none=flat, subtle=elevated, layered=premium.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

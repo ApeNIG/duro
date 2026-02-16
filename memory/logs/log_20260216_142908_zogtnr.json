@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_zogtnr",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T08:23:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Mondrian's Neoplasticism rules: Only horizontal/vertical lines, only primary colors (red/yellow/blue) + black/white/gray, asymmetrical balance, no curves/diagonals, reduction to universal essence. Goal: express eternal order through pure relationships. Influenced modern grid-based design systems.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

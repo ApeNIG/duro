@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142854_ui51c8",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-10T20:01:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Build dual-store memory system for Duro with artifact envelope pattern: Successfully created: schemas.py (validation), index.py (SQLite layer), artifacts.py (ArtifactStore class). Added 6 new MCP tools (duro_store_fact, duro_store_decision, duro_query_memory, duro_get_artifact, duro_list_artifacts, duro_reindex). Architecture: JSON files canonical, SQLite as query index, schema validation at write-time. Ready for use after MCP server restart.",
+    "task": "Build dual-store memory system for Duro with artifact envelope pattern",
+    "outcome": "Successfully created: schemas.py (validation), index.py (SQLite layer), artifacts.py (ArtifactStore class). Added 6 new MCP tools (duro_store_fact, duro_store_decision, duro_query_memory, duro_get_artifact, duro_list_artifacts, duro_reindex). Architecture: JSON files canonical, SQLite as query index, schema validation at write-time. Ready for use after MCP server restart.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

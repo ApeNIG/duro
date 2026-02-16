@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142903_q9tuvd",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T12:02:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Tools + memory alone make you POWERFUL. They don't automatically make you BETTER. The compounding happens when every run produces: (1) an episode (goal \u2192 plan \u2192 actions \u2192 result), (2) an evaluation (worked / failed / why), (3) a memory update (reinforce what worked, decay what didn't). Skill success tracking and episodic memory with outcomes are the compounding engine, not nice-to-haves.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

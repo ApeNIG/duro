@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_tj6sbm",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T11:11:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Pattern",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "SaaS landing page structure: Header (logo + nav + CTA), Hero (badge + headline + subtext + dual CTAs), Social proof stats row, Bento grid with mixed content, Logo bar (white background with partner logos). Yellow/gold accent color for primary CTAs and key metrics.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

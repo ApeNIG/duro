@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142901_9hconx",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T20:35:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Waiver cost weighting (points-based thresholds): Replaced count-based thresholds with risk-weighted points. High-risk rules (destructive_bash_commands, path_sandbox, force_push) = 3pts, medium-risk = 2pts, default = 1pt. Thresholds: warn > 10pts, fail > 20pts per week. Dashboard shows waivers + points, clusters show points and risk labels. Weights configurable via scoreboard. Commit 48db563 pushed.",
+    "task": "Waiver cost weighting (points-based thresholds)",
+    "outcome": "Replaced count-based thresholds with risk-weighted points. High-risk rules (destructive_bash_commands, path_sandbox, force_push) = 3pts, medium-risk = 2pts, default = 1pt. Thresholds: warn > 10pts, fail > 20pts per week. Dashboard shows waivers + points, clusters show points and risk labels. Weights configurable via scoreboard. Commit 48db563 pushed.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

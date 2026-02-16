@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_x4wa7v",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T08:23:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Kandinsky's color-emotion mapping for UI: Yellow = aggressive/warnings, Blue = spiritual/trust/calm, Red = powerful/action/CTAs, Orange = radiating/warmth/friendly, Green = balance/success, Black = silence/elegance/weight, White = possibility/openness/clean. Color bypasses logic and hits emotion directly - no representation needed.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

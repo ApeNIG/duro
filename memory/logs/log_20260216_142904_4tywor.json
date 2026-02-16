@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_4tywor",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T09:05:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When creating creative variants of a base design, maintain the CORRECT LAYOUT (frame size, circle sizes, axis alignment, positions) and only change the MATERIAL properties (colors, opacity, corner radius, effects). This ensures consistency across variants while exploring different aesthetics.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142857_mcxtnn",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T09:36:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Aurora V3.5 Edge Fade - Contained and Smooth: Created aurora gradient effect with: 1) Small circle touching edge of big circle, 2) 100% opacity at touch point fading to 0% inward, 3) All glows contained within parent circle bounds (no leaking), 4) 8 layers for smooth blend, 5) Mirrored exactly between top and bottom circles. Key formula: offset + radius < parent radius (325px).",
+    "task": "Aurora V3.5 Edge Fade - Contained and Smooth",
+    "outcome": "Created aurora gradient effect with: 1) Small circle touching edge of big circle, 2) 100% opacity at touch point fading to 0% inward, 3) All glows contained within parent circle bounds (no leaking), 4) 8 layers for smooth blend, 5) Mirrored exactly between top and bottom circles. Key formula: offset + radius < parent radius (325px).",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

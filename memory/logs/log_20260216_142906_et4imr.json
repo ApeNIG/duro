@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_et4imr",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T05:24:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Next.js 16 project structure best practice: feature-based (domain-driven) organization scales better than component-type organization. Key folders: /components/ui (primitives), /components/features (domain modules), /hooks, /lib (services), /types. Route groups like (auth) for shared layouts.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

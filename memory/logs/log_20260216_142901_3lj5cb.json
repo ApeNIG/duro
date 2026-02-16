@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142901_3lj5cb",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-10T20:01:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Dual-store pattern for AI memory: Use JSON files as canonical source (human-readable, git-friendly, portable) and SQLite as query index (fast filtering, aggregation). Validate schema at write-time, compute hash for integrity. Artifact envelope wraps all types with consistent metadata (id, type, version, created_at, sensitivity, tags, source, data).",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

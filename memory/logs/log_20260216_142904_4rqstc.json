@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_4rqstc",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:27:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Technique",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Glassmorphism Glass Card Formula: Fill: rgba(255,255,255,0.07), backdrop-filter: blur(24px), border: 1px solid rgba(255,255,255,0.15), border-radius: 24px. Add diagonal sheen (linear-gradient at -25\u00b0, peak 25-40% white opacity), top haze (radial gradient darkening upper card), optional brighter top border for light source direction.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

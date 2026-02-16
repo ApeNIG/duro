@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_ayfu3u",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:24:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Technique",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Environment Build Technique for Glassmorphism: Position giant circles (120%+ of canvas size) off-canvas so you only see slices. This creates rich, readable shapes behind glass elements. Key structure: 1) Dark mass blob top-left, 2) Accent color blob top-right, 3) Accent color blob bottom, 4) Subtle overlay arc, 5) Vignette for dark edges. Glass only looks legit with large readable shapes behind it.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

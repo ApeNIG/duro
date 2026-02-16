@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142859_5rawbt",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T03:25:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix stats baseline inflation in scorer: Implemented gated scoring: base_score from triggers only, stats as multiplier (not additive). Zero trigger match = zero score. Fixed the \"participation trophy\" problem.",
+    "task": "Fix stats baseline inflation in scorer",
+    "outcome": "Implemented gated scoring: base_score from triggers only, stats as multiplier (not additive). Zero trigger match = zero score. Fixed the \"participation trophy\" problem.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

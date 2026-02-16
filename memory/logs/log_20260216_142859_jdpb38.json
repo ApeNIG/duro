@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142859_jdpb38",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T03:37:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Tighten screws: EXPANSION_SCORE, caps, priority, reason tags: Implemented: EXPANSION_SCORE 1.0->0.01, MAX_EXPANSIONS_PER_DOMAIN=6, MAX_TOTAL_EXPANSIONS=8, MAX_DOMAINS_TO_EXPAND=2, domain sorting by hit count, reason tags on all selected skills.",
+    "task": "Tighten screws: EXPANSION_SCORE, caps, priority, reason tags",
+    "outcome": "Implemented: EXPANSION_SCORE 1.0->0.01, MAX_EXPANSIONS_PER_DOMAIN=6, MAX_TOTAL_EXPANSIONS=8, MAX_DOMAINS_TO_EXPAND=2, domain sorting by hit count, reason tags on all selected skills.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

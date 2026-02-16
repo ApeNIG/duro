@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_tkz9i7",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:06:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Document multi-process audit chain limitation: Complete. KNOWN_LIMITATIONS.md created with proper structure: symptoms, triggers, severity, detection, mitigations ranked by effort/safety, and explicit non-goals.",
+    "task": "Document multi-process audit chain limitation",
+    "outcome": "Complete. KNOWN_LIMITATIONS.md created with proper structure: symptoms, triggers, severity, detection, mitigations ranked by effort/safety, and explicit non-goals.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142903_8ynteq",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T12:02:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Security",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Security tradeoff: every new tool increases attack surface. Browser automation + email + file ops + code exec = robot with hands near important stuff. MUST pair with: strict permissions (per tool/domain/action), audit logs (what was done, with what inputs), fail-closed defaults (no silent permissions), rate/budget limits. MCP standardizes tool access but doesn't solve governance - that's on orchestration rules.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

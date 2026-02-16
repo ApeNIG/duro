@@ -1,7 +1,7 @@
 {
-  "version": "1.0",
-  "description": "Actual enforcement patterns for PreToolUse hooks",
-  "last_updated": "2026-02-15",
+  "version": "2.0",
+  "description": "Unified enforcement patterns - merged from hookify rules",
+  "last_updated": "2026-02-16",
   "enforcement_rules": [
     {
       "id": "destructive_bash_commands",
@@ -21,7 +21,14 @@
         {"regex": "DROP\\s+(TABLE|DATABASE|INDEX)", "description": "SQL DROP statements", "flags": "i"},
         {"regex": "TRUNCATE\\s+TABLE", "description": "SQL TRUNCATE", "flags": "i"},
         {"regex": "format\\s+[a-zA-Z]:", "description": "Windows format drive"},
-        {"regex": "mkfs\\.", "description": "Linux format filesystem"}
+        {"regex": "mkfs\\.", "description": "Linux format filesystem"},
+        {"regex": "curl\\s+.*\\|\\s*(ba)?sh", "description": "curl pipe to shell (RCE)"},
+        {"regex": "wget\\s+.*\\|\\s*(ba)?sh", "description": "wget pipe to shell (RCE)"},
+        {"regex": ":\\(\\)\\s*\\{\\s*:\\|:&\\s*\\}\\s*;", "description": "Fork bomb"},
+        {"regex": ">\\s*/dev/sd", "description": "Write to raw disk device"},
+        {"regex": "dd\\s+if=.*of=/dev", "description": "dd to device"},
+        {"regex": "chmod\\s+-R\\s+777", "description": "Recursive chmod 777"},
+        {"regex": "chmod\\s+777\\s+/", "description": "chmod 777 on root"}
       ],
       "message": "Destructive command blocked. Use explicit confirmation if intended."
     },
@@ -50,6 +57,56 @@
         {"regex": "AKIA[0-9A-Z]{16}", "description": "AWS access key ID"}
       ],
       "message": "Potential secret detected. Remove sensitive data before committing."
+    },
+    {
+      "id": "network_exfil",
+      "name": "Block Network Exfiltration",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "patterns": [
+        {"regex": "curl\\s+.*(-X\\s*(POST|PUT|PATCH)|--data|--data-raw|--data-binary|-d\\s+['\"]|--upload-file|-T\\s+|-F\\s+)", "description": "curl with POST/PUT data"},
+        {"regex": "wget\\s+.*--post-(data|file)", "description": "wget POST"},
+        {"regex": "nc\\s+(-e|exec)", "description": "netcat reverse shell"},
+        {"regex": "ncat\\s+(-e|exec)", "description": "ncat reverse shell"},
+        {"regex": "netcat\\s+(-e|exec)", "description": "netcat exec"},
+        {"regex": "python[3]?\\s+.*-c\\s+['\"].*\\b(urllib|requests|http\\.client).*\\b(post|put|urlopen)", "description": "Python one-liner POST"},
+        {"regex": "powershell.*Invoke-(WebRequest|RestMethod).*-Method\\s*(Post|Put)", "description": "PowerShell POST/PUT", "flags": "i"},
+        {"regex": "curl\\s+.*\\|\\s*base64", "description": "curl piped to base64 (obfuscation)"},
+        {"regex": "base64.*\\|\\s*curl", "description": "base64 piped to curl (obfuscation)"}
+      ],
+      "message": "Network exfiltration pattern blocked. POST/PUT to external endpoints requires explicit approval."
+    },
+    {
+      "id": "prod_gate",
+      "name": "Block Production Operations",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "patterns": [
+        {"regex": "^(psql|mysql|mongosh?|redis-cli|sqlcmd)\\s+.*(-h|--host)\\s+\\S*(prod|production|prd)\\S*", "description": "Database CLI to prod host", "flags": "i"},
+        {"regex": "^kubectl\\s+.*(--context|--namespace)\\s+\\S*(prod|production|prd)\\S*", "description": "kubectl to prod context", "flags": "i"},
+        {"regex": "^aws\\s+.*--profile\\s+(prod|production)", "description": "AWS prod profile", "flags": "i"},
+        {"regex": "^terraform\\s+(apply|destroy).*-auto-approve", "description": "terraform auto-approve"},
+        {"regex": "^docker\\s+(push|tag)\\s+.*:(prod|production|latest)", "description": "docker push to prod/latest"},
+        {"regex": "^(npm|yarn)\\s+publish", "description": "npm/yarn publish"}
+      ],
+      "message": "Production operation blocked. Run manually outside Claude Code if intended."
+    },
+    {
+      "id": "governance_bash",
+      "name": "Block Governance File Modification via Bash",
+      "type": "hard",
+      "tool": "Bash",
+      "action": "block",
+      "patterns": [
+        {"regex": "(>|>>|tee)\\s*\\.?\\.devkit-waiver", "description": "Redirect to devkit-waiver"},
+        {"regex": "(>|>>|tee)\\s*devkit\\.config\\.json", "description": "Redirect to devkit.config.json"},
+        {"regex": "sed\\s+-i.*devkit\\.config", "description": "sed -i on devkit config"},
+        {"regex": "git\\s+(add|commit).*\\.devkit-waiver", "description": "git add/commit devkit-waiver"},
+        {"regex": "git\\s+(add|commit).*devkit\\.config", "description": "git add/commit devkit.config"}
+      ],
+      "message": "Governance file modification blocked. Submit changes via PR for human review."
     },
     {
       "id": "amend_pushed_commit",
@@ -96,6 +153,42 @@
         {"regex": "git\\s+.*--no-gpg-sign", "description": "Skip GPG signing"}
       ],
       "message": "Skipping git hooks is blocked. Remove --no-verify flag."
+    },
+    {
+      "id": "credentials_file_access",
+      "name": "Block Credential File Access",
+      "type": "hard",
+      "tool": "Edit|Write",
+      "action": "block",
+      "file_patterns": [
+        {"regex": "\\.env$", "description": ".env file"},
+        {"regex": "\\.env\\.", "description": ".env.* file"},
+        {"regex": "\\.npmrc$", "description": "npm credentials"},
+        {"regex": "\\.pypirc$", "description": "PyPI credentials"},
+        {"regex": "credentials\\.json$", "description": "credentials.json"},
+        {"regex": "secrets\\.json$", "description": "secrets.json"},
+        {"regex": "\\.secrets\\.", "description": "*.secrets.* file"},
+        {"regex": "id_rsa", "description": "SSH private key"},
+        {"regex": "id_ed25519", "description": "SSH ed25519 key"},
+        {"regex": "\\.pem$", "description": "PEM file"},
+        {"regex": "\\.key$", "description": "Key file"},
+        {"regex": "api[_-]?key", "description": "API key file", "flags": "i"},
+        {"regex": "token\\.json$", "description": "token.json"}
+      ],
+      "message": "Credential file access blocked. Never read/write credential files directly."
+    },
+    {
+      "id": "governance_file_access",
+      "name": "Block Governance File Direct Write",
+      "type": "hard",
+      "tool": "Edit|Write",
+      "action": "block",
+      "file_patterns": [
+        {"regex": "\\.devkit-waiver\\.ya?ml$", "description": "devkit waiver file"},
+        {"regex": "devkit\\.config\\.json$", "description": "devkit config"},
+        {"regex": "\\.devkit[/\\\\]state\\.json$", "description": "devkit state"}
+      ],
+      "message": "Governance file modification blocked. Submit changes via PR for human review."
     }
   ],
   "soft_warnings": [

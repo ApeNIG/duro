@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_1b5nml",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T13:10:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When creating dynamic compositions: 1) Start by REMOVING elements until only essential remains - clutter is the enemy of focus. 2) Technical principles (Gestalt, hierarchy) provide structure but don't guarantee artistic impact. 3) The difference between \"placing elements\" and \"composing\" is intuition/feeling that's hard to codify. 4) Progressive sizing and proximity are necessary but not sufficient for unified clusters.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

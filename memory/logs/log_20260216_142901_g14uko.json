@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142901_g14uko",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-10T19:09:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Claude Code MCP servers must be added to the global `mcpServers` object in `~/.claude.json`, NOT in `~/.claude/settings.json`. The CLI command `claude mcp add` adds to the correct location.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

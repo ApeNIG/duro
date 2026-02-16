@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142857_swvfyl",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T23:34:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix Phase 1B structural issues: Fixed: (A) Migration module renamed to m001_add_vectors.py with importlib loader; (B) sqlite-vec now uses enable_load_extension(True) + serialize_float32() for proper vector format; (C) FTS table now has text column populated from artifact_to_text(), tags stored as space-separated; (D) FTS queries properly escaped via _escape_fts_query() to handle special chars like :-*(). FTS rebuilt with 172 artifacts.",
+    "task": "Fix Phase 1B structural issues",
+    "outcome": "Fixed: (A) Migration module renamed to m001_add_vectors.py with importlib loader; (B) sqlite-vec now uses enable_load_extension(True) + serialize_float32() for proper vector format; (C) FTS table now has text column populated from artifact_to_text(), tags stored as space-separated; (D) FTS queries properly escaped via _escape_fts_query() to handle special chars like :-*(). FTS rebuilt with 172 artifacts.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

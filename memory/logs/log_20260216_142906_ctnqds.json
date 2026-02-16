@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_ctnqds",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T12:41:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Duro memory is stored at ~/.agent/memory/index.db (not ~/.agent/duro/ or ~/.duro/). Always verify the actual database path when debugging.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

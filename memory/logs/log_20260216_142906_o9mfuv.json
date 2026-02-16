@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_o9mfuv",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T11:39:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Layout Drill 2 completed - 30 dynamic web layouts across 3 categories:",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_lqa2sb",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T01:35:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Polish test infrastructure with stable imports and env var control: Added exports to migrations/__init__.py, DURO_SMOKE_APPLY_MIGRATIONS env var (=1 auto-apply, =0 strict), migrations dir logging. Commits d72a4b9 and 4b66563.",
+    "task": "Polish test infrastructure with stable imports and env var control",
+    "outcome": "Added exports to migrations/__init__.py, DURO_SMOKE_APPLY_MIGRATIONS env var (=1 auto-apply, =0 strict), migrations dir logging. Commits d72a4b9 and 4b66563.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

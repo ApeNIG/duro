@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_vcwrwc",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T15:49:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When creating premium fintech/investment platform mockups, mesh gradients (overlapping radial gradients in purple #6366F1, teal #00D4AA, pink #EC4899) combined with glassmorphism (backdrop-blur + semi-transparent fills like #FFFFFF08) create depth and sophistication. Use massive typography (96px headlines) with Source Serif 4 for authority, and bento grid layouts for features. Dark backgrounds (#050810) make accent colors pop.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

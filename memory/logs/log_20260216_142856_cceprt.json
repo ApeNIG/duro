@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142856_cceprt",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T12:35:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix Phase 1 bugs: skill vs skill_stats type mismatch and skill stats lookup: Fixed two bugs: 1) Added 'skill' as alias for 'skill_stats' in _apply_confidence_delta() so evaluations work with either type name; 2) Added get_skill_stats_by_skill_id() helper that allows using natural skill names (e.g., 'web_research') instead of artifact IDs; 3) Renamed seeded skill stats to deterministic IDs (ss_web_research, ss_source_verification, ss_summarization, ss_artifact_creation, ss_planning). Both lookup strategies work: deterministic ID format or fallback search by skill_id field.",
+    "task": "Fix Phase 1 bugs: skill vs skill_stats type mismatch and skill stats lookup",
+    "outcome": "Fixed two bugs: 1) Added 'skill' as alias for 'skill_stats' in _apply_confidence_delta() so evaluations work with either type name; 2) Added get_skill_stats_by_skill_id() helper that allows using natural skill names (e.g., 'web_research') instead of artifact IDs; 3) Renamed seeded skill stats to deterministic IDs (ss_web_research, ss_source_verification, ss_summarization, ss_artifact_creation, ss_planning). Both lookup strategies work: deterministic ID format or fallback search by skill_id field.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

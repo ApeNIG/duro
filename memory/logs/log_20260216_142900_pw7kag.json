@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142900_pw7kag",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T19:03:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Add eval fixtures and fix skill paths: Created 4 fixtures (sample_design.json, sample_component.tsx, sample_code.py, README.md). Fixed 5 eval skill paths to match index.json. 10/10 pass in mock mode. Commit 4b367a5.",
+    "task": "Add eval fixtures and fix skill paths",
+    "outcome": "Created 4 fixtures (sample_design.json, sample_component.tsx, sample_code.py, README.md). Fixed 5 eval skill paths to match index.json. 10/10 pass in mock mode. Commit 4b367a5.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

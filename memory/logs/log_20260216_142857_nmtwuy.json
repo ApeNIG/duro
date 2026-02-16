@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142857_nmtwuy",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:05:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Implement Phase 1B semantic search with FTS5 and graceful degradation: Complete. FTS5 full-text search working with BM25 scoring. vec0 KNN pattern ready for sqlite-vec. Hybrid search degrades gracefully to FTS-only mode. 172 artifacts indexed with semantic text.",
+    "task": "Implement Phase 1B semantic search with FTS5 and graceful degradation",
+    "outcome": "Complete. FTS5 full-text search working with BM25 scoring. vec0 KNN pattern ready for sqlite-vec. Hybrid search degrades gracefully to FTS-only mode. 172 artifacts indexed with semantic text.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

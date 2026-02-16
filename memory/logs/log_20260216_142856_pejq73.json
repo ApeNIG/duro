@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142856_pejq73",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T21:23:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Add Manchester\u2192Liverpool and football paths to bridge cache: Added direct paths for Manchester\u2194Liverpool, Arsenal\u2192Manchester, Chelsea\u2192Liverpool, Premier League\u2192Africa, Real Madrid\u2192Africa to enable instant path discovery.",
+    "task": "Add Manchester\u2192Liverpool and football paths to bridge cache",
+    "outcome": "Added direct paths for Manchester\u2194Liverpool, Arsenal\u2192Manchester, Chelsea\u2192Liverpool, Premier League\u2192Africa, Real Madrid\u2192Africa to enable instant path discovery.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

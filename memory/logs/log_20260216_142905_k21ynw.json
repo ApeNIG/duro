@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142905_k21ynw",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T17:16:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When embedding mockup images in HTML for PDF presentations, Pencil's `get_screenshot` returns visual output but cannot export directly to files. Alternative approaches: 1) Create inline HTML/CSS representations (but these are approximations, not accurate), 2) User must manually export from Pencil app, 3) Convert SVG assets to base64 data URLs for embedding (this works for logos/icons). The honest answer is that manual export from Pencil is needed for accurate mockup images in documents.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

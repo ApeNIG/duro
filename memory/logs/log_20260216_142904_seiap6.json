@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_seiap6",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T08:35:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Material properties define personality: Neumorphism = dual shadows + same-color card/background. Metallic = sharp edge highlights + gradient bands. Holographic = rainbow edge segments + ambient glows. Cyberpunk = sharp corners (0 radius) + neon strokes + scanlines.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

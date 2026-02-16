@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_3g7td6",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T06:39:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Abstract/Dynamic Design Principles (2026): 1) Motion as brand identity - consistent timing curves and easing that become recognizable markers. 2) Quiet but smart motion - less showy animations, more rhythmic/purposeful micro-movements. 3) Progressive disclosure - content reveals through scroll/interaction, not all at once. 4) Layered gradients with blend modes (screen, overlay, multiply) for dimensional effects. 5) Typography as motion - variable fonts, staggered character animations, letter-spacing changes on scroll. 6) Depth without imagery - shadows, layers, spacing, and stacking contexts create dimensionality. 7) Scroll-based storytelling (scrollytelling) - mixed directional narratives, chapter-like progression.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

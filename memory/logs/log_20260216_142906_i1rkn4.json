@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_i1rkn4",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T03:55:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Tools",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Planify has an alternative config (planify-openai.yaml) that uses OpenAI for all agents when Anthropic API key isn't available. The default config requires both keys but the OpenAI-only variant works as a fallback.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

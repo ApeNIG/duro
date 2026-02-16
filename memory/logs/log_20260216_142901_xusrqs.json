@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142901_xusrqs",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-10T21:12:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Deletion audit logs are stored as raw JSONL in memory/logs/deletions.jsonl, NOT as artifacts. This is intentional - audit logs shouldn't be deletable artifacts themselves (would create circular dependency). Logs capture: timestamp, artifact_id, type, sensitivity, file_hash, reason, force_used. Written BEFORE deletion so record exists even if delete fails.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

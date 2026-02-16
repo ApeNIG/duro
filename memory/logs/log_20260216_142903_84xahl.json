@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142903_84xahl",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T21:22:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Force-graph (react-force-graph-2d) mutates link objects in place - it replaces source/target string IDs with actual node object references. When updating graph data, you MUST normalize links back to string IDs before spreading them into new arrays, otherwise node references become stale and nodes appear \"disconnected\" from the graph.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

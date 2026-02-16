@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142902_89q179",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-11T22:56:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Unsplash image fetching adds latency to Intersphere topic loading. The images are cached permanently after first fetch (cache key: unsplash_image:{topic}), so subsequent views are fast. First-time topic loads will be slower due to the Unsplash API call. Consider pre-warming cache for popular topics.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

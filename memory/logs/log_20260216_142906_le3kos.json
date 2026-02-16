@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_le3kos",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T13:20:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Synchronous embedding is more reliable than queue-based for MCP servers. Since MCP servers don't run persistent background workers, embedding inline on artifact store guarantees immediate vector search capability. The pattern: call embed_artifact() right after successful store, use upsert_embedding() to save to SQLite vec0 table.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

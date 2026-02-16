@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142906_u8pjpt",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T10:22:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Process",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Design Study Pack critique checklist has 6 dimensions to score 0-5 before presenting designs: 1) Clarity (what is it in 3 seconds?), 2) Hierarchy (attention flow), 3) Readability (contrast/spacing), 4) Consistency (same rules everywhere), 5) Intent (pushes user forward), 6) Differentiation (feels specific, not template). Target 24+/30 before coding. Also: \"If you didn't design states, you didn't finish the design\" - must include loading/empty/error states.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

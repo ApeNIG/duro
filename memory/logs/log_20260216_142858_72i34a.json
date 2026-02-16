@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142858_72i34a",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-14T00:05:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Upgrade health check with FTS completeness and embedding coverage metrics: Complete. Health check now reports: fts_text_missing_count, coverage_pct, vec_table_exists, embeddings_count vs artifacts_count, first_broken_entry for audit chain. Overall status correctly promotes errors.",
+    "task": "Upgrade health check with FTS completeness and embedding coverage metrics",
+    "outcome": "Complete. Health check now reports: fts_text_missing_count, coverage_pct, vec_table_exists, embeddings_count vs artifacts_count, first_broken_entry for audit chain. Overall status correctly promotes errors.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

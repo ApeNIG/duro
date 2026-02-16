@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_cltf0t",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:03:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Techniques",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Aurora gradient characteristics: 1) Smooth transitions between colors radiating from center, 2) Often uses grain/noise texture for natural appearance, 3) Multiple color stops with easeInOut easing for smooth transitions, 4) Can be liquid/fluid, linear, or radial styles. CSS syntax: radial-gradient(circle at center, rgba(color, 1) 0%, rgba(color, 0) 70%). Apple, Instagram, Stripe use aurora effects professionally.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

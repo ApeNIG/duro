@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142856_8cir19",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-12T13:30:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Implement guardrail visibility and skills_used hygiene: #2: evaluation.data.guardrail tracks skipped_count + skipped_items with full audit trail. breadcrumbs: [\"guardrail_skipped=N\"]. #3: episode.data.warnings logs \"skills_used missing\" when closing with result but no skills. Both verified working.",
+    "task": "Implement guardrail visibility and skills_used hygiene",
+    "outcome": "#2: evaluation.data.guardrail tracks skipped_count + skipped_items with full audit trail. breadcrumbs: [\"guardrail_skipped=N\"]. #3: episode.data.warnings logs \"skills_used missing\" when closing with result but no skills. Both verified working.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

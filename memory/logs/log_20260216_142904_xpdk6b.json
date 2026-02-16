@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142904_xpdk6b",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-13T10:40:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Design Process",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When combining design elements from multiple reference versions: 1) Identify what each version does well (V1=layout, V2=environment), 2) Create a new version that cherry-picks the best elements, 3) Keep reference copies of the originals for comparison. This \"best of both\" approach is more effective than iterating on a single version.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

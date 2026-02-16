@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142907_b0dwib",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T02:08:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Architecture",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Promotion hierarchy for repeated decisions: Most go to Project Constitution (preferences) or Patterns (reusable tactics). Only promote to Skill if it's procedural (steps/checks/rubrics). Scoring: +3 repeated \u22653 times, +2 user endorsed, +2 prevented failure, -4 contradicted later, -2 too project-specific. Threshold \u22655 to promote.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

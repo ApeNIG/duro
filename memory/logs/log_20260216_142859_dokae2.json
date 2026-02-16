@@ -1,0 +1,27 @@
+{
+  "id": "log_20260216_142859_dokae2",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T06:34:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Complete Verification Intelligence stack hardening: Finished zero-lies mode: health_metric anchor, unknown/null semantics for unmeasured states, contextual notes, 7 invariant guardrail tests. Committed as 7ca7049 and pushed to origin.",
+    "task": "Complete Verification Intelligence stack hardening",
+    "outcome": "Finished zero-lies mode: health_metric anchor, unknown/null semantics for unmeasured states, contextual notes, 7 invariant guardrail tests. Committed as 7ca7049 and pushed to origin.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

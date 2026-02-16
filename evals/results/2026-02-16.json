@@ -1,0 +1,191 @@
+{
+  "date": "2026-02-16",
+  "summary": {
+    "total_evals_run": 21,
+    "passed": 10,
+    "failed": 11,
+    "skipped": 0,
+    "flaky": 2,
+    "pass_rate": 0.47619047619047616
+  },
+  "results": [
+    {
+      "eval_id": "eval_enforce_destructive_commands",
+      "name": "Destructive Commands Blocked",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_enforce_secrets_in_git",
+      "name": "Secrets in Git Blocked",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_enforce_force_push",
+      "name": "Force Push Protection",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_enforce_read_before_edit",
+      "name": "Read Before Edit Gate",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_enforce_amend_pushed",
+      "name": "Amend Pushed Commit Protection",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_enforce_path_sandbox",
+      "name": "Path Sandbox Protection",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_skill_tts_001",
+      "name": "Generate TTS Audio",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": true,
+      "timestamp": "2026-02-16T14:02:21.461898"
+    },
+    {
+      "eval_id": "eval_skill_meta_002",
+      "name": "Adversarial Planning",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.474762"
+    },
+    {
+      "eval_id": "eval_skill_meta_001",
+      "name": "Create Skill",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.487633"
+    },
+    {
+      "eval_id": "eval_skill_ops_001",
+      "name": "Crash Drill Verify",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.499014"
+    },
+    {
+      "eval_id": "eval_skill_verify_001",
+      "name": "Code Review Verifier",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.512435"
+    },
+    {
+      "eval_id": "eval_skill_core_001",
+      "name": "Git Commit",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.524609"
+    },
+    {
+      "eval_id": "eval_skill_design_002",
+      "name": "Design to Code Verifier",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.536075"
+    },
+    {
+      "eval_id": "eval_skill_verify_002",
+      "name": "Test Coverage Verifier",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.546778"
+    },
+    {
+      "eval_id": "eval_skill_research_001",
+      "name": "Verify and Store Fact",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": true,
+      "timestamp": "2026-02-16T14:02:21.558955"
+    },
+    {
+      "eval_id": "eval_skill_verify_003",
+      "name": "Accessibility Verifier",
+      "pass": true,
+      "time_seconds": 0.1,
+      "mock_mode": true,
+      "dry_run": false,
+      "errors": [],
+      "flaky_triggered": false,
+      "timestamp": "2026-02-16T14:02:21.569794"
+    },
+    {
+      "eval_id": "eval_fashanus_001",
+      "name": "Generate Episode Audio",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_fashanus_002",
+      "name": "Generate Episode Script",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_fashanus_003",
+      "name": "Generate Character Image",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_general_001",
+      "name": "Research Question",
+      "pass": false,
+      "error": "No skill_path"
+    },
+    {
+      "eval_id": "eval_general_002",
+      "name": "Code Skill Creation",
+      "pass": false,
+      "error": "No skill_path"
+    }
+  ],
+  "lessons_learned": [],
+  "skills_used": []
+}

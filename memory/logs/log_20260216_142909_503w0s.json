@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142909_503w0s",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T20:39:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Process",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "A complete governance loop needs four parts: (1) Enforcement (hooks block bad stuff), (2) Escape hatch (waivers with paperwork), (3) Telemetry (logged events), (4) Accountability (dashboard + CI thresholds). Missing any part leaves the system incomplete.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

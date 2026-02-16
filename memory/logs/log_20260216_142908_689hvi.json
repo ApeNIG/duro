@@ -1,0 +1,28 @@
+{
+  "id": "log_20260216_142908_689hvi",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-15T12:31:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "migrated",
+    "archive-recovery",
+    "Technical",
+    "timestamp-corrected"
+  ],
+  "source": {
+    "workflow": "migration",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Windows file locking with SQLite requires cleanup retry logic in test teardown. Use `gc.collect()` before `shutil.rmtree()` and retry with increasing delays. Final attempt should use `ignore_errors=True`.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
