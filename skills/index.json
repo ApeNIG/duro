@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-15T21:15:00",
+  "last_updated": "2026-02-16T12:00:00",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -538,19 +538,20 @@
       "id": "skill_image_001",
       "name": "image_generate",
       "path": "image/image_generate.py",
-      "description": "Generate images with multi-backend fallback chain (Pollinations, DALL-E, stock)",
+      "description": "Generate images with multi-backend fallback chain (Pollinations, ComfyUI, DALL-E, stock)",
       "tier": "tested",
       "phase": "3.2",
+      "version": "1.1.0",
       "keywords": [
         "image", "generate", "ai", "picture", "photo",
-        "pollinations", "dalle", "stock", "illustration",
+        "pollinations", "comfyui", "dalle", "stock", "illustration",
         "art", "create", "render"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
       "requires_network": true,
-      "timeout_seconds": 120,
-      "expected_runtime_seconds": 15,
+      "timeout_seconds": 600,
+      "expected_runtime_seconds": 30,
       "dependencies": [],
       "side_effects": [
         "writes_file",
@@ -560,7 +561,7 @@
       "pre_checks": [
         "network_available"
       ],
-      "notes": "Phase 3.2 skill. Multi-backend with fallback chain, face detection routing, prompt enhancement, caching. Supports batch generation."
+      "notes": "Phase 3.2 skill. Multi-backend with fallback chain (Pollinations -> ComfyUI -> DALL-E -> stock), face detection routing, prompt enhancement, caching. ComfyUI offers more control (steps, cfg_scale, sampler, seed) when self-hosted."
     },
     {
       "id": "skill_video_001",

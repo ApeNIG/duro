@@ -26,19 +26,34 @@ from enum import Enum
 import base64
 
 
+# ComfyUI client import (optional, graceful fallback)
+_COMFYUI_CLIENT_PATH = "C:/Users/sibag/Desktop/BUILD/comfy-api-service/sdk/python"
+_comfyui_available = False
+
+try:
+    import sys
+    if _COMFYUI_CLIENT_PATH not in sys.path:
+        sys.path.insert(0, _COMFYUI_CLIENT_PATH)
+    from comfyui_client import ComfyUIClient
+    from comfyui_client.exceptions import JobFailedError, TimeoutError as JobTimeoutError
+    _comfyui_available = True
+except ImportError:
+    _comfyui_available = False
+
+
 SKILL_META = {
     "name": "image_generate",
     "description": "Generate images with multi-backend fallback chain",
     "tier": "tested",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "phase": "3.2",
     "keywords": [
         "image", "generate", "ai", "picture", "photo",
-        "pollinations", "dalle", "stock", "illustration"
+        "pollinations", "comfyui", "dalle", "stock", "illustration"
     ],
     "requires_network": True,
-    "timeout_seconds": 120,
-    "expected_runtime_seconds": 15,
+    "timeout_seconds": 600,
+    "expected_runtime_seconds": 30,
     "dependencies": [],
     "side_effects": ["writes_file", "network_request"],
 }
@@ -47,6 +62,7 @@ SKILL_META = {
 class Backend(Enum):
     """Available image generation backends."""
     POLLINATIONS = "pollinations"
+    COMFYUI = "comfyui"
     DALLE = "dalle"
     STOCK = "stock"
 
@@ -94,7 +110,7 @@ class ImageRequest:
     generate_thumbnail: bool = False
     thumbnail_size: int = 256
     backends: List[Backend] = field(default_factory=lambda: [
-        Backend.POLLINATIONS, Backend.DALLE, Backend.STOCK
+        Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK
     ])
     skip_cache: bool = False
     face_override: Optional[bool] = None  # None = auto-detect
@@ -113,6 +129,13 @@ DEFAULT_CONFIG = {
     "pollinations_base_url": "https://image.pollinations.ai/prompt",
     "unsplash_base_url": "https://source.unsplash.com",
     "dalle_api_key_env": "OPENAI_API_KEY",
+    "comfyui_base_url": "http://localhost:8000",
+    "comfyui_api_key_env": "COMFYUI_API_KEY",
+    "comfyui_timeout": 600,
+    "comfyui_poll_interval": 2,
+    "comfyui_steps": 20,
+    "comfyui_cfg_scale": 7.0,
+    "comfyui_sampler": "euler_ancestral",
     "max_retries": 2,
     "retry_delay_seconds": 1,
 }
@@ -304,6 +327,51 @@ def generate_pollinations(
         return False, str(e)
 
 
+def generate_comfyui(
+    prompt: str,
+    width: int,
+    height: int,
+    output_path: str,
+    config: Dict[str, Any]
+) -> Tuple[bool, Optional[str]]:
+    """
+    Generate image using ComfyUI API service (self-hosted, more control).
+    """
+    if not _comfyui_available:
+        return False, "ComfyUI client SDK not available"
+
+    base_url = config.get("comfyui_base_url", DEFAULT_CONFIG["comfyui_base_url"])
+    api_key_env = config.get("comfyui_api_key_env", DEFAULT_CONFIG["comfyui_api_key_env"])
+    api_key = os.environ.get(api_key_env) if api_key_env else None
+
+    try:
+        client = ComfyUIClient(base_url, api_key=api_key, timeout=30)
+        job = client.generate(
+            prompt=prompt,
+            width=width,
+            height=height,
+            steps=config.get("comfyui_steps", DEFAULT_CONFIG["comfyui_steps"]),
+            cfg_scale=config.get("comfyui_cfg_scale", DEFAULT_CONFIG["comfyui_cfg_scale"]),
+            sampler=config.get("comfyui_sampler", DEFAULT_CONFIG["comfyui_sampler"]),
+            seed=config.get("comfyui_seed"),
+        )
+        result = job.wait_for_completion(
+            timeout=config.get("comfyui_timeout", DEFAULT_CONFIG["comfyui_timeout"]),
+            poll_interval=config.get("comfyui_poll_interval", DEFAULT_CONFIG["comfyui_poll_interval"])
+        )
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        result.download_image(index=0, save_path=output_path)
+
+        return True, None
+    except JobFailedError as e:
+        return False, f"ComfyUI job failed: {e}"
+    except JobTimeoutError as e:
+        return False, f"ComfyUI timeout: {e}"
+    except Exception as e:
+        return False, f"ComfyUI error: {e}"
+
+
 def generate_dalle(
     prompt: str,
     width: int,
@@ -396,6 +464,7 @@ def generate_stock(
 
 BACKEND_HANDLERS = {
     Backend.POLLINATIONS: generate_pollinations,
+    Backend.COMFYUI: generate_comfyui,
     Backend.DALLE: generate_dalle,
     Backend.STOCK: generate_stock,
 }
@@ -636,7 +705,7 @@ def run(
         return {"success": False, "error": "No output_path provided"}
 
     # Parse backends
-    backends = [Backend.POLLINATIONS, Backend.DALLE, Backend.STOCK]
+    backends = [Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK]
     if "backends" in args:
         backends = []
         for b in args["backends"]:
