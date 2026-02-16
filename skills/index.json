@@ -1,7 +1,7 @@
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
-  "last_updated": "2026-02-16T12:00:00",
+  "last_updated": "2026-02-16T14:00:00",
   "skill_tiers": {
     "core": "High-reliability, frequently used, thoroughly tested",
     "tested": "Passes all tests, ready for production use",
@@ -538,14 +538,14 @@
       "id": "skill_image_001",
       "name": "image_generate",
       "path": "image/image_generate.py",
-      "description": "Generate images with multi-backend fallback chain (Pollinations, ComfyUI, DALL-E, stock)",
+      "description": "Generate images with multi-backend fallback chain (Flux, Pollinations, ComfyUI, DALL-E)",
       "tier": "tested",
       "phase": "3.2",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "keywords": [
         "image", "generate", "ai", "picture", "photo",
-        "pollinations", "comfyui", "dalle", "stock", "illustration",
-        "art", "create", "render"
+        "flux", "fal", "pollinations", "comfyui", "dalle", "stock",
+        "illustration", "art", "create", "render"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -561,7 +561,7 @@
       "pre_checks": [
         "network_available"
       ],
-      "notes": "Phase 3.2 skill. Multi-backend with fallback chain (Pollinations -> ComfyUI -> DALL-E -> stock), face detection routing, prompt enhancement, caching. ComfyUI offers more control (steps, cfg_scale, sampler, seed) when self-hosted."
+      "notes": "Phase 3.2 skill. Multi-backend with fallback chain (Flux -> Pollinations -> ComfyUI -> DALL-E -> stock). Flux offers excellent quality (~$0.04/image). Includes face detection, prompt enhancement, caching, and cost tracking."
     },
     {
       "id": "skill_video_001",
@@ -621,6 +621,58 @@
       ],
       "composes": [],
       "notes": "Phase 3.2 skill. Parses SRT/VTT formats, generates subtitles from text list, supports burn-in (hardcode) or soft (embedded) modes with style customization."
+    },
+    {
+      "id": "skill_video_003",
+      "name": "video_generate",
+      "path": "video/video_generate.py",
+      "description": "Generate AI videos with multi-backend fallback chain (Minimax/Hailuo, Kling)",
+      "tier": "tested",
+      "phase": "3.2",
+      "version": "1.0.0",
+      "keywords": [
+        "video", "generate", "ai", "clip", "animation",
+        "minimax", "hailuo", "kling", "text-to-video", "image-to-video",
+        "camera", "motion"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": true,
+      "timeout_seconds": 600,
+      "expected_runtime_seconds": 120,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file",
+        "network_request"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "network_available"
+      ],
+      "notes": "Phase 3.2 skill. Multi-backend AI video generation (Minimax ~$0.27/6s, Kling ~$0.30/5s). Supports text-to-video, image-to-video, and camera control instructions."
+    },
+    {
+      "id": "skill_prod_002",
+      "name": "production_cost_estimator",
+      "path": "production/production_cost_estimator.py",
+      "description": "Calculate AI generation costs before running jobs",
+      "tier": "core",
+      "phase": "3.2",
+      "version": "1.0.0",
+      "keywords": [
+        "cost", "estimate", "budget", "price", "production",
+        "image", "video", "audio", "calculate", "plan", "compare"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 10,
+      "expected_runtime_seconds": 1,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "notes": "Phase 3.2 skill. Estimate costs for images (Flux, DALL-E, etc.), videos (Minimax, Kling, Runway), and audio. Compare backends, validate against budget, get recommendations."
     },
     {
       "id": "skill_code_001",

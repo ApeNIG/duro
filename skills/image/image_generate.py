@@ -2,13 +2,14 @@
 Image Generate Skill - Multi-backend image generation with fallback chain.
 
 Capabilities:
-- Multi-backend: Pollinations (free) -> DALL-E -> Stock photos
+- Multi-backend: Flux (excellent) -> Pollinations (free) -> DALL-E -> Stock photos
 - Face detection routing to Face Distortion rule
 - Prompt enhancement with style modifiers
 - Caching and deduplication
 - Progress callbacks for batch operations
+- Cost tracking per generation
 
-Phase 3.2.1
+Phase 3.2.2
 """
 
 import os
@@ -43,13 +44,13 @@ except ImportError:
 
 SKILL_META = {
     "name": "image_generate",
-    "description": "Generate images with multi-backend fallback chain",
+    "description": "Generate images with multi-backend fallback chain (Flux, Pollinations, DALL-E)",
     "tier": "tested",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "phase": "3.2",
     "keywords": [
         "image", "generate", "ai", "picture", "photo",
-        "pollinations", "comfyui", "dalle", "stock", "illustration"
+        "flux", "fal", "pollinations", "comfyui", "dalle", "stock", "illustration"
     ],
     "requires_network": True,
     "timeout_seconds": 600,
@@ -61,10 +62,21 @@ SKILL_META = {
 
 class Backend(Enum):
     """Available image generation backends."""
-    POLLINATIONS = "pollinations"
-    COMFYUI = "comfyui"
-    DALLE = "dalle"
-    STOCK = "stock"
+    FLUX = "flux"           # FAL.ai Flux Pro - excellent quality, ~$0.04/image
+    POLLINATIONS = "pollinations"  # Free, good quality
+    COMFYUI = "comfyui"     # Self-hosted, free when running
+    DALLE = "dalle"         # OpenAI, ~$0.04-0.08/image
+    STOCK = "stock"         # Unsplash, free photos
+
+
+# Cost per image in USD (for estimation)
+BACKEND_COSTS = {
+    Backend.FLUX: 0.04,
+    Backend.POLLINATIONS: 0.0,
+    Backend.COMFYUI: 0.0,
+    Backend.DALLE: 0.04,
+    Backend.STOCK: 0.0,
+}
 
 
 class ImageFormat(Enum):
@@ -110,7 +122,7 @@ class ImageRequest:
     generate_thumbnail: bool = False
     thumbnail_size: int = 256
     backends: List[Backend] = field(default_factory=lambda: [
-        Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK
+        Backend.FLUX, Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK
     ])
     skip_cache: bool = False
     face_override: Optional[bool] = None  # None = auto-detect
@@ -126,9 +138,17 @@ DEFAULT_CONFIG = {
     ],
     "face_confidence_threshold": 0.7,
     "default_style": None,
+    # Flux (FAL.ai) settings
+    "flux_api_key_env": "FAL_KEY",
+    "flux_model": "fal-ai/flux-pro",  # or fal-ai/flux/dev for cheaper
+    "flux_timeout": 120,
+    # Pollinations settings
     "pollinations_base_url": "https://image.pollinations.ai/prompt",
+    # Unsplash settings
     "unsplash_base_url": "https://source.unsplash.com",
+    # DALL-E settings
     "dalle_api_key_env": "OPENAI_API_KEY",
+    # ComfyUI settings
     "comfyui_base_url": "http://localhost:8000",
     "comfyui_api_key_env": "COMFYUI_API_KEY",
     "comfyui_timeout": 600,
@@ -136,6 +156,7 @@ DEFAULT_CONFIG = {
     "comfyui_steps": 20,
     "comfyui_cfg_scale": 7.0,
     "comfyui_sampler": "euler_ancestral",
+    # General settings
     "max_retries": 2,
     "retry_delay_seconds": 1,
 }
@@ -294,6 +315,75 @@ def save_to_cache(
 
 
 # === Backend Implementations ===
+
+def generate_flux(
+    prompt: str,
+    width: int,
+    height: int,
+    output_path: str,
+    config: Dict[str, Any]
+) -> Tuple[bool, Optional[str]]:
+    """
+    Generate image using Flux via FAL.ai API (excellent quality, ~$0.04/image).
+    """
+    api_key_env = config.get("flux_api_key_env", DEFAULT_CONFIG["flux_api_key_env"])
+    api_key = os.environ.get(api_key_env)
+
+    if not api_key:
+        return False, f"FAL API key not found in {api_key_env}"
+
+    model = config.get("flux_model", DEFAULT_CONFIG["flux_model"])
+    timeout = config.get("flux_timeout", DEFAULT_CONFIG["flux_timeout"])
+
+    try:
+        # FAL.ai REST API
+        url = f"https://fal.run/{model}"
+        headers = {
+            "Authorization": f"Key {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        # Flux supports various aspect ratios
+        data = json.dumps({
+            "prompt": prompt,
+            "image_size": {
+                "width": width,
+                "height": height
+            },
+            "num_images": 1,
+            "enable_safety_checker": False,
+        }).encode()
+
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            result = json.loads(response.read())
+
+        # Get image URL from response
+        if "images" in result and len(result["images"]) > 0:
+            image_url = result["images"][0]["url"]
+        elif "image" in result:
+            image_url = result["image"]["url"]
+        else:
+            return False, f"Unexpected Flux response format: {list(result.keys())}"
+
+        # Download the image
+        img_req = urllib.request.Request(image_url, headers={"User-Agent": "Duro/1.0"})
+        with urllib.request.urlopen(img_req, timeout=60) as img_response:
+            image_data = img_response.read()
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "wb") as f:
+            f.write(image_data)
+
+        return True, None
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode() if e.fp else ""
+        return False, f"Flux API error ({e.code}): {error_body[:200]}"
+    except urllib.error.URLError as e:
+        return False, f"Flux network error: {e.reason}"
+    except Exception as e:
+        return False, f"Flux error: {e}"
+
 
 def generate_pollinations(
     prompt: str,
@@ -463,6 +553,7 @@ def generate_stock(
 
 
 BACKEND_HANDLERS = {
+    Backend.FLUX: generate_flux,
     Backend.POLLINATIONS: generate_pollinations,
     Backend.COMFYUI: generate_comfyui,
     Backend.DALLE: generate_dalle,
@@ -705,7 +796,7 @@ def run(
         return {"success": False, "error": "No output_path provided"}
 
     # Parse backends
-    backends = [Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK]
+    backends = [Backend.FLUX, Backend.POLLINATIONS, Backend.COMFYUI, Backend.DALLE, Backend.STOCK]
     if "backends" in args:
         backends = []
         for b in args["backends"]:
