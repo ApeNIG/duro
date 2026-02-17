@@ -1,0 +1,23 @@
+{
+  "id": "log_20260217_062525_4zcvqi",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T06:25:25.771574Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix list_unreviewed_decisions implementation issues: Fixed 3 issues: (1) Timestamp comparison now uses parsed datetime instead of string compare - prevents format variations breaking filtering. (2) Added linked_incidents_count by cross-referencing incidents. (3) Improved UX with helpful no-results message and action-ready Next: line with duro_validate_decision template. Committed ca7c17f, smoke test passed.",
+    "task": "Fix list_unreviewed_decisions implementation issues",
+    "outcome": "Fixed 3 issues: (1) Timestamp comparison now uses parsed datetime instead of string compare - prevents format variations breaking filtering. (2) Added linked_incidents_count by cross-referencing incidents. (3) Improved UX with helpful no-results message and action-ready Next: line with duro_validate_decision template. Committed ca7c17f, smoke test passed.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

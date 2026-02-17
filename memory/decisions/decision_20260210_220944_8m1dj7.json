@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-10T22:09:44.956079Z",
-  "updated_at": null,
+  "updated_at": "2026-02-17T06:51:29.346668Z",
   "sensitivity": "internal",
   "tags": [
     "architecture",
@@ -25,6 +25,11 @@
     ],
     "context": "Duro already has rules, skills, and artifacts working. Missing piece is consistent execution logging and automatic rule-to-skill routing.",
     "reversible": true,
-    "outcome": null
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-17T06:51:29.346668Z",
+      "evidence": [],
+      "confidence": 0.6
+    }
   }
 }

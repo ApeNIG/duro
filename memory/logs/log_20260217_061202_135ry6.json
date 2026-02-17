@@ -1,0 +1,26 @@
+{
+  "id": "log_20260217_061202_135ry6",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T06:12:02.207624Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "logging-verification"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "smoke_test",
+    "message": "Smoke test log entry smoke_log_test_ce13c936",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
