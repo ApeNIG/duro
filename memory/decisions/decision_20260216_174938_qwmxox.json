@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260216_174938_qwmxox",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-16T17:49:38.902480Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "design",
+    "practice",
+    "skills",
+    "growth"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Future design practice should focus on: 1) Light theme confidence building, 2) Bringing emotional design sensibility (from birthday card) into functional UI, 3) Drills with enforced radical divergence between variations",
+    "rationale": "Board review revealed dark themes as comfort zone, functional UX as strength, and emotional design as underutilized capability. The gap between birthday card quality (9/10) and average dashboard work (7/10) shows untapped potential.",
+    "alternatives": [
+      "Continue current drill approach (rejected - too safe)",
+      "Focus only on more drills (rejected - quality over quantity needed)",
+      "Abandon drills for real projects only (rejected - deliberate practice still valuable)"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

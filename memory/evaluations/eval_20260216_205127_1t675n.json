@@ -1,0 +1,72 @@
+{
+  "id": "eval_20260216_205127_1t675n",
+  "type": "evaluation",
+  "version": "1.0",
+  "created_at": "2026-02-16T20:51:27.485078Z",
+  "updated_at": "2026-02-16T20:51:35.543452Z",
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "episode_id": "ep_20260216_204338_1qtf6b",
+    "rubric": {
+      "outcome_quality": {
+        "score": 4,
+        "notes": "Complete 6-panel storyboard with AI images, scene descriptions, VO script. Pre-production deliverable achieved."
+      },
+      "cost": {
+        "tokens_bucket": "M",
+        "tools_used": 12,
+        "duration_mins": 7.58
+      },
+      "correctness_risk": {
+        "score": 2,
+        "notes": "Creative work with subjective quality. AI image generation had some failures requiring stock fallback."
+      },
+      "reusability": {
+        "score": 4,
+        "notes": "Workflow pattern (story beats → panels → images → VO) directly reusable for Episodes 2-N"
+      },
+      "reproducibility": {
+        "score": 3,
+        "notes": "AI image generation has variability. Panel 5-6 needed stock fallback due to API errors."
+      }
+    },
+    "grade": "B+",
+    "memory_updates": {
+      "reinforce": [
+        {
+          "id": "ss_pencil_batch_design",
+          "type": "skill_stats",
+          "delta": 0.01,
+          "reason": "auto: episode success"
+        },
+        {
+          "id": "ss_pencil_get_screenshot",
+          "type": "skill_stats",
+          "delta": 0.01,
+          "reason": "auto: episode success"
+        },
+        {
+          "id": "decision_20260216_134709_ejxs2k",
+          "type": "decision",
+          "delta": 0.005,
+          "reason": "auto: episode success"
+        }
+      ],
+      "decay": []
+    },
+    "applied": true,
+    "applied_at": "2026-02-16T20:51:35.543452Z",
+    "next_change": "Build image prompt templates per character/scene type to improve AI generation consistency. Have stock image fallbacks pre-identified.",
+    "guardrail": {
+      "skipped_count": 0,
+      "skipped_items": []
+    },
+    "breadcrumbs": []
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "log_20260216_184451_mwjams",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-16T18:44:51.014032Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "One clever integration beats ten decorative elements. Examples: bar chart as letter in \"dominates\", sunglasses becoming the \"o\", AI chat replacing booking forms. Find the ONE detail that shows thinking.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

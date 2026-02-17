@@ -1,0 +1,65 @@
+{
+  "id": "eval_20260216_204053_c5cvuw",
+  "type": "evaluation",
+  "version": "1.0",
+  "created_at": "2026-02-16T20:40:53.676616Z",
+  "updated_at": "2026-02-16T20:40:56.893741Z",
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "episode_id": "ep_20260216_204027_akv5nm",
+    "rubric": {
+      "outcome_quality": {
+        "score": 5,
+        "notes": "Completed all planned steps successfully"
+      },
+      "cost": {
+        "tokens_bucket": "XS",
+        "tools_used": 4,
+        "duration_mins": 0.27
+      },
+      "correctness_risk": {
+        "score": 1,
+        "notes": "Low risk - synthetic test only"
+      },
+      "reusability": {
+        "score": 4,
+        "notes": "Pattern can be reused for future eval tests"
+      },
+      "reproducibility": {
+        "score": 5,
+        "notes": "Deterministic sequence, fully reproducible"
+      }
+    },
+    "grade": "A",
+    "memory_updates": {
+      "reinforce": [
+        {
+          "id": "fact_20260216_204037_htncwe",
+          "type": "fact",
+          "delta": 0.01,
+          "reason": "Fact was part of successful episode",
+          "normalized_from": "legacy",
+          "original_item": {
+            "artifact_id": "fact_20260216_204037_htncwe",
+            "reason": "Fact was part of successful episode"
+          }
+        }
+      ],
+      "decay": []
+    },
+    "applied": true,
+    "applied_at": "2026-02-16T20:40:56.893741Z",
+    "next_change": "For real episodes, ensure more meaningful actions and longer duration to properly test timing calculations",
+    "guardrail": {
+      "skipped_count": 0,
+      "skipped_items": []
+    },
+    "breadcrumbs": []
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "ep_20260216_204338_1qtf6b",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-16T20:43:38.652064Z",
+  "updated_at": "2026-02-16T20:51:27.547911Z",
+  "sensitivity": "internal",
+  "tags": [
+    "fashanus",
+    "production",
+    "phase-4.4",
+    "creative",
+    "episode-1"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Produce The Fashanus Episode 1 - first real production test of creative workflow",
+    "status": "closed",
+    "plan": [
+      "Define episode story and character perspective",
+      "Create visual storyboard frames in Pencil",
+      "Write voiceover script for selected character",
+      "Assemble assets and review quality",
+      "Document learnings for future episodes"
+    ],
+    "context": {
+      "domain": "creative-production",
+      "constraints": [
+        "60-90 seconds runtime",
+        "Single character POV",
+        "Must feel authentic to character voice"
+      ],
+      "environment": {
+        "project": "fashanus",
+        "format": "social-media-short"
+      }
+    },
+    "actions": [
+      {
+        "run_id": null,
+        "tool": null,
+        "summary": "Defined Episode 1: \"Breakfast Silence\" - Rachel's POV. Her acts of service go unnoticed as family rushes through morning.",
+        "timestamp": "2026-02-16T20:45:17.288649Z"
+      },
+      {
+        "run_id": null,
+        "tool": "pencil_batch_design",
+        "summary": "Created 6-panel storyboard in Pencil with AI-generated images for scenes: Dawn Kitchen, Hands Detail, Family Arrives, The Disconnect, The Exit, The Silence",
+        "timestamp": "2026-02-16T20:48:24.899335Z"
+      }
+    ],
+    "result": "success",
+    "result_summary": "Produced Episode 1 \"Breakfast Silence\" storyboard: 6-panel visual narrative from Rachel's POV with AI-generated images, scene descriptions, and voiceover script (~75 seconds runtime).",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [
+        "decision_20260216_134709_ejxs2k"
+      ],
+      "skills_used": [
+        "pencil_batch_design",
+        "pencil_get_screenshot"
+      ],
+      "evaluation_id": "eval_20260216_205127_1t675n"
+    },
+    "started_at": "2026-02-16T20:43:38.652064Z",
+    "closed_at": "2026-02-16T20:51:13.156737Z",
+    "duration_mins": 7.58,
+    "warnings": []
+  }
+}

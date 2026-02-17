@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260216_204037_htncwe",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-16T20:40:37.792059Z",
+  "updated_at": "2026-02-16T20:40:56.889908Z",
+  "sensitivity": "public",
+  "tags": [
+    "synthetic",
+    "phase-4.4",
+    "testing"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Synthetic episode test was run on 2026-02-16 to validate Phase 4.4 eval flow",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.71,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "tool_output",
+    "stored_confidence": 0.71,
+    "reinforcement_count": 1
+  }
+}
