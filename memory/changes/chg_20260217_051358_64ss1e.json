@@ -1,0 +1,32 @@
+{
+  "id": "chg_20260217_051358_64ss1e",
+  "type": "recent_change",
+  "version": "1.0",
+  "created_at": "2026-02-17T05:13:58.511338Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "scope": "duro-mcp",
+    "change": "Added config.json to .gitignore, created config.default.json template",
+    "why": "Prevent cross-platform config sync conflicts",
+    "risk_tags": [
+      "config",
+      "sync",
+      "paths"
+    ],
+    "quick_checks": [
+      "Restart Claude Code",
+      "Check Duro MCP loads"
+    ],
+    "links": {
+      "commit_hash": "dbc4353"
+    },
+    "auto_captured": false
+  }
+}

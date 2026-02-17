@@ -1,0 +1,79 @@
+{
+  "id": "chk_20260217_051523_r8fjkv",
+  "type": "checklist_template",
+  "version": "1.0",
+  "created_at": "2026-02-17T05:15:23.907340Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "service",
+    "setup",
+    "identity",
+    "debugging"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "name": "new_service",
+    "description": "Checklist for new service setup - ensures identity logging and config safety",
+    "items": [
+      {
+        "text": "Log hostname/machine label in startup",
+        "category": "identity",
+        "required": true
+      },
+      {
+        "text": "Log current git commit hash in startup",
+        "category": "identity",
+        "required": true
+      },
+      {
+        "text": "Log config file path in startup",
+        "category": "identity",
+        "required": true
+      },
+      {
+        "text": "Log DB/data path in startup",
+        "category": "identity",
+        "required": true
+      },
+      {
+        "text": "Print/validate required env vars on boot",
+        "category": "identity",
+        "required": true
+      },
+      {
+        "text": "Assert single source of truth location",
+        "category": "state",
+        "required": true
+      },
+      {
+        "text": "Add health check endpoint",
+        "category": "ops",
+        "required": false
+      },
+      {
+        "text": "Document config file location per platform",
+        "category": "docs",
+        "required": false
+      },
+      {
+        "text": "Add config to .gitignore if platform-specific",
+        "category": "sync",
+        "required": false
+      },
+      {
+        "text": "Create config.default.json template if needed",
+        "category": "sync",
+        "required": false
+      }
+    ],
+    "code_snippets": {
+      "python": "\nimport os\nimport subprocess\nimport socket\n\ndef startup_identity():\n    print(f\"[STARTUP] hostname={socket.gethostname()}\")\n    try:\n        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()[:8]\n        print(f\"[STARTUP] git_commit={commit}\")\n    except:\n        print(\"[STARTUP] git_commit=unknown\")\n    print(f\"[STARTUP] config_path={os.environ.get('CONFIG_PATH', 'default')}\")\n    print(f\"[STARTUP] db_path={os.environ.get('DB_PATH', 'default')}\")\n",
+      "node": "\nconst os = require(\"os\");\nconst { execSync } = require(\"child_process\");\n\nfunction startupIdentity() {\n  console.log(\\);\n  try {\n    const commit = execSync(\"git rev-parse HEAD\").toString().trim().slice(0, 8);\n    console.log(\\);\n  } catch {\n    console.log(\"[STARTUP] git_commit=unknown\");\n  }\n  console.log(\\);\n  console.log(\\);\n}\n"
+    }
+  }
+}
