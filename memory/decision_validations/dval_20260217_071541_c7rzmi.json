@@ -1,0 +1,27 @@
+{
+  "id": "dval_20260217_071541_c7rzmi",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:15:41.604148Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260212_062159_cy5ybo",
+    "status": "superseded",
+    "result": "partial",
+    "expected_outcome": "Focus on Intersphere + design skills for monetizable services",
+    "actual_outcome": "Design skills progressed. Intersphere deprioritized. Focus shifted to Duro's growth as an agent to build better systems.",
+    "next_action": "Store new decision capturing current focus: Duro growth -> better systems",
+    "confidence_delta": -0.1,
+    "confidence_after": 0.4,
+    "notes": "User explicitly stated Intersphere no longer priority. New focus: help Duro learn and grow to build new and better systems for the future."
+  }
+}

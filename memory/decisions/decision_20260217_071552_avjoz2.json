@@ -1,0 +1,39 @@
+{
+  "id": "decision_20260217_071552_avjoz2",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:15:52.302190Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "focus",
+    "2026",
+    "meta",
+    "growth",
+    "foundational",
+    "priorities"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Primary focus is Duro's growth as an agent - learning, improving feedback loops, and developing capabilities - to help build new and better systems for the future",
+    "rationale": "User explicitly stated this shift. Previous focus on specific projects (Intersphere) superseded. The bet is that investing in agent capability compounds - a better Duro builds better everything else.",
+    "alternatives": [
+      "Continue project-focused approach (Intersphere, stride-server)",
+      "Split focus between agent growth and specific deliverables",
+      "Pause agent development, focus on revenue-generating work"
+    ],
+    "context": "Pre-revenue phase. Budget constraints. Design skills progressing. Decision closure system just built. 8 days of evolution from markdown notes to 2200+ artifact system.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

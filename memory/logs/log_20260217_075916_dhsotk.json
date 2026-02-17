@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_075916_dhsotk",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:59:16.881559Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Blob depth fixes for glassmorphism: (1) Force top/bottom contrast - large dark blob top-left, large bright blob bottom-right, one mid-tone blob at card edge for gradient seam. (2) Give blobs internal value - bright blob gets radial gradient (hot center, darker edge), dark blob gets subtle gradient (lighter edge, darker core). (3) Tint the glass with card overlay gradient (darker/warmer top → transparent bottom). This mimics \"glass has mood.\"",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

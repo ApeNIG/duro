@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260217_075445_5b2wx6",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:54:45.330371Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "meta",
+    "engineering",
+    "shipping",
+    "stopping-rule",
+    "foundational"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Stop engineering Duro's systems when 10-20 real tasks pass: (1) ≥80% context precision (injected skills actually used), (2) ≤1 recall miss per 10 tasks, (3) budget discipline without babysitting, (4) deterministic (same task → same pack). Then freeze and ship features.",
+    "rationale": "Engineering ends when next improvement stops buying real wins. Current skeleton (Gate, Amplifier, Bounded Expansion) is minimum viable. Third-order cleverness before paying \"does this help real tasks?\" debt = over-engineering. Standing at cliff edge now.",
+    "alternatives": [
+      "Continue adding features (EXPANSION_SCORE tweaks, multi-domain priority, draft status)",
+      "Run 10-20 real task validation first",
+      "Freeze system entirely and only ship workflows"
+    ],
+    "context": "User feedback during design workout session. Duro has: 2200+ artifacts, 31 skills, 13 rules, decision closure system, debug gate. Next phase should be validation runs, not more features.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

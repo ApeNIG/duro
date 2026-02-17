@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_074415_7fpfx8",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:44:15.736124Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Safe-area system for UI layers: Tags/top UI should be treated as a fixed component with padding rules. They should never clip or crowd edges. This is what makes carousel/series cards feel professional vs \"UI squeezed.\"",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

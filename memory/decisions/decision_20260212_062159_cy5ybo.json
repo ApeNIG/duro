@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T06:21:59.981616Z",
-  "updated_at": null,
+  "updated_at": "2026-02-17T07:15:41.597121Z",
   "sensitivity": "internal",
   "tags": [
     "priorities",
@@ -23,6 +23,11 @@
     "alternatives": [],
     "context": "User explicitly stated current priorities and constraints in session",
     "reversible": true,
-    "outcome": null
+    "outcome": {
+      "status": "superseded",
+      "verified_at": "2026-02-17T07:15:41.597121Z",
+      "evidence": [],
+      "confidence": 0.4
+    }
   }
 }

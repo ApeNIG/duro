@@ -1,0 +1,45 @@
+{
+  "id": "dref_20260217_073237_s5xfhb",
+  "type": "design_reference",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:32:37.725961Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "workout",
+    "reproduction",
+    "texture",
+    "typography"
+  ],
+  "source": {
+    "workflow": "taste_library",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "product_name": "Travel Counsellors",
+    "url": "local reference image",
+    "screenshot_path": null,
+    "pattern": "hero",
+    "why_it_works": [
+      "Asymmetric corner creates brand thumbprint - memorable shape",
+      "Bokeh texture adds photographic warmth to flat color",
+      "Serif + italic accent creates hierarchy without multiple weights",
+      "Cream frame elevates the card - feels printed not digital"
+    ],
+    "stealable_rules": [
+      "Card-in-card with cream outer = instant premium feel",
+      "One sharp corner + three rounded = signature shape",
+      "Italic + color on second line = visual hook",
+      "3-6% grain + vignette = photographed not generated",
+      "Body text should be understated - never compete with headline"
+    ],
+    "style_tags": [
+      "premium",
+      "editorial",
+      "bokeh",
+      "asymmetric",
+      "serif-italic"
+    ]
+  }
+}

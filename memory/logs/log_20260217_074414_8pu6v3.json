@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_074414_8pu6v3",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T07:44:14.134721Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "AI background generation discipline: ALWAYS add \"no text, no lettering, no typography, no logos\" to prompts. Backgrounds should be \"dumb material\" - typography is the \"smart layer\" you control. Embedded text in backgrounds instantly breaks the illusion of a controlled design system.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

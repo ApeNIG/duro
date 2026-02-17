@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-11T09:21:01.702098Z",
-  "updated_at": null,
+  "updated_at": "2026-02-17T07:15:38.997907Z",
   "sensitivity": "internal",
   "tags": [
     "constitution",
@@ -30,6 +30,11 @@
     ],
     "context": null,
     "reversible": false,
-    "outcome": null
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-17T07:15:38.997907Z",
+      "evidence": [],
+      "confidence": 0.6
+    }
   }
 }
