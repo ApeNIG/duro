@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_054248_24rqeb",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T05:42:48.882909Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Architecture"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When building enforcement mechanisms (gates, guardrails), put enforcement INSIDE the storage function, not as a separate ritual. Users won't remember to call a separate check - but they can't avoid the storage function. The debug gate works because it's in store_incident, not a separate validate_before_close tool.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

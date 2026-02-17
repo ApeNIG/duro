@@ -1,0 +1,29 @@
+{
+  "id": "inc_20260217_053549_9n7hx4",
+  "type": "incident_rca",
+  "version": "1.0",
+  "created_at": "2026-02-17T05:35:49.637062Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "config",
+    "db"
+  ],
+  "source": {
+    "workflow": "debug_rca",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "symptom": "Test: Server returns 500 on /api/users endpoint",
+    "trigger": null,
+    "first_bad_boundary": null,
+    "actual_cause": "Database connection pool exhausted",
+    "why_not_caught": null,
+    "fix": "Increased pool size from 10 to 50",
+    "prevention": null,
+    "related_recent_changes": [],
+    "status": "fixed",
+    "severity": "medium"
+  }
+}

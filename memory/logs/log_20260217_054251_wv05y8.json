@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_054251_wv05y8",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T05:42:51.417829Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Process"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Ban handwaving prevention phrases programmatically: \"be careful\", \"remember to\", \"double check\", \"pay attention\". Force actionable prevention with verb + artifact pattern (e.g., \"Add startup log\", \"Assert X exists\", \"Add smoke test\").",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

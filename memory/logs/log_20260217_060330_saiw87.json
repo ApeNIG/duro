@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_060330_saiw87",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T06:03:30.117833Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Process"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "The surfacing mechanism is the real win. Can't review what you can't see. duro_list_unreviewed_decisions is more valuable than fancy review workflows - it creates the trigger for the habit.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
