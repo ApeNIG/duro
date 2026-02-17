@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_105202_718yca",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T10:52:02.026924Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Decision Closure System architecture: Don't build new tools when existing ones can be extended. The initial spec proposed a new validate_decision tool, but duro_validate_decision already existed. The shipped solution: (1) decision_validation artifact type with append-only history, (2) review_decision for single decisions, (3) review_next_decisions for batch surfacing. Always check existing tools before designing new ones.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "log_20260217_105212_6ko1uv",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-17T10:52:12.223413Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Learnings"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "info",
+    "message": "## Session Learnings (2026-02-17)\n\n### Design\n- Design workout scoring: 0% match (most creative freedom) consistently scores highest because it avoids pixel-matching tension. 100% match plateaus at 82-90% due to micro-spacing/texture gaps needing production tools. Key growth area: blob depth in glassmorphism (~62% accuracy).\n\n### Technical\n- Decision Closure System: Always check existing tools before designing new ones. Initial spec proposed new validate_decision tool but duro_validate_decision already existed. Shipped: decision_validation artifact type + review_decision + review_next_decisions.\n- Debug Gate pattern: Enforce 3 passes before storing root cause in incident RCA: (1) reproduction, (2) boundary identification, (3) causality + 48h observation. Prevents premature root cause claims.\n- FTS embedding coverage: New artifact types (incident_rca, recent_change, checklist_template) were missing semantic text. Always add embedding text handlers when creating new artifact types.\n\n### Bug Found\n- duro_save_learning has a `name 'logging' is not defined` error. Needs fix next session.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
