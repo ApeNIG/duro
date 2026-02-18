@@ -563,6 +563,8 @@ def remove_dead_code(code: str) -> Tuple[str, List[RefactorChange]]:
     """
     Remove obviously dead code (after return/raise/break/continue).
 
+    Uses AST analysis to properly handle multi-line statements.
+
     Args:
         code: Source code
 
@@ -570,55 +572,105 @@ def remove_dead_code(code: str) -> Tuple[str, List[RefactorChange]]:
         Tuple of (modified code, list of changes)
     """
     changes = []
+
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return code, []
+
+    # Find lines that are dead code (unreachable statements)
+    dead_lines: Set[int] = set()
+
+    class DeadCodeFinder(ast.NodeVisitor):
+        """Find unreachable code after return/raise/break/continue."""
+
+        def _check_body(self, body: List[ast.stmt]) -> None:
+            """Check a list of statements for dead code."""
+            found_terminator = False
+            terminator_line = 0
+
+            for stmt in body:
+                if found_terminator:
+                    # This statement is unreachable
+                    # Mark all lines from stmt.lineno to stmt.end_lineno
+                    start = stmt.lineno
+                    end = getattr(stmt, 'end_lineno', stmt.lineno) or stmt.lineno
+                    for line in range(start, end + 1):
+                        dead_lines.add(line)
+                else:
+                    # Check if this is a terminating statement
+                    if isinstance(stmt, (ast.Return, ast.Raise)):
+                        found_terminator = True
+                        terminator_line = getattr(stmt, 'end_lineno', stmt.lineno) or stmt.lineno
+                    elif isinstance(stmt, (ast.Break, ast.Continue)):
+                        found_terminator = True
+                        terminator_line = stmt.lineno
+
+                    # Recurse into compound statements
+                    self.visit(stmt)
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            self._check_body(node.body)
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            self._check_body(node.body)
+
+        def visit_If(self, node: ast.If) -> None:
+            self._check_body(node.body)
+            self._check_body(node.orelse)
+
+        def visit_For(self, node: ast.For) -> None:
+            self._check_body(node.body)
+            self._check_body(node.orelse)
+
+        def visit_AsyncFor(self, node: ast.AsyncFor) -> None:
+            self._check_body(node.body)
+            self._check_body(node.orelse)
+
+        def visit_While(self, node: ast.While) -> None:
+            self._check_body(node.body)
+            self._check_body(node.orelse)
+
+        def visit_With(self, node: ast.With) -> None:
+            self._check_body(node.body)
+
+        def visit_AsyncWith(self, node: ast.AsyncWith) -> None:
+            self._check_body(node.body)
+
+        def visit_Try(self, node: ast.Try) -> None:
+            self._check_body(node.body)
+            for handler in node.handlers:
+                self._check_body(handler.body)
+            self._check_body(node.orelse)
+            self._check_body(node.finalbody)
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> None:
+            self._check_body(node.body)
+
+    finder = DeadCodeFinder()
+    finder.visit(tree)
+
+    if not dead_lines:
+        return code, []
+
+    # Remove dead lines
     lines = code.split('\n')
     new_lines = []
 
-    # Track when we're after a terminating statement
-    skip_until_dedent = False
-    skip_indent = 0
-
     for i, line in enumerate(lines):
         line_num = i + 1
-        stripped = line.strip()
-
-        # Calculate indent only for non-empty lines
-        if stripped:
-            indent = len(line) - len(line.lstrip())
-        else:
-            indent = -1  # Empty line doesn't affect skip logic
-
-        if skip_until_dedent:
-            if indent != -1 and indent < skip_indent:
-                # We've truly dedented (less indentation), stop skipping
-                skip_until_dedent = False
-                new_lines.append(line)
-            elif indent == -1:
-                # Empty line - keep it (might be between functions)
-                new_lines.append(line)
-            else:
-                # Skip this line (dead code) - same or more indented
-                if stripped and not stripped.startswith('#'):
-                    changes.append(RefactorChange(
-                        location=CodeLocation(line_num, 0),
-                        original=stripped,
-                        replacement="",
-                        description="Removed dead code after return/raise"
-                    ))
-                # Don't add to new_lines
-                continue
+        if line_num in dead_lines:
+            stripped = line.strip()
+            if stripped and not stripped.startswith('#'):
+                changes.append(RefactorChange(
+                    location=CodeLocation(line_num, 0),
+                    original=stripped,
+                    replacement="",
+                    description="Removed unreachable code after return/raise/break/continue"
+                ))
+            # Don't include this line
         else:
             new_lines.append(line)
-
-            # Check for terminating statements (must be complete statements)
-            if stripped.startswith('return') and (stripped == 'return' or stripped[6:7] in ' ,('):
-                skip_until_dedent = True
-                skip_indent = indent
-            elif stripped.startswith('raise') and (stripped == 'raise' or stripped[5:6] in ' ('):
-                skip_until_dedent = True
-                skip_indent = indent
-            elif stripped in ('break', 'continue'):
-                skip_until_dedent = True
-                skip_indent = indent
 
     return '\n'.join(new_lines), changes
 

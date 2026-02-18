@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260218_025340_zfh2nx",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-18T02:53:40.347390Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "pipeline",
+    "architecture",
+    "code",
+    "duro",
+    "skill"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Code pipeline orchestrator design: sequential stages with health scoring",
+    "rationale": "Pipeline runs stages in order (review → coverage → test_generate) so coverage results can inform test generation targets. Health score (0-100) provides single metric for project quality. Exit code reflects pass/fail for CI integration.",
+    "alternatives": [
+      "Parallel stage execution",
+      "Separate skills with no orchestration",
+      "More complex dependency graph between stages"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
