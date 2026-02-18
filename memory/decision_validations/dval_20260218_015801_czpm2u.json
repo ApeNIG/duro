@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015801_czpm2u",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:01.842294Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260214_114332_uww7li",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "V6 design drills with diverse layout patterns",
+    "actual_outcome": "Multiple layout variations explored",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Design exploration validated"
+  }
+}

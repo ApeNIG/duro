@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015822_5cuje2",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:22.177353Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260215_001541_yepa1h",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Autonomous design workflow with Planify, two directions, blend",
+    "actual_outcome": "dual_direction_design skill created, workflow operational",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Workflow skill validated"
+  }
+}

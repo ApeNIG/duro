@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015728_dqnjzp",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:57:28.660254Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260214_124514_jtehdz",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Focus on failure-resistance over new features",
+    "actual_outcome": "Debug Gate, Decision Closure System, eval_metrics all focus on reliability. Crash drill protocol exists.",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Strategic priority validated - governance before features"
+  }
+}

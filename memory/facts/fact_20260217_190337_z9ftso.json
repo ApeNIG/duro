@@ -1,0 +1,31 @@
+{
+  "id": "fact_20260217_190337_z9ftso",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-17T19:03:37.943973Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "market-research",
+    "ai-image-generation",
+    "competitive-landscape"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "AI image generation market signals: (1) People pay for recipes/templates not just compute - PromptBase proof at scale, (2) Local-first ecosystem friendlier via Stability Matrix, (3) Cloud suites crowded - competing as \"better Leonardo\" loses",
+    "source_urls": [
+      "https://promptbase.com",
+      "https://github.com/LykosAI/StabilityMatrix",
+      "https://invoke.ai"
+    ],
+    "snippet": null,
+    "confidence": 0.8,
+    "verified": true,
+    "evidence_type": "paraphrase",
+    "provenance": "web"
+  }
+}

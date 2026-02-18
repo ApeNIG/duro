@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015857_hr9fp0",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:57.123720Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260215_085551_rnyyo2",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "DURO Design Operating System for all design work",
+    "actual_outcome": "Design OS documented and applied in design work",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Methodology established"
+  }
+}

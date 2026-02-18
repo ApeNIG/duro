@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015856_d66y0x",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:56.384133Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260215_092609_rknfyd",
+    "status": "validated",
+    "result": "partial",
+    "expected_outcome": "Track Clarity metric for Season 1",
+    "actual_outcome": "Metric defined but not systematically tracked yet",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Metric defined, tracking infrastructure pending"
+  }
+}

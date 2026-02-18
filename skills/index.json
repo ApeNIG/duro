@@ -127,8 +127,8 @@
         "generate",
         "skill"
       ],
-      "usage_count": 1,
-      "success_rate": 1.0,
+      "usage_count": 2,
+      "success_rate": 0.5,
       "special": true,
       "notes": "Use this to scale the skill library without handcrafting",
       "requires_network": false,
@@ -139,7 +139,8 @@
         "writes_file"
       ],
       "fallback_skill": null,
-      "pre_checks": []
+      "pre_checks": [],
+      "last_used": "2026-02-18T01:40:09.772983"
     },
     {
       "id": "skill_research_001",
@@ -442,7 +443,17 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["layout", "grid", "structure", "hierarchy", "spacing", "align", "page", "screen", "dashboard"],
+      "keywords": [
+        "layout",
+        "grid",
+        "structure",
+        "hierarchy",
+        "spacing",
+        "align",
+        "page",
+        "screen",
+        "dashboard"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -453,7 +464,16 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["typography", "font", "text", "heading", "body", "type", "readable", "scale"],
+      "keywords": [
+        "typography",
+        "font",
+        "text",
+        "heading",
+        "body",
+        "type",
+        "readable",
+        "scale"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -464,7 +484,16 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["color", "palette", "contrast", "dark mode", "theme", "brand", "accent", "primary"],
+      "keywords": [
+        "color",
+        "palette",
+        "contrast",
+        "dark mode",
+        "theme",
+        "brand",
+        "accent",
+        "primary"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -475,7 +504,16 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["mobile", "touch", "spacing", "responsive", "phone", "ios", "android", "safe area"],
+      "keywords": [
+        "mobile",
+        "touch",
+        "spacing",
+        "responsive",
+        "phone",
+        "ios",
+        "android",
+        "safe area"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -486,7 +524,15 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["critique", "review", "evaluate", "feedback", "improve", "better", "issues"],
+      "keywords": [
+        "critique",
+        "review",
+        "evaluate",
+        "feedback",
+        "improve",
+        "better",
+        "issues"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -497,7 +543,16 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["card", "list", "component", "item", "row", "stat", "widget", "tile"],
+      "keywords": [
+        "card",
+        "list",
+        "component",
+        "item",
+        "row",
+        "stat",
+        "widget",
+        "tile"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -508,7 +563,14 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["accessible", "accessibility", "a11y", "wcag", "contrast", "screen reader"],
+      "keywords": [
+        "accessible",
+        "accessibility",
+        "a11y",
+        "wcag",
+        "contrast",
+        "screen reader"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -519,7 +581,17 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["dashboard", "analytics", "data", "metrics", "kpi", "chart", "graph", "stats", "report"],
+      "keywords": [
+        "dashboard",
+        "analytics",
+        "data",
+        "metrics",
+        "kpi",
+        "chart",
+        "graph",
+        "stats",
+        "report"
+      ],
       "has_precompiled_renderings": true
     },
     {
@@ -530,7 +602,22 @@
       "tier": "core",
       "scope": "core",
       "type": "prompt",
-      "keywords": ["lighting", "light", "photography", "portrait", "studio", "softbox", "reflector", "rembrandt", "butterfly", "shadow", "strobe", "flash", "key light", "fill light"],
+      "keywords": [
+        "lighting",
+        "light",
+        "photography",
+        "portrait",
+        "studio",
+        "softbox",
+        "reflector",
+        "rembrandt",
+        "butterfly",
+        "shadow",
+        "strobe",
+        "flash",
+        "key light",
+        "fill light"
+      ],
       "has_precompiled_renderings": true,
       "notes": "Comprehensive coverage of the four properties of light, classic portrait patterns, three-point lighting, equipment and modifiers"
     },
@@ -543,9 +630,21 @@
       "phase": "3.2",
       "version": "1.2.0",
       "keywords": [
-        "image", "generate", "ai", "picture", "photo",
-        "flux", "fal", "pollinations", "comfyui", "dalle", "stock",
-        "illustration", "art", "create", "render"
+        "image",
+        "generate",
+        "ai",
+        "picture",
+        "photo",
+        "flux",
+        "fal",
+        "pollinations",
+        "comfyui",
+        "dalle",
+        "stock",
+        "illustration",
+        "art",
+        "create",
+        "render"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -571,15 +670,25 @@
       "tier": "tested",
       "phase": "3.2",
       "keywords": [
-        "video", "compose", "ffmpeg", "images", "audio",
-        "slideshow", "render", "movie", "mp4", "encode"
+        "video",
+        "compose",
+        "ffmpeg",
+        "images",
+        "audio",
+        "slideshow",
+        "render",
+        "movie",
+        "mp4",
+        "encode"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 600,
       "expected_runtime_seconds": 60,
-      "dependencies": ["ffmpeg"],
+      "dependencies": [
+        "ffmpeg"
+      ],
       "side_effects": [
         "writes_file",
         "subprocess"
@@ -602,15 +711,25 @@
       "tier": "tested",
       "phase": "3.2",
       "keywords": [
-        "video", "subtitle", "srt", "vtt", "caption",
-        "text", "burn", "embed", "ffmpeg", "overlay"
+        "video",
+        "subtitle",
+        "srt",
+        "vtt",
+        "caption",
+        "text",
+        "burn",
+        "embed",
+        "ffmpeg",
+        "overlay"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 300,
       "expected_runtime_seconds": 30,
-      "dependencies": ["ffmpeg"],
+      "dependencies": [
+        "ffmpeg"
+      ],
       "side_effects": [
         "writes_file",
         "subprocess"
@@ -631,9 +750,18 @@
       "phase": "3.2",
       "version": "1.0.0",
       "keywords": [
-        "video", "generate", "ai", "clip", "animation",
-        "minimax", "hailuo", "kling", "text-to-video", "image-to-video",
-        "camera", "motion"
+        "video",
+        "generate",
+        "ai",
+        "clip",
+        "animation",
+        "minimax",
+        "hailuo",
+        "kling",
+        "text-to-video",
+        "image-to-video",
+        "camera",
+        "motion"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -660,8 +788,17 @@
       "phase": "3.2",
       "version": "1.0.0",
       "keywords": [
-        "cost", "estimate", "budget", "price", "production",
-        "image", "video", "audio", "calculate", "plan", "compare"
+        "cost",
+        "estimate",
+        "budget",
+        "price",
+        "production",
+        "image",
+        "video",
+        "audio",
+        "calculate",
+        "plan",
+        "compare"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -682,8 +819,17 @@
       "tier": "tested",
       "phase": "3.3",
       "keywords": [
-        "scaffold", "template", "project", "generate", "create",
-        "package", "react", "express", "cli", "structure", "boilerplate"
+        "scaffold",
+        "template",
+        "project",
+        "generate",
+        "create",
+        "package",
+        "react",
+        "express",
+        "cli",
+        "structure",
+        "boilerplate"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -710,8 +856,16 @@
       "tier": "tested",
       "phase": "3.3",
       "keywords": [
-        "test", "generate", "pytest", "unittest", "ast", "function",
-        "class", "coverage", "edge case", "parameterized"
+        "test",
+        "generate",
+        "pytest",
+        "unittest",
+        "ast",
+        "function",
+        "class",
+        "coverage",
+        "edge case",
+        "parameterized"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -737,8 +891,15 @@
       "tier": "tested",
       "phase": "3.3",
       "keywords": [
-        "refactor", "rename", "extract", "inline", "dead code",
-        "imports", "fstring", "cleanup", "verify"
+        "refactor",
+        "rename",
+        "extract",
+        "inline",
+        "dead code",
+        "imports",
+        "fstring",
+        "cleanup",
+        "verify"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
@@ -764,15 +925,26 @@
       "tier": "tested",
       "phase": "3.4",
       "keywords": [
-        "episode", "video", "production", "script", "audio",
-        "images", "compose", "pipeline", "multimodal", "media"
+        "episode",
+        "video",
+        "production",
+        "script",
+        "audio",
+        "images",
+        "compose",
+        "pipeline",
+        "multimodal",
+        "media"
       ],
       "usage_count": 0,
       "success_rate": 1.0,
       "requires_network": true,
       "timeout_seconds": 1800,
       "expected_runtime_seconds": 300,
-      "dependencies": ["ffmpeg", "edge-tts"],
+      "dependencies": [
+        "ffmpeg",
+        "edge-tts"
+      ],
       "side_effects": [
         "writes_file",
         "network_request",
@@ -790,6 +962,40 @@
         "video/video_subtitle.py"
       ],
       "notes": "Phase 3.4 skill. Full multi-modal production pipeline with partial failure handling, progress callbacks, resource limits (500 images, 600s duration), and continue_on_error mode."
+    },
+    {
+      "id": "skill_ops_003",
+      "name": "eval_metrics",
+      "path": "ops/eval_metrics.py",
+      "description": "Compute eval metrics for decisions, episodes, and evaluations. Tracks reopen rate, revert rate, validation status, and confidence distribution.",
+      "tier": "tested",
+      "keywords": [
+        "eval",
+        "metrics",
+        "governance",
+        "tracking",
+        "decisions",
+        "episodes",
+        "evaluations",
+        "reopen",
+        "revert",
+        "review",
+        "rate",
+        "health",
+        "audit"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 5,
+      "dependencies": [],
+      "side_effects": [
+        "reads_database"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "notes": "Governance tracking skill. Computes decision review rate, unverified rate, reopen rate. Filters out smoke-test artifacts. Can store metrics as facts with --store flag."
     }
   ],
   "selection_priority": [

@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260218_015053_slhoxm",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-18T01:50:53.190675Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "eval-metrics",
+    "governance",
+    "tracking",
+    "2026-02-18"
+  ],
+  "source": {
+    "workflow": "eval_metrics_skill",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Duro Eval Metrics (2026-02-18): 171 decisions (60 real), 50 unverified, 9 validated, 0 reversed. Review rate: 7.0%. Unverified rate: 29.2%. Reopen rate: 0.0%.",
+    "source_urls": [],
+    "snippet": "{\n  \"computed_at\": \"2026-02-18T01:50:51.874189+00:00\",\n  \"decisions\": {\n    \"total\": 171,\n    \"smoke_test_count\": 111,\n    \"real_decisions\": 60,\n    \"by_status\": {\n      \"unverified\": 50,\n      \"validated\": 9,\n      \"superseded\": 1\n    },\n    \"validation_events\": 12,\n    \"unreviewed_count\": 50,\n    \"top_tags\": {\n      \"architecture\": 17,\n      \"design\": 13,\n      \"duro\": 12,\n      \"cinematch\": 7,\n      \"roadmap\": 6,\n      \"msj\": 5,\n      \"pencil\": 5,\n      \"implementation\": 5,\n      \"foundational\": 4,\n      \"strategic\": 4\n    }\n  },\n  \"episodes\": {\n    \"total\": 347,\n    \"smoke_test_count\": 0,\n    \"real_episodes\": 347,\n    \"by_result\": {\n      \"success\": 345,\n      \"null\": 2\n    },\n    \"avg_duration_mins\": 0.27,\n    \"duration_count\": 35\n  },\n  \"evaluations\": {\n    \"total\": 353,\n    \"by_grade\": {\n      \"A\": 352,\n      \"B+\": 1\n    },\n    \"avg_outcome_score\": 5.0,\n    \"scored_count\": 353\n  },\n  \"rates\": {\n    \"decision_review_rate\": 0.07,\n    \"unverified_rate\": 0.292,\n    \"reopen_rate\": 0.0\n  },\n  \"health\": [\n    \"50 decisions need review\"\n  ]\n}",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "inference",
+    "provenance": "tool_output"
+  }
+}

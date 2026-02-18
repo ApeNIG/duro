@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-15T09:26:09.478525Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:58:56.379693Z",
   "sensitivity": "internal",
   "tags": [
     "design",
@@ -23,10 +23,10 @@
     "context": "DURO Design OS Season 1 training program",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-18T01:58:56.379693Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }

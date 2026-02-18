@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015822_1ew86x",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:22.805694Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260215_011144_shnfe5",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Bracket B Winner: Dark Premium over Bold Vibrant",
+    "actual_outcome": "Dark Premium selected and applied to MSJ",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Design tournament bracket validated"
+  }
+}

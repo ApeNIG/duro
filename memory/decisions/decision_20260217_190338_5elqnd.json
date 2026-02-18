@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260217_190338_5elqnd",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-17T19:03:38.724006Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "comfy-api-service",
+    "architecture",
+    "pivot",
+    "product-strategy"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Pivot comfy-api-service from ComfyUI wrapper to BYOC Template Platform with abstract template spec that compiles to multiple backends (local runner, user API keys, free fallback)",
+    "rationale": "ComfyUI too expensive/complicated. Market validates templates sell (PromptBase). Differentiation via repeatability + control + portability. Zero compute cost model sustainable.",
+    "alternatives": [
+      "Keep ComfyUI with cheaper hosting",
+      "Switch to cloud APIs only (FAL/Replicate)",
+      "Abandon project"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

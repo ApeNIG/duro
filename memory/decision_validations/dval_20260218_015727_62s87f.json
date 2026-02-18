@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015727_62s87f",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:57:27.253800Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260212_182004_qjjsjw",
+    "status": "superseded",
+    "result": "partial",
+    "expected_outcome": "AI Path-Finding for InterSphere knowledge graph",
+    "actual_outcome": "InterSphere deprioritized. Focus shifted to Duro capabilities and design work.",
+    "confidence_delta": -0.05,
+    "confidence_after": 0.45,
+    "notes": "Project priorities changed"
+  }
+}

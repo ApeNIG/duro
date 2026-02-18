@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T11:23:50.810428Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:57:08.823056Z",
   "sensitivity": "internal",
   "tags": [
     "duro-improvement",
@@ -25,6 +25,11 @@
     ],
     "context": "Research on AI agent memory tools and academic taxonomy",
     "reversible": true,
-    "outcome": null
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-18T01:57:08.823056Z",
+      "evidence": [],
+      "confidence": 0.6
+    }
   }
 }

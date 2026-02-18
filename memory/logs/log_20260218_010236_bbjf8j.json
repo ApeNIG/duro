@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_010236_bbjf8j",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:02:36.830383Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Process"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When building UI for a product, always create visual mockups FIRST using design tools (like Pencil MCP) before implementing code. This allows for faster iteration on layout/design decisions without the overhead of code changes, better stakeholder alignment before committing development time, and clearer visual direction that can be referenced during implementation.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

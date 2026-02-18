@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015759_4zbl56",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:57:59.244419Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260214_054839_qn9nde",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "V4 homepage as new component set",
+    "actual_outcome": "V4 homepage implemented",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Implementation decision validated"
+  }
+}

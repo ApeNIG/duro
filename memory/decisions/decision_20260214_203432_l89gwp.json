@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-14T20:34:32.204246Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:58:20.937124Z",
   "sensitivity": "internal",
   "tags": [
     "operations",
@@ -23,10 +23,10 @@
     "context": "Drill recipe: 1) Start duro_reembed artifact_type=fact limit=100, 2) Wait for heartbeat, 3) Kill server process, 4) Restart server, 5) Verify: duro_list_repairs shows failed entry, duro_health_check still OK, duro_semantic_search works, no queue drift.",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-18T01:58:20.937124Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }

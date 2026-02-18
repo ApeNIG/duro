@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-14T05:07:32.820217Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:57:44.060582Z",
   "sensitivity": "internal",
   "tags": [
     "cinematch",
@@ -24,10 +24,10 @@
     "context": "Phase 0 of Cinematch restructure experiment - design mockups in Pencil before implementation",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-18T01:57:44.060582Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }

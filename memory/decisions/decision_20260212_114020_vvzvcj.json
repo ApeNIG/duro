@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T11:40:20.636835Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:57:07.805835Z",
   "sensitivity": "internal",
   "tags": [
     "superagi-expansion",
@@ -27,6 +27,11 @@
     ],
     "context": "Research on MCP tools from awesome-mcp-servers (80.7k stars), official docs, and community guides",
     "reversible": true,
-    "outcome": null
+    "outcome": {
+      "status": "superseded",
+      "verified_at": "2026-02-18T01:57:07.805835Z",
+      "evidence": [],
+      "confidence": 0.45
+    }
   }
 }

@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015726_3dro95",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:57:26.694691Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260212_191219_vruthq",
+    "status": "validated",
+    "result": "partial",
+    "expected_outcome": "Bidirectional semantic search for path-finding",
+    "actual_outcome": "Hybrid search (FTS + vector) implemented. Semantic search working at 99.8% coverage.",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Semantic search operational, full bidirectional path-finding is future work"
+  }
+}

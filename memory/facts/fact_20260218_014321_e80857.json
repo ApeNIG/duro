@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260218_014321_e80857",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-18T01:43:21.751228Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "eval-metrics",
+    "baseline",
+    "governance",
+    "tracking",
+    "2026-02-18"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Duro Eval Metrics Baseline (2026-02-18): 171 decisions (71 real, 100 smoke-test), 162 unverified, 7 validated, 2 reversed. Review rate: 5.3%. Unverified rate: 94.7%. Reopen rate: 22.2%. 10 decisions need review. 347 episodes (47 real). 353 evaluations (mostly Grade A smoke-tests).",
+    "source_urls": [],
+    "snippet": "Computed from duro_status, duro_query_memory, duro_list_unreviewed_decisions. Key insight: high unverified rate (94.7%) means decision feedback loops are not closing. Reopen rate (22.2%) based on 2 reversed out of 9 validated.",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "inference",
+    "provenance": "tool_output"
+  }
+}

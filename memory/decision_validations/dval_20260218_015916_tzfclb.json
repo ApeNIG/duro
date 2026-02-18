@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015916_tzfclb",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:59:16.878491Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260216_134709_ejxs2k",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Roadmap v3 with Phases 2.2-2.5 and 4.1-4.3 complete",
+    "actual_outcome": "Phases completed as specified. Today added eval_metrics skill for governance.",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.7,
+    "notes": "Latest roadmap validated"
+  }
+}

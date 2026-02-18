@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260218_015839_4lanpg",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:58:39.435084Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260215_020811_05qyhn",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Skill Schema v1.1 with precompiled renderings",
+    "actual_outcome": "Skills have has_precompiled_renderings flag, minimal/compact/full modes exist",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Skill schema implemented"
+  }
+}

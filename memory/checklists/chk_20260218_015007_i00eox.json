@@ -1,0 +1,47 @@
+{
+  "id": "chk_20260218_015007_i00eox",
+  "type": "checklist_template",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:50:07.706799Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "governance",
+    "weekly",
+    "metrics",
+    "review",
+    "habit"
+  ],
+  "source": {
+    "workflow": "checklist",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "name": "weekly_eval_metrics",
+    "description": "Run every Monday to track Duro governance health. Computes decision review rates, reopen rates, and surfaces decisions needing attention.",
+    "items": [
+      {
+        "text": "Run eval_metrics skill: python .agent/skills/ops/eval_metrics.py --store",
+        "category": "metrics",
+        "required": true
+      },
+      {
+        "text": "Compare rates to previous week (review rate, unverified rate, reopen rate)",
+        "category": "analysis",
+        "required": true
+      },
+      {
+        "text": "Review 3-5 unreviewed decisions using duro_review_next_decisions",
+        "category": "review",
+        "required": true
+      },
+      {
+        "text": "Log any health warnings to today's memory",
+        "category": "logging",
+        "required": false
+      }
+    ],
+    "code_snippets": {}
+  }
+}

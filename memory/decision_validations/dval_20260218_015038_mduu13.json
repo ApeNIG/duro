@@ -1,0 +1,27 @@
+{
+  "id": "dval_20260218_015038_mduu13",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T01:50:38.986795Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260212_120956_l13t7r",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Define episode threshold, store refs not outputs, implement evaluation rubric",
+    "actual_outcome": "Episode system operational with small JSON refs. Evaluation rubric with outcome_quality scores working. Average duration 0.27 mins (smoke tests are fast).",
+    "next_action": "Apply episode tracking to real multi-step tasks (not just smoke tests)",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Spec implemented correctly. Needs real-world validation beyond smoke tests to fully prove out."
+  }
+}

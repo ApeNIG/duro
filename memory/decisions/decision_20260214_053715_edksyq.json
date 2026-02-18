@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-14T05:37:15.081893Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:58:00.483619Z",
   "sensitivity": "internal",
   "tags": [
     "cinematch",
@@ -27,10 +27,10 @@
     "context": "Received Elegant Luxury Web Dashboard style guide with dark mode, gold accent, serif headlines, zero radius corners. Will adapt for Cinematch using their existing brand tokens.",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-18T01:58:00.483619Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }

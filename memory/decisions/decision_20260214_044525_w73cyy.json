@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-14T04:45:25.506552Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:57:45.180126Z",
   "sensitivity": "internal",
   "tags": [
     "duro-cloud",
@@ -29,10 +29,10 @@
     "context": "User wants to take Duro everywhere. Option 4 from discussion - most powerful but most complex.",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "superseded",
+      "verified_at": "2026-02-18T01:57:45.180126Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.45
     },
     "episodes_used": []
   }

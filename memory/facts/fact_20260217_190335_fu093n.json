@@ -1,0 +1,28 @@
+{
+  "id": "fact_20260217_190335_fu093n",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-17T19:03:35.727705Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "comfy-api-service",
+    "product-strategy",
+    "business-model",
+    "BYOC"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "ComfyUI API Service pivot: \"Bring Your Own Compute\" (BYOC) template platform is the optimal model - users run locally or bring API keys, platform provides templates + workflow UX + marketplace. Zero compute cost for platform owner.",
+    "source_urls": [],
+    "snippet": "Stop being a \"compute company\" and become a \"template + workflow + UX company.\" That keeps your uniqueness (templates users can customize) and removes the biggest cost sink (GPUs).",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "inference",
+    "provenance": "user"
+  }
+}

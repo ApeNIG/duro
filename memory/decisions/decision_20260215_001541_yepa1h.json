@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-15T00:15:41.987431Z",
-  "updated_at": null,
+  "updated_at": "2026-02-18T01:58:22.172200Z",
   "sensitivity": "internal",
   "tags": [
     "design",
@@ -30,10 +30,10 @@
     "context": "User clarified design process after MSJ was built without mockups. This is now a hard rule in Duro.",
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-18T01:58:22.172200Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }
