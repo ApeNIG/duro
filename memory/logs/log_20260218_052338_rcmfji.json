@@ -1,0 +1,23 @@
+{
+  "id": "log_20260218_052338_rcmfji",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T05:23:38.687425Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix gate_tool to use computed risk enum and structured allowed_via_token: Computed risk FIRST outside try block (fail-closed if classification fails), used is_risky = risk in (DESTRUCTIVE, CRITICAL) instead of is_destructive flag, used result.allowed_via_token structured field instead of string matching reason. Pushed to duro-mcp repo.",
+    "task": "Fix gate_tool to use computed risk enum and structured allowed_via_token",
+    "outcome": "Computed risk FIRST outside try block (fail-closed if classification fails), used is_risky = risk in (DESTRUCTIVE, CRITICAL) instead of is_destructive flag, used result.allowed_via_token structured field instead of string matching reason. Pushed to duro-mcp repo.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
