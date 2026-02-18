@@ -52,6 +52,115 @@ class ActionRisk(Enum):
     DESTRUCTIVE = "risk"    # L3+ - delete, overwrite, deploy
     CRITICAL = "critical"   # L4+ with high domain score
 
+    @classmethod
+    def from_action(cls, action: str, context: Dict[str, Any] = None) -> "ActionRisk":
+        """
+        Classify action risk using enum-based matching.
+
+        This is the canonical entry point for action risk classification.
+        Uses exact matches first, then pattern matching, then context hints.
+        """
+        context = context or {}
+
+        # === EXACT MATCH SETS ===
+        # Ordered by specificity - check destructive first
+        DESTRUCTIVE_ACTIONS = {
+            # File operations
+            "delete_file", "remove_file", "rm", "unlink",
+            # Artifact operations
+            "delete_artifact", "duro_delete_artifact",
+            # Database
+            "drop_table", "drop_database", "truncate", "delete_row",
+            # Git destructive
+            "git_push", "git_push_force", "git_reset_hard", "force_push",
+            # Deploy/Prod
+            "deploy", "deploy_prod", "deploy_production",
+            # Bash (inherently risky)
+            "bash_command", "shell_exec", "run_command",
+        }
+
+        SAFE_WRITE_ACTIONS = {
+            # File editing
+            "edit_file", "write_file", "create_file", "patch_file",
+            # Artifact storage
+            "store_fact", "store_decision", "store_incident",
+            "store_change", "store_checklist", "store_design_ref",
+            "save_memory", "save_learning", "log_task", "log_failure",
+            # Code generation
+            "scaffold", "generate_code", "refactor",
+            # Git safe
+            "git_commit", "git_add", "git_checkout",
+        }
+
+        PLAN_ACTIONS = {
+            "plan", "propose", "draft", "estimate", "compare",
+            "adversarial_planning", "suggest", "design", "architect",
+            "review", "analyze_approach",
+        }
+
+        READ_ACTIONS = {
+            "read_file", "glob_files", "grep", "search", "query",
+            "get_artifact", "list_artifacts", "batch_get",
+            "get_screenshot", "read_webpage", "web_search",
+            "duro_query_memory", "duro_semantic_search", "duro_get_artifact",
+        }
+
+        action_lower = action.lower().strip()
+
+        # Exact match (highest priority)
+        if action_lower in DESTRUCTIVE_ACTIONS:
+            return cls.DESTRUCTIVE
+        if action_lower in SAFE_WRITE_ACTIONS:
+            return cls.SAFE_WRITE
+        if action_lower in PLAN_ACTIONS:
+            return cls.PLAN
+        if action_lower in READ_ACTIONS:
+            return cls.READ
+
+        # === PATTERN MATCHING (more precise than "in") ===
+        # Destructive patterns - action must START with or END with these
+        destructive_prefixes = ("delete_", "remove_", "drop_", "destroy_", "force_")
+        destructive_suffixes = ("_delete", "_remove", "_drop", "_destroy", "_force")
+        if any(action_lower.startswith(p) for p in destructive_prefixes):
+            return cls.DESTRUCTIVE
+        if any(action_lower.endswith(s) for s in destructive_suffixes):
+            return cls.DESTRUCTIVE
+
+        # Safe write patterns
+        safe_prefixes = ("edit_", "write_", "update_", "store_", "save_", "create_")
+        safe_suffixes = ("_edit", "_write", "_update", "_store", "_save", "_create")
+        if any(action_lower.startswith(p) for p in safe_prefixes):
+            return cls.SAFE_WRITE
+        if any(action_lower.endswith(s) for s in safe_suffixes):
+            return cls.SAFE_WRITE
+
+        # Plan patterns
+        plan_prefixes = ("plan_", "propose_", "draft_", "design_")
+        plan_suffixes = ("_plan", "_proposal", "_draft")
+        if any(action_lower.startswith(p) for p in plan_prefixes):
+            return cls.PLAN
+        if any(action_lower.endswith(s) for s in plan_suffixes):
+            return cls.PLAN
+
+        # Read patterns
+        read_prefixes = ("read_", "get_", "fetch_", "query_", "list_", "search_")
+        read_suffixes = ("_read", "_get", "_fetch", "_query", "_list", "_search")
+        if any(action_lower.startswith(p) for p in read_prefixes):
+            return cls.READ
+        if any(action_lower.endswith(s) for s in read_suffixes):
+            return cls.READ
+
+        # === CONTEXT HINTS (override patterns) ===
+        if context.get("is_destructive"):
+            return cls.DESTRUCTIVE
+        if context.get("affects_production") and not context.get("is_reversible", True):
+            return cls.CRITICAL
+        if context.get("affects_production"):
+            return cls.DESTRUCTIVE
+
+        # Default to safe write for unknown (conservative)
+        return cls.SAFE_WRITE
+
 
 # Capability mapping: what each level can do
 LEVEL_CAPABILITIES = {
@@ -149,6 +258,22 @@ DOMAIN_THRESHOLDS = {
 
 
 @dataclass
+class PendingReward:
+    """A provisional success waiting to mature into a real reward."""
+    action_id: str
+    domain: str
+    confidence: float
+    recorded_at: str
+    mature_at: str  # ISO datetime when this can become a real reward
+    cancelled: bool = False
+    matured: bool = False
+
+
+# Default maturation window (days)
+REWARD_MATURATION_DAYS = 7
+
+
+@dataclass
 class ReputationStore:
     """
     Persistent reputation scores per domain.
@@ -157,6 +282,7 @@ class ReputationStore:
     scores: Dict[str, DomainScore] = field(default_factory=dict)
     global_score: float = 0.5  # Overall reputation
     store_path: str = ""
+    pending_rewards: List[PendingReward] = field(default_factory=list)
 
     def get_domain_score(self, domain: str) -> DomainScore:
         """Get or create score for a domain."""
@@ -234,6 +360,98 @@ class ReputationStore:
 
         return AutonomyLevel.L0_OBSERVE
 
+    # === Time-window rewards ===
+
+    def record_provisional_success(
+        self,
+        action_id: str,
+        domain: str,
+        confidence: float = 0.5,
+        maturation_days: int = None
+    ) -> PendingReward:
+        """
+        Record a provisional success that will mature into a real reward.
+
+        The reward only applies if not cancelled (by reopen/revert) before maturation.
+        """
+        now = datetime.now()
+        days = maturation_days or REWARD_MATURATION_DAYS
+        mature_at = now + timedelta(days=days)
+
+        reward = PendingReward(
+            action_id=action_id,
+            domain=domain,
+            confidence=confidence,
+            recorded_at=now.isoformat(),
+            mature_at=mature_at.isoformat()
+        )
+        self.pending_rewards.append(reward)
+        return reward
+
+    def cancel_pending_reward(self, action_id: str, apply_penalty: bool = True) -> bool:
+        """
+        Cancel a pending reward (on reopen/revert).
+
+        If apply_penalty is True, also applies the reopen penalty.
+        Returns True if a pending reward was found and cancelled.
+        """
+        for reward in self.pending_rewards:
+            if reward.action_id == action_id and not reward.cancelled and not reward.matured:
+                reward.cancelled = True
+
+                if apply_penalty:
+                    self.update_score(reward.domain, "reopen", reward.confidence)
+
+                return True
+        return False
+
+    def mature_pending_rewards(self) -> Dict[str, Any]:
+        """
+        Process all pending rewards that have passed their maturation date.
+
+        Call this periodically (e.g., on startup, daily job).
+        Returns summary of matured rewards.
+        """
+        now = datetime.now()
+        matured = []
+        still_pending = []
+
+        for reward in self.pending_rewards:
+            if reward.cancelled or reward.matured:
+                continue
+
+            mature_at = datetime.fromisoformat(reward.mature_at)
+            if now >= mature_at:
+                # Matured! Apply the reward
+                old_score, new_score = self.update_score(
+                    reward.domain,
+                    "successful_closure",
+                    reward.confidence
+                )
+                reward.matured = True
+                matured.append({
+                    "action_id": reward.action_id,
+                    "domain": reward.domain,
+                    "old_score": old_score,
+                    "new_score": new_score
+                })
+            else:
+                still_pending.append(reward.action_id)
+
+        return {
+            "matured_count": len(matured),
+            "matured": matured,
+            "still_pending": len(still_pending),
+            "total_pending": len([r for r in self.pending_rewards if not r.cancelled and not r.matured])
+        }
+
+    def get_pending_rewards(self, domain: str = None) -> List[PendingReward]:
+        """Get active (non-cancelled, non-matured) pending rewards."""
+        active = [r for r in self.pending_rewards if not r.cancelled and not r.matured]
+        if domain:
+            active = [r for r in active if r.domain == domain]
+        return active
+
     def save(self, path: str = None):
         """Persist scores to disk."""
         save_path = path or self.store_path
@@ -246,7 +464,19 @@ class ReputationStore:
             "domains": {
                 domain: ds.to_dict()
                 for domain, ds in self.scores.items()
-            }
+            },
+            "pending_rewards": [
+                {
+                    "action_id": r.action_id,
+                    "domain": r.domain,
+                    "confidence": r.confidence,
+                    "recorded_at": r.recorded_at,
+                    "mature_at": r.mature_at,
+                    "cancelled": r.cancelled,
+                    "matured": r.matured
+                }
+                for r in self.pending_rewards
+            ]
         }
 
         Path(save_path).parent.mkdir(parents=True, exist_ok=True)
@@ -278,6 +508,18 @@ class ReputationStore:
                     confident_reverts=ds_data.get("confident_reverts", 0),
                     last_updated=ds_data.get("last_updated", ""),
                 )
+
+            # Load pending rewards
+            for pr_data in data.get("pending_rewards", []):
+                store.pending_rewards.append(PendingReward(
+                    action_id=pr_data["action_id"],
+                    domain=pr_data["domain"],
+                    confidence=pr_data["confidence"],
+                    recorded_at=pr_data["recorded_at"],
+                    mature_at=pr_data["mature_at"],
+                    cancelled=pr_data.get("cancelled", False),
+                    matured=pr_data.get("matured", False)
+                ))
         except Exception:
             pass
 
@@ -543,52 +785,15 @@ def classify_action_risk(action: str, context: Dict[str, Any] = None) -> ActionR
     """
     Classify the risk level of an action.
 
+    Delegates to ActionRisk.from_action() which uses enum-based matching.
+    This wrapper exists for backward compatibility.
+
     Context can provide hints like:
     - is_destructive: bool
     - affects_production: bool
     - is_reversible: bool
     """
-    context = context or {}
-
-    # Explicit destructive flag
-    if context.get("is_destructive") or context.get("affects_production"):
-        return ActionRisk.DESTRUCTIVE
-
-    # Critical if affects production and not reversible
-    if context.get("affects_production") and not context.get("is_reversible", True):
-        return ActionRisk.CRITICAL
-
-    # Action-based classification
-    read_actions = {
-        "read_file", "glob_files", "grep", "search", "query",
-        "get_artifact", "list_artifacts", "batch_get"
-    }
-    plan_actions = {
-        "plan", "propose", "draft", "estimate", "compare",
-        "adversarial_planning", "suggest"
-    }
-    safe_actions = {
-        "edit_file", "write_file", "store_fact", "store_decision",
-        "store_incident", "save_memory", "scaffold"
-    }
-    destructive_actions = {
-        "delete_file", "delete_artifact", "bash_command", "deploy",
-        "git_push", "drop_table", "truncate"
-    }
-
-    action_lower = action.lower()
-
-    if action_lower in destructive_actions or "delete" in action_lower:
-        return ActionRisk.DESTRUCTIVE
-    if action_lower in safe_actions or "write" in action_lower or "edit" in action_lower:
-        return ActionRisk.SAFE_WRITE
-    if action_lower in plan_actions or "plan" in action_lower:
-        return ActionRisk.PLAN
-    if action_lower in read_actions or "read" in action_lower or "get" in action_lower:
-        return ActionRisk.READ
-
-    # Default to safe write for unknown actions
-    return ActionRisk.SAFE_WRITE
+    return ActionRisk.from_action(action, context)
 
 
 # === INTEGRATION WITH VALIDATION HISTORY ===
@@ -730,24 +935,107 @@ def record_outcome(
     success: bool,
     confidence: float = 0.5,
     was_reverted: bool = False,
-    store: ReputationStore = None
+    action_id: str = None,
+    store: ReputationStore = None,
+    provisional: bool = True  # New: use time-window for successes
 ):
     """
     Record the outcome of an action to update reputation.
 
     Call this after an action completes to build reputation history.
+
+    Args:
+        action: The action description
+        success: Whether the action succeeded
+        confidence: Confidence level (0-1)
+        was_reverted: Whether the action was later reverted
+        action_id: Unique action identifier (for provisional tracking)
+        store: ReputationStore instance
+        provisional: If True, successes become pending rewards (time-window)
     """
     store = store or get_reputation_store()
     domain = classify_action_domain(action)
 
+    # Failures and reverts apply immediately (no maturation needed)
     if was_reverted and confidence >= 0.7:
         store.update_score(domain, "confident_revert", confidence)
-    elif success:
-        store.update_score(domain, "successful_closure", confidence)
-    else:
+        store.save()
+    elif not success:
         store.update_score(domain, "validation_failure", confidence)
+        store.save()
+    elif success:
+        # Successes go through provisional rewards (time-window validation)
+        if provisional and action_id:
+            store.record_provisional_success(action_id, domain, confidence)
+        else:
+            # Immediate reward (legacy behavior or explicit skip)
+            store.update_score(domain, "successful_closure", confidence)
+            store.save()
+
+
+def handle_reopen_event(
+    artifact_type: str,
+    artifact_id: str,
+    linked_action_id: str = None,
+    store: ReputationStore = None
+) -> Dict[str, Any]:
+    """
+    Handle a reopen event (decision reversed, incident re-triggered).
+
+    Reopen events cancel pending rewards and apply penalties.
+    This is the core of "trust but verify" - closures that don't stick
+    hurt reputation more than not closing in the first place.
+
+    Args:
+        artifact_type: "decision" or "incident"
+        artifact_id: The artifact ID being reopened
+        linked_action_id: Action ID that originally closed it
+        store: ReputationStore instance
+
+    Returns:
+        {cancelled: bool, penalty_applied: bool, domain: str}
+    """
+    store = store or get_reputation_store()
+
+    # Map artifact types to domains
+    domain_map = {
+        "decision": "decisions",
+        "incident": "incident_rca",
+    }
+    domain = domain_map.get(artifact_type, "general")
+
+    result = {
+        "cancelled": False,
+        "penalty_applied": False,
+        "domain": domain,
+        "artifact_type": artifact_type,
+        "artifact_id": artifact_id,
+    }
+
+    # Try to cancel pending reward if linked action exists
+    if linked_action_id:
+        cancelled = store.cancel_pending_reward(linked_action_id, apply_penalty=True)
+        result["cancelled"] = cancelled
+        result["penalty_applied"] = cancelled  # Penalty applied via cancel
+
+    # If no linked action or reward not found, still apply reopen penalty
+    if not result["penalty_applied"]:
+        store.update_score(domain, "reopen", 0.5)  # Generic reopen penalty
+        result["penalty_applied"] = True
 
     store.save()
+    return result
+
+
+def run_maturation(store: ReputationStore = None) -> Dict[str, Any]:
+    """
+    Process pending rewards that have matured.
+
+    Call this periodically (e.g., daily, on session start).
+    Returns summary of what was processed.
+    """
+    store = store or get_reputation_store()
+    return store.mature_pending_rewards()
 
 
 # === CLI ===
