@@ -1,0 +1,27 @@
+{
+  "id": "dval_20260218_135616_kgvkx2",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-18T13:56:16.007247Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260211_094908_s2vlwk",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Policy enforcement at execution boundary, unbyppassable gates",
+    "actual_outcome": "Adversarial autonomy drills validated all gates. MCP token bypass vulnerability found and fixed. rm -rf detection added.",
+    "next_action": "Continue adversarial testing monthly",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.7,
+    "notes": "Week 2 review - policy enforcement hardened through adversarial drills"
+  }
+}

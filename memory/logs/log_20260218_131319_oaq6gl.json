@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_131319_oaq6gl",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T13:13:19.350859Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "S3-compatible storage abstraction: Create a storage layer that auto-detects config (S3_BUCKET + keys = S3 mode, else local). Use forcePathStyle for R2/MinIO. Generate keys with structure like renders/{batchId}/{template}-row{n}-{ts}-{hash}.png. Return HTTPS URLs for S3, local paths for dev. Worker logs storage mode on startup.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

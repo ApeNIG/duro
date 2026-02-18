@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-11T08:22:57.611613Z",
-  "updated_at": "2026-02-17T07:15:41.231371Z",
+  "updated_at": "2026-02-18T13:56:17.053979Z",
   "sensitivity": "internal",
   "tags": [
     "critical-thinking",
@@ -28,9 +28,9 @@
     "reversible": true,
     "outcome": {
       "status": "validated",
-      "verified_at": "2026-02-17T07:15:41.231371Z",
+      "verified_at": "2026-02-18T13:56:17.053979Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.55
     }
   }
 }

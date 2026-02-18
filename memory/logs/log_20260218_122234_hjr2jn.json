@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_122234_hjr2jn",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T12:22:34.352298Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "BrandForge E2E testing revealed that the QA engine's DOM-based measurement approach (using data-qa-slot attributes and getBoundingClientRect) accurately detects text overflow, font size violations, and margin issues. The 3-attempt auto-fix loop with font shrinking works but can't always resolve content that's fundamentally too long - this is correct behavior as some content simply needs manual editing. Version tracking (brandKitVersion, templateVersion) on assets enables the \"no-drift\" guarantee by capturing exact state at render time.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

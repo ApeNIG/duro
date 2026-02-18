@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_124835_f8fsti",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T12:48:35.883208Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Column name normalization pattern: When mapping between user data (CSV) and internal schemas (templates), implement a normalization layer that handles case differences, underscores/hyphens, and common aliases. For example: image_url -> imageUrl, imageurl, image, img, photo, picture.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
