@@ -42,10 +42,11 @@ from pathlib import Path
 SKILL_META = {
     "name": "design_to_code_verifier",
     "description": "Compare Pencil designs to code and detect drift",
-    "tier": "core",
-    "version": "2.0.0",
+    "tier": "tested",
+    "version": "2.0.1",
     "author": "duro",
     "triggers": ["verify design", "check implementation", "design drift", "code matches design"],
+    "validated": "2026-02-18",
 }
 
 # Required capabilities
