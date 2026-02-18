@@ -436,5 +436,76 @@ class TestReopenCancellation:
         assert len(pending) == 0
 
 
+# === INVARIANT 9: Maturation heartbeat processes pending rewards ===
+
+class TestMaturationHeartbeat:
+    """Verify that maturation is called and processes rewards."""
+
+    def test_run_maturation_processes_ready_rewards(self, fresh_store):
+        """run_maturation should process rewards past their maturation date."""
+        # Create a pending reward
+        fresh_store.record_provisional_success(
+            action_id="heartbeat_test",
+            domain="heartbeat_domain",
+            confidence=0.8
+        )
+
+        # Manually set mature_at to past
+        fresh_store.pending_rewards[-1].mature_at = (
+            datetime.now() - timedelta(days=1)
+        ).isoformat()
+
+        initial_score = fresh_store.get_domain_score("heartbeat_domain").score
+
+        # Run maturation (the heartbeat)
+        result = run_maturation(fresh_store)
+
+        # Should have processed the reward
+        assert result["matured_count"] == 1
+
+        # Score should have increased
+        final_score = fresh_store.get_domain_score("heartbeat_domain").score
+        assert final_score > initial_score
+
+    def test_run_maturation_idempotent(self, fresh_store):
+        """Calling run_maturation multiple times should be safe."""
+        # Create a pending reward
+        fresh_store.record_provisional_success(
+            action_id="idempotent_test",
+            domain="idempotent_domain",
+            confidence=0.8
+        )
+
+        # Set to past maturation
+        fresh_store.pending_rewards[-1].mature_at = (
+            datetime.now() - timedelta(days=1)
+        ).isoformat()
+
+        # Run maturation twice
+        result1 = run_maturation(fresh_store)
+        result2 = run_maturation(fresh_store)
+
+        # First run should mature, second should find nothing
+        assert result1["matured_count"] == 1
+        assert result2["matured_count"] == 0
+
+    def test_run_maturation_skips_future_rewards(self, fresh_store):
+        """Pending rewards not yet mature should be skipped."""
+        # Create a pending reward (future maturation)
+        fresh_store.record_provisional_success(
+            action_id="future_test",
+            domain="future_domain",
+            confidence=0.8
+        )
+        # Default maturation is 7 days in future - no change needed
+
+        # Run maturation
+        result = run_maturation(fresh_store)
+
+        # Should not have processed anything
+        assert result["matured_count"] == 0
+        assert result["still_pending"] == 1
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
