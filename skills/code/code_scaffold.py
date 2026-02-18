@@ -30,7 +30,7 @@ SKILL_META = {
     "description": "Template-based project generation with validation",
     "tier": "tested",
     "phase": "3.3",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": [
         "scaffold", "template", "project", "generate", "create",
         "python", "react", "express", "cli", "package"
@@ -38,6 +38,7 @@ SKILL_META = {
     "dependencies": [],
     "side_effects": ["writes_file", "creates_directory"],
     "composes": ["meta/adversarial_planning.py"],
+    "validated": "2026-02-18",
 }
 
 DEFAULT_CONFIG = {
