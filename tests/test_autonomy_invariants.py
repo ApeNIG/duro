@@ -507,5 +507,108 @@ class TestMaturationHeartbeat:
         assert result["still_pending"] == 1
 
 
+# === INVARIANT 10: Artifact linkage enables deterministic matching ===
+
+class TestArtifactLinkage:
+    """Verify that artifact linkage enables deterministic reopen matching."""
+
+    def test_pending_reward_stores_artifact_linkage(self, fresh_store):
+        """Pending rewards should store artifact_type and artifact_id."""
+        reward = fresh_store.record_provisional_success(
+            action_id="close_decision_456",
+            domain="decisions",
+            confidence=0.8,
+            artifact_type="decision",
+            artifact_id="decision_456"
+        )
+
+        assert reward.artifact_type == "decision"
+        assert reward.artifact_id == "decision_456"
+
+    def test_reopen_matches_by_artifact_linkage(self, fresh_store):
+        """Reopen should match by artifact_type + artifact_id (deterministic)."""
+        # Create reward WITH artifact linkage
+        fresh_store.record_provisional_success(
+            action_id="close_decision_789",
+            domain="decisions",
+            confidence=0.8,
+            artifact_type="decision",
+            artifact_id="decision_789"
+        )
+
+        # Reopen using artifact linkage (no linked_action_id needed)
+        result = handle_reopen_event(
+            artifact_type="decision",
+            artifact_id="decision_789",
+            store=fresh_store
+        )
+
+        assert result["cancelled"] is True
+        assert result["match_method"] == "artifact_linkage"
+
+    def test_artifact_linkage_preferred_over_action_id(self, fresh_store):
+        """Artifact linkage should be preferred over action_id matching."""
+        # Create reward with both linkage AND action_id
+        fresh_store.record_provisional_success(
+            action_id="action_abc",
+            domain="decisions",
+            confidence=0.8,
+            artifact_type="decision",
+            artifact_id="decision_abc"
+        )
+
+        # Create another reward with same action_id but different artifact
+        fresh_store.record_provisional_success(
+            action_id="action_abc",  # Same action_id!
+            domain="decisions",
+            confidence=0.7,
+            artifact_type="decision",
+            artifact_id="decision_xyz"  # Different artifact
+        )
+
+        # Reopen using artifact linkage - should match exact artifact
+        result = handle_reopen_event(
+            artifact_type="decision",
+            artifact_id="decision_abc",
+            linked_action_id="action_abc",  # Provided but should not be used
+            store=fresh_store
+        )
+
+        assert result["cancelled"] is True
+        assert result["match_method"] == "artifact_linkage"
+
+        # Only one should be cancelled (the one with matching artifact_id)
+        cancelled_count = sum(1 for r in fresh_store.pending_rewards if r.cancelled)
+        assert cancelled_count == 1
+
+        # The correct one (decision_abc) should be cancelled
+        for r in fresh_store.pending_rewards:
+            if r.artifact_id == "decision_abc":
+                assert r.cancelled is True
+            elif r.artifact_id == "decision_xyz":
+                assert r.cancelled is False
+
+    def test_artifact_linkage_persists(self, temp_store_path):
+        """Artifact linkage should survive save/load cycle."""
+        store1 = ReputationStore(store_path=temp_store_path)
+
+        store1.record_provisional_success(
+            action_id="persist_linkage",
+            domain="decisions",
+            confidence=0.8,
+            artifact_type="incident",
+            artifact_id="incident_999"
+        )
+
+        store1.save()
+
+        # Load in new store
+        store2 = ReputationStore.load(temp_store_path)
+
+        assert len(store2.pending_rewards) == 1
+        assert store2.pending_rewards[0].artifact_type == "incident"
+        assert store2.pending_rewards[0].artifact_id == "incident_999"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

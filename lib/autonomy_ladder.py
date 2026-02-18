@@ -267,6 +267,9 @@ class PendingReward:
     mature_at: str  # ISO datetime when this can become a real reward
     cancelled: bool = False
     matured: bool = False
+    # Artifact linkage - enables deterministic matching on reopen events
+    artifact_type: Optional[str] = None  # "decision", "incident", etc.
+    artifact_id: Optional[str] = None    # The specific artifact ID
 
 
 # Default maturation window (days)
@@ -367,12 +370,22 @@ class ReputationStore:
         action_id: str,
         domain: str,
         confidence: float = 0.5,
-        maturation_days: int = None
+        maturation_days: int = None,
+        artifact_type: str = None,
+        artifact_id: str = None
     ) -> PendingReward:
         """
         Record a provisional success that will mature into a real reward.
 
         The reward only applies if not cancelled (by reopen/revert) before maturation.
+
+        Args:
+            action_id: Unique identifier for this action
+            domain: Domain context (e.g., "decisions", "incident_rca")
+            confidence: Confidence level 0-1
+            maturation_days: Days until reward matures (default: 7)
+            artifact_type: Type of artifact this reward is linked to
+            artifact_id: ID of the artifact this reward is linked to
         """
         now = datetime.now()
         days = maturation_days or REWARD_MATURATION_DAYS
@@ -383,26 +396,52 @@ class ReputationStore:
             domain=domain,
             confidence=confidence,
             recorded_at=now.isoformat(),
-            mature_at=mature_at.isoformat()
+            mature_at=mature_at.isoformat(),
+            artifact_type=artifact_type,
+            artifact_id=artifact_id
         )
         self.pending_rewards.append(reward)
         return reward
 
-    def cancel_pending_reward(self, action_id: str, apply_penalty: bool = True) -> bool:
+    def cancel_pending_reward(
+        self,
+        action_id: str = None,
+        apply_penalty: bool = True,
+        artifact_type: str = None,
+        artifact_id: str = None
+    ) -> bool:
         """
         Cancel a pending reward (on reopen/revert).
 
+        Matches by artifact linkage first (deterministic), falls back to action_id.
         If apply_penalty is True, also applies the reopen penalty.
         Returns True if a pending reward was found and cancelled.
+
+        Args:
+            action_id: Action ID to match (legacy, less precise)
+            apply_penalty: Apply reopen penalty on cancel
+            artifact_type: Artifact type to match (deterministic)
+            artifact_id: Artifact ID to match (deterministic)
         """
         for reward in self.pending_rewards:
-            if reward.action_id == action_id and not reward.cancelled and not reward.matured:
-                reward.cancelled = True
+            if reward.cancelled or reward.matured:
+                continue
 
+            # Match by artifact linkage (deterministic, preferred)
+            if artifact_type and artifact_id:
+                if reward.artifact_type == artifact_type and reward.artifact_id == artifact_id:
+                    reward.cancelled = True
+                    if apply_penalty:
+                        self.update_score(reward.domain, "reopen", reward.confidence)
+                    return True
+
+            # Fall back to action_id match (legacy)
+            elif action_id and reward.action_id == action_id:
+                reward.cancelled = True
                 if apply_penalty:
                     self.update_score(reward.domain, "reopen", reward.confidence)
-
                 return True
+
         return False
 
     def mature_pending_rewards(self) -> Dict[str, Any]:
@@ -473,7 +512,9 @@ class ReputationStore:
                     "recorded_at": r.recorded_at,
                     "mature_at": r.mature_at,
                     "cancelled": r.cancelled,
-                    "matured": r.matured
+                    "matured": r.matured,
+                    "artifact_type": r.artifact_type,
+                    "artifact_id": r.artifact_id
                 }
                 for r in self.pending_rewards
             ]
@@ -518,7 +559,9 @@ class ReputationStore:
                     recorded_at=pr_data["recorded_at"],
                     mature_at=pr_data["mature_at"],
                     cancelled=pr_data.get("cancelled", False),
-                    matured=pr_data.get("matured", False)
+                    matured=pr_data.get("matured", False),
+                    artifact_type=pr_data.get("artifact_type"),
+                    artifact_id=pr_data.get("artifact_id")
                 ))
         except Exception:
             pass
@@ -540,6 +583,7 @@ class PermissionCheck:
     reason: str
     downgrade_to: Optional[str] = None  # "propose" if must downgrade
     requires_approval: bool = False
+    allowed_via_token: bool = False  # True if allowed only because of approval token
 
 
 @dataclass
@@ -641,7 +685,8 @@ class AutonomyEnforcer:
                 domain=domain,
                 domain_score=ds.score,
                 action_risk=action_risk,
-                reason="Action permitted via approval token (one-shot consumed)"
+                reason="Action permitted via approval token",
+                allowed_via_token=True  # Structured flag - no string matching needed
             )
 
         # Not allowed - determine downgrade
@@ -986,14 +1031,19 @@ def handle_reopen_event(
     This is the core of "trust but verify" - closures that don't stick
     hurt reputation more than not closing in the first place.
 
+    Matching priority:
+    1. artifact_type + artifact_id (deterministic, preferred)
+    2. linked_action_id (legacy fallback)
+    3. Generic penalty if no match found
+
     Args:
         artifact_type: "decision" or "incident"
         artifact_id: The artifact ID being reopened
-        linked_action_id: Action ID that originally closed it
+        linked_action_id: Action ID that originally closed it (legacy)
         store: ReputationStore instance
 
     Returns:
-        {cancelled: bool, penalty_applied: bool, domain: str}
+        {cancelled: bool, penalty_applied: bool, domain: str, match_method: str}
     """
     store = store or get_reputation_store()
 
@@ -1010,18 +1060,36 @@ def handle_reopen_event(
         "domain": domain,
         "artifact_type": artifact_type,
         "artifact_id": artifact_id,
+        "match_method": None
     }
 
-    # Try to cancel pending reward if linked action exists
-    if linked_action_id:
-        cancelled = store.cancel_pending_reward(linked_action_id, apply_penalty=True)
-        result["cancelled"] = cancelled
-        result["penalty_applied"] = cancelled  # Penalty applied via cancel
+    # Priority 1: Match by artifact linkage (deterministic)
+    cancelled = store.cancel_pending_reward(
+        artifact_type=artifact_type,
+        artifact_id=artifact_id,
+        apply_penalty=True
+    )
+    if cancelled:
+        result["cancelled"] = True
+        result["penalty_applied"] = True
+        result["match_method"] = "artifact_linkage"
 
-    # If no linked action or reward not found, still apply reopen penalty
+    # Priority 2: Fall back to linked_action_id (legacy)
+    if not result["cancelled"] and linked_action_id:
+        cancelled = store.cancel_pending_reward(
+            action_id=linked_action_id,
+            apply_penalty=True
+        )
+        if cancelled:
+            result["cancelled"] = True
+            result["penalty_applied"] = True
+            result["match_method"] = "action_id"
+
+    # Priority 3: No match found - still apply generic penalty
     if not result["penalty_applied"]:
         store.update_score(domain, "reopen", 0.5)  # Generic reopen penalty
         result["penalty_applied"] = True
+        result["match_method"] = "generic_penalty"
 
     store.save()
     return result
