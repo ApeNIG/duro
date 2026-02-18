@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260218_021506_mqx6bd",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-18T02:15:06.165890Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "fashanus",
+    "production",
+    "phase-4",
+    "strategic",
+    "pivot"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Abandon Fashanus animated show project - free AI tools don't meet quality bar, too expensive to produce",
+    "rationale": "Free AI image/video generation tools aren't producing the quality expected for an animated show. The cost to produce at acceptable quality makes the project unviable. Phase 4.4 production testing will need a different target.",
+    "alternatives": [
+      "Continue with lower quality expectations",
+      "Pay for premium AI tools",
+      "Find different production target for Phase 4.4"
+    ],
+    "context": "Fashanus was the main production target for Phase 4.4 Production Testing. Synthetic test episode completed successfully, but scaling to full production revealed quality/cost issues.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

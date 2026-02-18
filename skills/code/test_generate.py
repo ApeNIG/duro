@@ -460,8 +460,15 @@ class TestGenerator:
         self.tests = []
         lines = []
 
-        # Generate header
-        lines.extend(self._generate_header(module_name))
+        # Detect if any functions/methods are async
+        has_async = any(f.is_async for f in module_info.functions)
+        has_async = has_async or any(
+            any(m.is_async for m in cls.methods)
+            for cls in module_info.classes
+        )
+
+        # Generate header with async support if needed
+        lines.extend(self._generate_header(module_name, has_async=has_async))
 
         # Generate imports
         lines.extend(self._generate_imports(module_info, module_name))
@@ -481,15 +488,18 @@ class TestGenerator:
 
         return "\n".join(lines)
 
-    def _generate_header(self, module_name: str) -> List[str]:
+    def _generate_header(self, module_name: str, has_async: bool = False) -> List[str]:
         """Generate test file header."""
-        return [
+        lines = [
             f'"""Tests for {module_name}."""',
             "",
         ]
+        # Store has_async for use in _generate_imports
+        self._has_async = has_async
+        return lines
 
     def _generate_imports(self, module_info: ModuleInfo, module_name: str) -> List[str]:
-        """Generate import statements."""
+        """Generate import statements with try/except guards."""
         lines = []
 
         if self.framework == TestFramework.PYTEST:
@@ -499,7 +509,21 @@ class TestGenerator:
 
         lines.append("")
 
-        # Import from target module
+        # Add async support if needed (must come after pytest import)
+        if getattr(self, '_has_async', False):
+            lines.extend([
+                "# Async test support",
+                "try:",
+                "    import pytest_asyncio",
+                "    HAS_ASYNC = True",
+                "except ImportError:",
+                "    HAS_ASYNC = False",
+                "",
+                "skip_async = pytest.mark.skipif(not HAS_ASYNC, reason='pytest-asyncio not installed')",
+                "",
+            ])
+
+        # Import from target module with try/except guard
         imports = []
         for func in module_info.functions:
             if not func.name.startswith("_"):
@@ -508,10 +532,19 @@ class TestGenerator:
             imports.append(cls.name)
 
         if imports:
-            lines.append(f"from {module_name} import (")
+            lines.append("try:")
+            lines.append(f"    from {module_name} import (")
             for imp in imports:
-                lines.append(f"    {imp},")
-            lines.append(")")
+                lines.append(f"        {imp},")
+            lines.append("    )")
+            lines.append("    HAS_MODULE = True")
+            lines.append("except ImportError:")
+            lines.append("    HAS_MODULE = False")
+            # Create None placeholders for classes to prevent NameError
+            for cls in module_info.classes:
+                lines.append(f"    {cls.name} = None")
+            lines.append("")
+            lines.append(f"pytestmark = pytest.mark.skipif(not HAS_MODULE, reason='{module_name} not importable')")
 
         return lines
 
@@ -560,6 +593,11 @@ class TestGenerator:
         """Generate a basic test for a function."""
         lines = []
 
+        # Add skip marker for async tests
+        if func.is_async:
+            lines.append("@skip_async")
+            lines.append("@pytest.mark.asyncio")
+
         # Generate test function
         async_prefix = "async " if func.is_async else ""
         lines.append(f"{async_prefix}def {test_name_base}():")
@@ -602,6 +640,12 @@ class TestGenerator:
 
             # Generate parameterized test
             param_values = ", ".join(f'({case[0]})' for case in edge_cases)
+
+            # Add async decorators if needed
+            if func.is_async:
+                lines.append("@skip_async")
+                lines.append("@pytest.mark.asyncio")
+
             lines.append(f'@pytest.mark.parametrize("{param.name}", [{param_values}])')
 
             async_prefix = "async " if func.is_async else ""
@@ -641,6 +685,11 @@ class TestGenerator:
         """Generate return type check test."""
         lines = []
         test_name = f"{test_name_base}_returns_correct_type"
+
+        # Add async decorators if needed
+        if func.is_async:
+            lines.append("@skip_async")
+            lines.append("@pytest.mark.asyncio")
 
         async_prefix = "async " if func.is_async else ""
         lines.append(f"{async_prefix}def {test_name}():")
@@ -780,6 +829,11 @@ class TestGenerator:
         """Generate pytest tests for a class method."""
         lines = []
         test_name = f"test_{method.name}"
+
+        # Add async decorators if needed (indented for class method)
+        if method.is_async:
+            lines.append("    @skip_async")
+            lines.append("    @pytest.mark.asyncio")
 
         # Determine if we need the instance fixture
         needs_instance = not method.is_staticmethod and not method.is_classmethod
