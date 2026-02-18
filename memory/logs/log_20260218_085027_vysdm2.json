@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_085027_vysdm2",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T08:50:27.568020Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Args_hint destructive keyword detection added to autonomy_ladder.py - checks for patterns like \"rm -rf\", \"drop \", \"git push -f\" etc. in the args portion of action strings (e.g., \"bash_command:rm -rf\"). Located after pattern matching, before context hints in ActionRisk.from_action().",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

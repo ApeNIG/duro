@@ -150,6 +150,20 @@ class ActionRisk(Enum):
         if any(action_lower.endswith(s) for s in read_suffixes):
             return cls.READ
 
+        # === ARGS_HINT DESTRUCTIVE KEYWORDS ===
+        # Check for destructive patterns in args_hint (e.g., "bash_command:rm -rf")
+        if ":" in action_lower:
+            _, args_part = action_lower.split(":", 1)
+            destructive_args_keywords = (
+                "rm -rf", "rm -r", "rmdir", "del /s", "rd /s",  # File deletion
+                "drop ", "truncate ", "delete from",            # Database
+                "git push -f", "git push --force",              # Git force push
+                "git reset --hard",                             # Git destructive
+                "--force", "-f ",                               # Generic force flags
+            )
+            if any(keyword in args_part for keyword in destructive_args_keywords):
+                return cls.DESTRUCTIVE
+
         # === CONTEXT HINTS (override patterns) ===
         if context.get("is_destructive"):
             return cls.DESTRUCTIVE
