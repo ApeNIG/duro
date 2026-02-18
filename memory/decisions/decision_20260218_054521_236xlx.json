@@ -1,0 +1,39 @@
+{
+  "id": "decision_20260218_054521_236xlx",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-18T05:45:21.920088Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "duro-improvement",
+    "roadmap",
+    "trust",
+    "memory-hygiene",
+    "decision-linkage",
+    "strategic"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Next improvement priorities for Duro: (1) Auto-link decisions to evidence on validate/reverse, (2) Fact hygiene with fact_type/ttl_days/pinned/source + auto-expire test artifacts, (3) Domain-specific rules from incident RCAs (max 5, keep sharp), (4) Proactive recall as hard gate with confidence cap if skipped, (5) Anti-gaming measures for score model, (6) External truth integration via real messy workflows",
+    "rationale": "Current state: autonomy engine works but doesn't truly learn. Decisions have 0 linked episodes (vibes-based reputation). Facts are 448 but mostly test spam (memory landfill). Rules are generic safety, no domain scars. Proactive recall is discipline-dependent (fragile). Need to turn engine into living system that produces trust.",
+    "alternatives": [
+      "Continue current path (test-only validation)",
+      "Focus only on skill validation (easier but doesn't fix trust)",
+      "Full rewrite of memory system (too disruptive)"
+    ],
+    "context": "Post-reflection on 9 days of Duro evolution. Infrastructure exists but habits don't. Biggest risks: governance theater by omission, memory junkyard.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

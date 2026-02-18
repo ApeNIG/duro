@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_064344_p3x2hj",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T06:43:44.041381Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Process"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Decision-evidence linkage requires real work episodes - smoke-test episodes provide zero evidence value. Link decisions to episodes where outcomes are actually observed.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

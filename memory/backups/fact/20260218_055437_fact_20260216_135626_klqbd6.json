@@ -1,0 +1,34 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T05:54:37.117052Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\facts\\fact_20260216_135626_klqbd6.json",
+    "original_hash": "bb2cd44b808e0c29"
+  },
+  "artifact": {
+    "id": "fact_20260216_135626_klqbd6",
+    "type": "fact",
+    "version": "1.1",
+    "created_at": "2026-02-16T13:56:26.883504Z",
+    "updated_at": null,
+    "sensitivity": "internal",
+    "tags": [
+      "write-search-test",
+      "w2s_tok_e2166e66940f"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "claim": "Write-search test w2s_tok_e2166e66940f verifies sync embedding works correctly",
+      "source_urls": [],
+      "snippet": null,
+      "confidence": 0.5,
+      "verified": false,
+      "evidence_type": "none",
+      "provenance": "unknown"
+    }
+  }
+}

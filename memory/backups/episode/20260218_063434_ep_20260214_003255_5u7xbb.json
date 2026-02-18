@@ -1,0 +1,54 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:34:34.242520Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260214_003255_5u7xbb.json",
+    "original_hash": "6fcf3d1f3fdd5ce5"
+  },
+  "artifact": {
+    "id": "ep_20260214_003255_5u7xbb",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-14T00:32:55.839201Z",
+    "updated_at": "2026-02-14T00:32:55.866208Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "decision-outcome"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - decision validation",
+      "status": "closed",
+      "plan": [
+        "Make decision",
+        "Execute",
+        "Validate outcome"
+      ],
+      "context": {
+        "decision_under_test": "decision_20260214_003255_1tbohv"
+      },
+      "actions": [],
+      "result": "success",
+      "result_summary": "Decision validated - async processing worked well",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [
+          "decision_20260214_003255_1tbohv"
+        ],
+        "skills_used": [
+          "planning"
+        ],
+        "evaluation_id": null
+      },
+      "started_at": "2026-02-14T00:32:55.839201Z",
+      "closed_at": "2026-02-14T00:32:55.866186Z",
+      "duration_mins": 0.0,
+      "warnings": []
+    }
+  }
+}

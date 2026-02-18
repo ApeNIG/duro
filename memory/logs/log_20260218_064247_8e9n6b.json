@@ -1,0 +1,23 @@
+{
+  "id": "log_20260218_064247_8e9n6b",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T06:42:47.830824Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Memory landfill cleanup and decision-evidence linkage: Deleted 627+ smoke-test artifacts (310 facts, 117 decisions, 200+ episodes). Reduced total from 2441 to 1657. Linked 6 decisions to real evidence episodes. Created cleanup episode ep_20260218_064207_2xq2ei.",
+    "task": "Memory landfill cleanup and decision-evidence linkage",
+    "outcome": "Deleted 627+ smoke-test artifacts (310 facts, 117 decisions, 200+ episodes). Reduced total from 2441 to 1657. Linked 6 decisions to real evidence episodes. Created cleanup episode ep_20260218_064207_2xq2ei.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

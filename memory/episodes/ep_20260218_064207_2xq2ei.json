@@ -1,0 +1,75 @@
+{
+  "id": "ep_20260218_064207_2xq2ei",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-18T06:42:07.509864Z",
+  "updated_at": "2026-02-18T06:42:37.911248Z",
+  "sensitivity": "internal",
+  "tags": [
+    "duro",
+    "memory-hygiene",
+    "cleanup",
+    "maintenance"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Memory landfill cleanup - remove smoke-test pollution and establish decision-evidence linkage",
+    "status": "closed",
+    "plan": [
+      "Audit current state of decisions and episodes",
+      "Delete smoke-test facts (310)",
+      "Delete smoke-test decisions (117)",
+      "Delete smoke-test episodes (200+)",
+      "Prune orphan embeddings",
+      "Link real decisions to evidence episodes"
+    ],
+    "context": {
+      "domain": "memory-system-maintenance",
+      "constraints": [
+        "Must preserve real artifacts",
+        "Must maintain audit trail"
+      ],
+      "environment": {
+        "artifacts_before": 2441,
+        "target": "Remove zero-knowledge-value test artifacts"
+      }
+    },
+    "actions": [
+      {
+        "run_id": null,
+        "tool": "duro_delete_artifact",
+        "summary": "Deleted 310 smoke-test facts, 117 smoke-test decisions, 200+ smoke-test episodes. Pruned orphan embeddings. Reduced total artifacts from 2441 to 1657.",
+        "timestamp": "2026-02-18T06:42:36.107506Z"
+      },
+      {
+        "run_id": null,
+        "tool": "duro_link_decision",
+        "summary": "Linked 6 real decisions to evidence episodes: roadmap to Fashanus, Phase 1 decisions to E2E test, architecture decisions to this cleanup episode.",
+        "timestamp": "2026-02-18T06:42:37.014077Z"
+      }
+    ],
+    "result": "success",
+    "result_summary": "Memory landfill cleaned: 627 smoke-test artifacts deleted (310 facts, 117 decisions, 200+ episodes), artifacts reduced from 2441 to 1657, embedding coverage healthy at 99.4%. Established decision-evidence linkage pattern by linking 6 decisions to real episodes.",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [
+        "decision_20260210_201010_944nf0",
+        "decision_20260212_114715_jvhgsm",
+        "decision_20260212_112350_aiqn53"
+      ],
+      "skills_used": [],
+      "evaluation_id": null
+    },
+    "started_at": "2026-02-18T06:42:07.509864Z",
+    "closed_at": "2026-02-18T06:42:37.911224Z",
+    "duration_mins": 0.51,
+    "warnings": [
+      "skills_used missing: episode closed with result but no skills recorded"
+    ]
+  }
+}

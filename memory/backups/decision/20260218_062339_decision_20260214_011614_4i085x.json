@@ -1,0 +1,50 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:23:39.853765Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\decisions\\decision_20260214_011614_4i085x.json",
+    "original_hash": "3b1290ac84880032"
+  },
+  "artifact": {
+    "id": "decision_20260214_011614_4i085x",
+    "type": "decision",
+    "version": "1.0",
+    "created_at": "2026-02-14T01:16:14.990039Z",
+    "updated_at": "2026-02-14T01:16:15.061974Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "decision-outcome"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "decision": "Use async processing for smoke test batch jobs",
+      "rationale": "Async improves throughput without blocking the main thread",
+      "alternatives": [
+        "sync processing",
+        "thread pool"
+      ],
+      "context": "smoke test decision outcomes",
+      "reversible": true,
+      "outcome": {
+        "status": "validated",
+        "verified_at": "2026-02-14T01:16:15.061974Z",
+        "evidence": [
+          {
+            "episode_id": "ep_20260214_011615_aj5g65",
+            "result": "success",
+            "notes": "Async processing confirmed to improve throughput in smoke test"
+          }
+        ],
+        "confidence": 0.6
+      },
+      "episodes_used": [
+        "ep_20260214_011615_aj5g65"
+      ]
+    }
+  }
+}

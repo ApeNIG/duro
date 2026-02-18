@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_061859_zihiw3",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T06:18:59.812990Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Memory Hygiene"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Test artifacts polluting memory: 310 smoke-test facts (69% of all facts) were cleaned on Feb 18. Prevention: test-tagged facts need auto-expiry TTL. Always check fact quality, not just count.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

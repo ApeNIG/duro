@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T11:23:50.351476Z",
-  "updated_at": "2026-02-18T01:57:08.308785Z",
+  "updated_at": "2026-02-18T06:42:23.769309Z",
   "sensitivity": "internal",
   "tags": [
     "duro-improvement",
@@ -31,6 +31,9 @@
       "verified_at": "2026-02-18T01:57:08.308785Z",
       "evidence": [],
       "confidence": 0.6
-    }
+    },
+    "episodes_used": [
+      "ep_20260218_064207_2xq2ei"
+    ]
   }
 }

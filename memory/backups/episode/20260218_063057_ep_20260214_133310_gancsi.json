@@ -1,0 +1,61 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:30:57.812107Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260214_133310_gancsi.json",
+    "original_hash": "2e8b9c85b41e9778"
+  },
+  "artifact": {
+    "id": "ep_20260214_133310_gancsi",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-14T13:33:10.711939Z",
+    "updated_at": "2026-02-14T13:33:12.984692Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "automated"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - new payload format",
+      "status": "closed",
+      "plan": [
+        "Create",
+        "Close",
+        "Evaluate",
+        "Apply",
+        "Verify"
+      ],
+      "context": {
+        "test_type": "new_format"
+      },
+      "actions": [
+        {
+          "summary": "Automated smoke test action",
+          "tool": "smoke_test.py",
+          "timestamp": "2026-02-14T13:33:12.795652Z"
+        }
+      ],
+      "result": "success",
+      "result_summary": "Smoke test completed successfully",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [],
+        "decisions_used": [],
+        "skills_used": [
+          "planning"
+        ],
+        "evaluation_id": "eval_20260214_133312_deaebt"
+      },
+      "started_at": "2026-02-14T13:33:10.711939Z",
+      "closed_at": "2026-02-14T13:33:12.816671Z",
+      "duration_mins": 0.04,
+      "warnings": []
+    }
+  }
+}

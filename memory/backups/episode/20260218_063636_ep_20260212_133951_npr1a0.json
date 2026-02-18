@@ -1,0 +1,50 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:36:36.718302Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260212_133951_npr1a0.json",
+    "original_hash": "9de3e5880d1d37be"
+  },
+  "artifact": {
+    "id": "ep_20260212_133951_npr1a0",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-12T13:39:51.064845Z",
+    "updated_at": "2026-02-12T13:39:51.116438Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "auto-update"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - skill auto-update",
+      "status": "closed",
+      "plan": [
+        "Test auto skill updates"
+      ],
+      "context": {
+        "test_type": "auto_skill_update"
+      },
+      "actions": [],
+      "result": "success",
+      "result_summary": "Auto skill update test",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [],
+        "skills_used": [
+          "auto_test"
+        ],
+        "evaluation_id": "eval_20260212_133951_12z2og"
+      },
+      "started_at": "2026-02-12T13:39:51.064845Z",
+      "closed_at": "2026-02-12T13:39:51.086235Z",
+      "duration_mins": 0.0,
+      "warnings": []
+    }
+  }
+}

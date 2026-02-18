@@ -1,0 +1,54 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:25:29.155942Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260217_064949_t42thw.json",
+    "original_hash": "ffecbac7e2f29a56"
+  },
+  "artifact": {
+    "id": "ep_20260217_064949_t42thw",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-17T06:49:49.372305Z",
+    "updated_at": "2026-02-17T06:49:49.502291Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "decision-auto-outcome"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - decision auto-outcome via evaluation",
+      "status": "closed",
+      "plan": [
+        "Apply decision",
+        "Measure results"
+      ],
+      "context": {
+        "testing_auto_decision_outcome": true
+      },
+      "actions": [],
+      "result": "success",
+      "result_summary": "Semantic search improved recall as expected",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [],
+        "decisions_used": [
+          "decision_20260217_064949_xc788g"
+        ],
+        "skills_used": [
+          "planning"
+        ],
+        "evaluation_id": "eval_20260217_064949_cbis69"
+      },
+      "started_at": "2026-02-17T06:49:49.372305Z",
+      "closed_at": "2026-02-17T06:49:49.428813Z",
+      "duration_mins": 0.0,
+      "warnings": []
+    }
+  }
+}

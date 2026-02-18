@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T12:09:56.146905Z",
-  "updated_at": "2026-02-18T01:50:38.981618Z",
+  "updated_at": "2026-02-18T06:42:21.050645Z",
   "sensitivity": "internal",
   "tags": [
     "feedback-loop",
@@ -32,6 +32,9 @@
       "verified_at": "2026-02-18T01:50:38.981618Z",
       "evidence": [],
       "confidence": 0.6
-    }
+    },
+    "episodes_used": [
+      "ep_20260214_123138_oewy95"
+    ]
   }
 }

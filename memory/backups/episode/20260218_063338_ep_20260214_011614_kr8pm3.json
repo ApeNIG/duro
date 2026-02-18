@@ -1,0 +1,50 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:33:38.401380Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260214_011614_kr8pm3.json",
+    "original_hash": "fce110c2882b5018"
+  },
+  "artifact": {
+    "id": "ep_20260214_011614_kr8pm3",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-14T01:16:14.869174Z",
+    "updated_at": "2026-02-14T01:16:14.940030Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "guardrail"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - guardrail verification",
+      "status": "closed",
+      "plan": [
+        "Test guardrail blocks unauthorized updates"
+      ],
+      "context": {
+        "test_type": "guardrail_test"
+      },
+      "actions": [],
+      "result": "success",
+      "result_summary": "Guardrail test",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [],
+        "skills_used": [
+          "planning"
+        ],
+        "evaluation_id": "eval_20260214_011614_qcwscv"
+      },
+      "started_at": "2026-02-14T01:16:14.869174Z",
+      "closed_at": "2026-02-14T01:16:14.896281Z",
+      "duration_mins": 0.0,
+      "warnings": []
+    }
+  }
+}

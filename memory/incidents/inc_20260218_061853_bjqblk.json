@@ -1,0 +1,47 @@
+{
+  "id": "inc_20260218_061853_bjqblk",
+  "type": "incident_rca",
+  "version": "1.0",
+  "created_at": "2026-02-18T06:18:53.115703Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "memory-hygiene",
+    "fact-quality",
+    "test-pollution",
+    "landfill"
+  ],
+  "source": {
+    "workflow": "debug_rca",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "symptom": "Fact count inflated to 448 with 69% being test artifacts (write-search-test smoke tests)",
+    "trigger": null,
+    "first_bad_boundary": "store_fact API - no gate preventing test artifacts from polluting production memory",
+    "actual_cause": "Smoke test artifacts from Feb 14 embedding sync tests were stored as facts without cleanup mechanism",
+    "why_not_caught": "No fact quality monitoring or test artifact detection in maintenance reports",
+    "fix": "Batch deleted 310 test artifacts with audit trail and backups",
+    "prevention": "Add hard rule: facts tagged 'write-search-test' or 'smoke-test' must have TTL and auto-expire within 24 hours",
+    "related_recent_changes": [],
+    "repro_steps": [
+      "Run embedding sync smoke tests that create write-search-test tagged facts",
+      "Facts accumulate without automatic cleanup",
+      "Memory becomes polluted with zero-knowledge-value artifacts"
+    ],
+    "recent_change_scan": {
+      "hours": 48,
+      "risk_tags": [
+        "config",
+        "db"
+      ],
+      "results": [],
+      "cleared_reason": "Not caused by recent change - architectural gap from initial design. Test artifacts created Feb 14 during feature development, not operational change."
+    },
+    "override": false,
+    "override_reason": null,
+    "status": "fixed",
+    "severity": "medium"
+  }
+}

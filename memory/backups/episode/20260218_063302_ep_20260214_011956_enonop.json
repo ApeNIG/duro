@@ -1,0 +1,50 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:33:02.786920Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\episodes\\ep_20260214_011956_enonop.json",
+    "original_hash": "b903e1cbc3e4e8d9"
+  },
+  "artifact": {
+    "id": "ep_20260214_011956_enonop",
+    "type": "episode",
+    "version": "1.0",
+    "created_at": "2026-02-14T01:19:56.301601Z",
+    "updated_at": "2026-02-14T01:19:56.363513Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "auto-update"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "goal": "Smoke test - skill auto-update",
+      "status": "closed",
+      "plan": [
+        "Test auto skill updates"
+      ],
+      "context": {
+        "test_type": "auto_skill_update"
+      },
+      "actions": [],
+      "result": "success",
+      "result_summary": "Auto skill update test",
+      "links": {
+        "facts_created": [],
+        "decisions_created": [],
+        "skills_used": [
+          "auto_test"
+        ],
+        "evaluation_id": "eval_20260214_011956_9rb8se"
+      },
+      "started_at": "2026-02-14T01:19:56.301601Z",
+      "closed_at": "2026-02-14T01:19:56.328091Z",
+      "duration_mins": 0.0,
+      "warnings": []
+    }
+  }
+}

@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-10T20:10:10.323957Z",
-  "updated_at": "2026-02-17T06:51:46.971408Z",
+  "updated_at": "2026-02-18T06:42:21.935569Z",
   "sensitivity": "internal",
   "tags": [
     "architecture",
@@ -30,6 +30,9 @@
       "verified_at": "2026-02-17T06:51:46.971408Z",
       "evidence": [],
       "confidence": 0.6
-    }
+    },
+    "episodes_used": [
+      "ep_20260218_064207_2xq2ei"
+    ]
   }
 }

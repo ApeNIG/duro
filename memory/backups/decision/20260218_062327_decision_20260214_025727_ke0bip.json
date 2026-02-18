@@ -1,0 +1,43 @@
+{
+  "backup_meta": {
+    "backed_up_at": "2026-02-18T06:23:27.224362Z",
+    "operation": "delete",
+    "original_path": "C:\\Users\\sibag\\.agent\\memory\\decisions\\decision_20260214_025727_ke0bip.json",
+    "original_hash": "d31de28c9588917e"
+  },
+  "artifact": {
+    "id": "decision_20260214_025727_ke0bip",
+    "type": "decision",
+    "version": "1.0",
+    "created_at": "2026-02-14T02:57:27.067030Z",
+    "updated_at": "2026-02-14T02:57:27.203279Z",
+    "sensitivity": "internal",
+    "tags": [
+      "smoke-test",
+      "decision-auto-outcome"
+    ],
+    "source": {
+      "workflow": "manual",
+      "run_id": null,
+      "tool_trace_path": null
+    },
+    "data": {
+      "decision": "Use semantic search for improved recall",
+      "rationale": "Hybrid FTS + embeddings provides best of both worlds",
+      "alternatives": [
+        "FTS only",
+        "embeddings only"
+      ],
+      "context": "smoke test auto decision outcomes",
+      "reversible": true,
+      "outcome": {
+        "status": "unverified",
+        "verified_at": null,
+        "evidence": [],
+        "confidence": 0.505,
+        "last_evaluated_at": "2026-02-14T02:57:27.203268Z"
+      },
+      "episodes_used": []
+    }
+  }
+}
