@@ -822,8 +822,18 @@ ACTION_DOMAINS = {
 
 
 def classify_action_domain(action: str) -> str:
-    """Classify an action into its domain."""
-    return ACTION_DOMAINS.get(action, "general")
+    """
+    Classify an action into its domain.
+
+    Handles both raw action names (e.g., 'delete_artifact') and
+    MCP tool names (e.g., 'duro_delete_artifact') by stripping the 'duro_' prefix.
+    """
+    # Normalize: strip 'duro_' prefix if present
+    normalized = action
+    if action.startswith("duro_"):
+        normalized = action[5:]  # len("duro_") == 5
+
+    return ACTION_DOMAINS.get(normalized, "general")
 
 
 def classify_action_risk(action: str, context: Dict[str, Any] = None) -> ActionRisk:
