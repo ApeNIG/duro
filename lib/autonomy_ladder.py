@@ -300,6 +300,22 @@ class PermissionCheck:
     requires_approval: bool = False
 
 
+@dataclass
+class ApprovalToken:
+    """One-shot approval token with audit trail."""
+    action_id: str
+    granted_at: str
+    expires_at: datetime
+    used_at: Optional[str] = None
+    used_by: Optional[str] = None
+    reason: Optional[str] = None
+
+    @property
+    def is_valid(self) -> bool:
+        """Check if token is still valid (not expired, not used)."""
+        return self.used_at is None and self.expires_at > datetime.now()
+
+
 class AutonomyEnforcer:
     """
     Enforcement hook for the orchestrator.
@@ -309,13 +325,15 @@ class AutonomyEnforcer:
     def __init__(self, store: ReputationStore, base_level: AutonomyLevel = AutonomyLevel.L2_SAFE_EXEC):
         self.store = store
         self.base_level = base_level  # Default autonomy level
-        self.approval_tokens: Dict[str, datetime] = {}  # action_id -> expiry
+        self.approval_tokens: Dict[str, ApprovalToken] = {}  # action_id -> token
+        self.approval_log: List[Dict[str, Any]] = []  # Audit trail
 
     def check_permission(
         self,
         action_risk: ActionRisk,
         domain: str,
-        action_id: str = None
+        action_id: str = None,
+        consume_token: bool = True
     ) -> PermissionCheck:
         """
         Check if an action is permitted given current autonomy state.
@@ -324,6 +342,7 @@ class AutonomyEnforcer:
             action_risk: Risk level of the action
             domain: Domain context (e.g., "code_changes", "incident_rca")
             action_id: Optional ID for approval token lookup
+            consume_token: If True and token is used, mark it as consumed (one-shot)
 
         Returns:
             PermissionCheck with decision and reasoning
@@ -338,13 +357,15 @@ class AutonomyEnforcer:
         # Check capabilities
         allowed_actions = LEVEL_CAPABILITIES.get(effective_level, set())
 
-        # Check for approval token
+        # Check for approval token (one-shot: valid only if not used)
         has_approval = False
         if action_id and action_id in self.approval_tokens:
-            if self.approval_tokens[action_id] > datetime.now():
+            token = self.approval_tokens[action_id]
+            if token.is_valid:
                 has_approval = True
-            else:
-                del self.approval_tokens[action_id]  # Expired
+            elif token.expires_at <= datetime.now():
+                # Expired - cleanup
+                del self.approval_tokens[action_id]
 
         # Determine required level for this action
         required_level = AutonomyLevel.L0_OBSERVE
@@ -367,6 +388,10 @@ class AutonomyEnforcer:
 
         # Not directly allowed - check if approval token exists
         if has_approval and action_risk == ActionRisk.DESTRUCTIVE:
+            # Consume the token if requested (one-shot)
+            if consume_token:
+                self.use_approval(action_id, used_by="autonomy_enforcer")
+
             return PermissionCheck(
                 allowed=True,
                 required_level=required_level,
@@ -374,7 +399,7 @@ class AutonomyEnforcer:
                 domain=domain,
                 domain_score=ds.score,
                 action_risk=action_risk,
-                reason="Action permitted via approval token"
+                reason="Action permitted via approval token (one-shot consumed)"
             )
 
         # Not allowed - determine downgrade
@@ -401,15 +426,76 @@ class AutonomyEnforcer:
             reason=f"Insufficient autonomy level (have L{effective_level.value}, need L{required_level.value})"
         )
 
-    def grant_approval(self, action_id: str, duration_seconds: int = 300):
-        """Grant temporary approval token for a specific action."""
-        expiry = datetime.now() + timedelta(seconds=duration_seconds)
-        self.approval_tokens[action_id] = expiry
+    def grant_approval(self, action_id: str, duration_seconds: int = 300, reason: str = None):
+        """
+        Grant one-shot approval token for a specific action.
 
-    def revoke_approval(self, action_id: str):
+        Token can only be used once. Expires after duration_seconds.
+        """
+        now = datetime.now()
+        expiry = now + timedelta(seconds=duration_seconds)
+
+        token = ApprovalToken(
+            action_id=action_id,
+            granted_at=now.isoformat(),
+            expires_at=expiry,
+            reason=reason
+        )
+
+        self.approval_tokens[action_id] = token
+
+        # Audit trail
+        self.approval_log.append({
+            "event": "grant",
+            "action_id": action_id,
+            "timestamp": now.isoformat(),
+            "expires_at": expiry.isoformat(),
+            "reason": reason
+        })
+
+    def use_approval(self, action_id: str, used_by: str = "orchestrator") -> bool:
+        """
+        Mark an approval token as used (one-shot consumption).
+
+        Returns True if token was valid and consumed, False otherwise.
+        """
+        if action_id not in self.approval_tokens:
+            return False
+
+        token = self.approval_tokens[action_id]
+        if not token.is_valid:
+            return False
+
+        # Mark as used
+        now = datetime.now()
+        token.used_at = now.isoformat()
+        token.used_by = used_by
+
+        # Audit trail
+        self.approval_log.append({
+            "event": "use",
+            "action_id": action_id,
+            "timestamp": now.isoformat(),
+            "used_by": used_by
+        })
+
+        return True
+
+    def revoke_approval(self, action_id: str, reason: str = None):
         """Revoke an approval token."""
         if action_id in self.approval_tokens:
+            # Audit trail
+            self.approval_log.append({
+                "event": "revoke",
+                "action_id": action_id,
+                "timestamp": datetime.now().isoformat(),
+                "reason": reason
+            })
             del self.approval_tokens[action_id]
+
+    def get_approval_log(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """Get recent approval audit log entries."""
+        return self.approval_log[-limit:]
 
 
 # === DOMAIN CLASSIFICATION ===
@@ -578,8 +664,9 @@ def compute_scores_from_history(
 
 # === CONVENIENCE FUNCTIONS ===
 
-# Global store instance (lazy loaded)
+# Global instances (lazy loaded)
 _reputation_store: Optional[ReputationStore] = None
+_autonomy_enforcer: Optional[AutonomyEnforcer] = None
 
 
 def get_reputation_store(store_path: str = None) -> ReputationStore:
@@ -593,10 +680,22 @@ def get_reputation_store(store_path: str = None) -> ReputationStore:
     return _reputation_store
 
 
+def get_autonomy_enforcer() -> AutonomyEnforcer:
+    """Get or create the global autonomy enforcer (preserves approval tokens)."""
+    global _autonomy_enforcer
+
+    if _autonomy_enforcer is None:
+        store = get_reputation_store()
+        _autonomy_enforcer = AutonomyEnforcer(store)
+
+    return _autonomy_enforcer
+
+
 def check_action(
     action: str,
     context: Dict[str, Any] = None,
-    store: ReputationStore = None
+    action_id: str = None,
+    consume_token: bool = True
 ) -> PermissionCheck:
     """
     Quick check if an action is permitted.
@@ -608,14 +707,22 @@ def check_action(
                 # Request approval
             else:
                 # Downgrade to propose
+
+    Args:
+        action: The action being performed
+        context: Optional context hints
+        action_id: Optional ID for approval token lookup
+        consume_token: If True and token is used, consume it (one-shot)
     """
-    store = store or get_reputation_store()
-    enforcer = AutonomyEnforcer(store)
+    enforcer = get_autonomy_enforcer()
 
     domain = classify_action_domain(action)
     risk = classify_action_risk(action, context)
 
-    return enforcer.check_permission(risk, domain)
+    # Use action as action_id if not provided
+    effective_action_id = action_id or f"{action}_{domain}"
+
+    return enforcer.check_permission(risk, domain, effective_action_id, consume_token)
 
 
 def record_outcome(
