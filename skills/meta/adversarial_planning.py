@@ -47,11 +47,12 @@ from datetime import datetime
 SKILL_META = {
     "name": "adversarial_planning",
     "description": "3-phase planning with built-in critique (Architect/Critic/Integrator)",
-    "tier": "core",
-    "version": "1.0.0",
+    "tier": "tested",
+    "version": "1.0.1",
     "author": "duro",
     "origin": "Extracted from SuperAGI planify pattern",
     "triggers": ["plan", "design", "architect", "implement", "build", "create"],
+    "validated": "2026-02-18",
 }
 
 # Required capabilities
