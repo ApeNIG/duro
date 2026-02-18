@@ -1,0 +1,23 @@
+{
+  "id": "log_20260218_082336_emq3hq",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T08:23:36.036174Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix MCP token bypass vulnerability: Added autonomy gate to duro_delete_artifact in duro_mcp_server.py:4252-4280. Precheck + token consumption before delete. Commit 99c83d4. 30 lines added. Requires server restart.",
+    "task": "Fix MCP token bypass vulnerability",
+    "outcome": "Added autonomy gate to duro_delete_artifact in duro_mcp_server.py:4252-4280. Precheck + token consumption before delete. Commit 99c83d4. 30 lines added. Requires server restart.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

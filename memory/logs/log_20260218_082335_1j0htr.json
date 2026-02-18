@@ -1,0 +1,23 @@
+{
+  "id": "log_20260218_082335_1j0htr",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T08:23:35.112973Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Level 3: Adversarial Autonomy Drill: Exposed 2 bugs: (1) action_id domain mismatch (_knowledge vs _general), (2) MCP tools bypass token consumption. Token binding works when IDs match. Mini-redo proved can_execute flips with correct action_id.",
+    "task": "Level 3: Adversarial Autonomy Drill",
+    "outcome": "Exposed 2 bugs: (1) action_id domain mismatch (_knowledge vs _general), (2) MCP tools bypass token consumption. Token binding works when IDs match. Mini-redo proved can_execute flips with correct action_id.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

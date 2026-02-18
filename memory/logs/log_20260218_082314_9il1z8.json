@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_082314_9il1z8",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T08:23:14.788533Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "MCP tools that bypass orchestrator don't go through autonomy gates. Direct MCP tool calls must have their own gate logic that: (1) classifies action domain, (2) builds canonical action_id as f\"{tool_name}_{domain}\", (3) prechecks permission, (4) consumes token if allowed_via_token. Without this, approval tokens aren't consumed and one-shot property fails.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

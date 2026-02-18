@@ -1,0 +1,25 @@
+{
+  "id": "log_20260218_082317_01woft",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-18T08:23:17.431996Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Process"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Evidence quality: \"tool outputs\" proves \"dashboard lights on\" not \"engine bolted to chassis\". Real evidence = file paths + function names + code excerpts. Show where in code, not just what API returns.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
