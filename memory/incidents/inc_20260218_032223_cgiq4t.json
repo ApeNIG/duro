@@ -1,0 +1,46 @@
+{
+  "id": "inc_20260218_032223_cgiq4t",
+  "type": "incident_rca",
+  "version": "1.0",
+  "created_at": "2026-02-18T03:22:23.651509Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "refactoring",
+    "ast",
+    "multi-line",
+    "imports",
+    "code-corruption"
+  ],
+  "source": {
+    "workflow": "debug_rca",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "symptom": "--fix mode in code_pipeline corrupted Python files, causing SyntaxError in 10+ files",
+    "trigger": null,
+    "first_bad_boundary": "code_refactor.py:remove_unused_imports and sort_imports functions - they replace lines[start_line-1:end_line] but don't properly calculate end_line for multi-line imports",
+    "actual_cause": "Both remove_unused_imports and sort_imports don't properly handle multi-line imports. They read node.lineno but not node.end_lineno, causing partial line replacements that corrupt the import block.",
+    "why_not_caught": null,
+    "fix": "Disabled fix operations by setting SAFE_FIX_OPERATIONS = []. Moved remove_unused_imports and sort_imports to UNSAFE_FIX_OPERATIONS with bug notes.",
+    "prevention": "Before enabling auto-refactoring tools, test on codebases with: 1) multi-line imports, 2) parenthesized imports, 3) imports with comments. Add specific unit tests for these cases.",
+    "related_recent_changes": [],
+    "repro_steps": [
+      "Run: python code_pipeline.py /path/to/project --stages fix --fix",
+      "Project has files with multi-line imports like: from X import (\\n    A,\\n    B,\\n)",
+      "Check resulting files for SyntaxError"
+    ],
+    "recent_change_scan": {
+      "hours": 48,
+      "risk_tags": [
+        "code"
+      ],
+      "cleared_reason": "Bug existed in original code_refactor.py implementation, not caused by recent changes - this is a design flaw in handling AST multi-line nodes"
+    },
+    "override": false,
+    "override_reason": null,
+    "status": "fixed",
+    "severity": "high"
+  }
+}

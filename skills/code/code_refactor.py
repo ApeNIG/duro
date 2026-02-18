@@ -274,6 +274,11 @@ def remove_unused_imports(code: str) -> Tuple[str, List[RefactorChange]]:
     """
     Remove unused import statements.
 
+    SAFETY:
+    - For 'from X import a, b, c' lines, only removes unused names
+      while keeping used ones. Only removes entire line if ALL names are unused.
+    - Properly handles multi-line imports (with parentheses spanning lines).
+
     Args:
         code: Source code
 
@@ -297,35 +302,98 @@ def remove_unused_imports(code: str) -> Tuple[str, List[RefactorChange]]:
     if not unused:
         return code, []
 
-    # Remove unused import lines
     lines = code.split('\n')
-    new_lines = []
-    import_collector = ImportCollector()
-    import_collector.visit(tree)
 
-    removed_lines = set()
-    for line_num, col, imp_type, module in import_collector.imports:
-        # Get the imported name
-        name = module.split(".")[-1]
-        if name in unused:
-            removed_lines.add(line_num)
+    # Track line ranges to modify/remove
+    # (start_line, end_line) -> (new_content or None for removal, removed_names)
+    line_ranges: Dict[Tuple[int, int], Tuple[Optional[str], List[str]]] = {}
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            # import X, Y, Z
+            start_line = node.lineno
+            end_line = getattr(node, 'end_lineno', start_line) or start_line
+            names_to_keep = []
+            removed_names = []
+
+            for alias in node.names:
+                name = alias.asname or alias.name.split('.')[0]
+                if name in unused:
+                    removed_names.append(name)
+                else:
+                    if alias.asname:
+                        names_to_keep.append(f"{alias.name} as {alias.asname}")
+                    else:
+                        names_to_keep.append(alias.name)
+
+            if removed_names:
+                if names_to_keep:
+                    new_line = "import " + ", ".join(names_to_keep)
+                    line_ranges[(start_line, end_line)] = (new_line, removed_names)
+                else:
+                    line_ranges[(start_line, end_line)] = (None, removed_names)
+
+        elif isinstance(node, ast.ImportFrom):
+            # from X import a, b, c (possibly multi-line)
+            start_line = node.lineno
+            end_line = getattr(node, 'end_lineno', start_line) or start_line
+            names_to_keep = []
+            removed_names = []
+
+            for alias in node.names:
+                name = alias.asname or alias.name
+                if name in unused:
+                    removed_names.append(name)
+                else:
+                    if alias.asname:
+                        names_to_keep.append(f"{alias.name} as {alias.asname}")
+                    else:
+                        names_to_keep.append(alias.name)
+
+            if removed_names:
+                module = node.module or ""
+                level = "." * node.level
+                if names_to_keep:
+                    new_line = f"from {level}{module} import " + ", ".join(names_to_keep)
+                    line_ranges[(start_line, end_line)] = (new_line, removed_names)
+                else:
+                    line_ranges[(start_line, end_line)] = (None, removed_names)
+
+    if not line_ranges:
+        return code, []
+
+    # Sort ranges by start line (descending) to process from bottom to top
+    # This prevents line number shifts from affecting earlier modifications
+    sorted_ranges = sorted(line_ranges.keys(), key=lambda x: x[0], reverse=True)
+
+    for start_line, end_line in sorted_ranges:
+        new_content, removed_names = line_ranges[(start_line, end_line)]
+
+        # Record changes
+        original = '\n'.join(lines[start_line - 1:end_line])
+        for name in removed_names:
             changes.append(RefactorChange(
-                location=CodeLocation(line_num, col),
-                original=lines[line_num - 1].strip(),
-                replacement="",
+                location=CodeLocation(start_line, 0, end_line, 0),
+                original=original.strip(),
+                replacement=new_content or "",
                 description=f"Removed unused import: {name}"
             ))
 
-    for i, line in enumerate(lines):
-        if (i + 1) not in removed_lines:
-            new_lines.append(line)
+        # Replace line range with new content (or remove entirely)
+        if new_content is not None:
+            lines[start_line - 1:end_line] = [new_content]
+        else:
+            lines[start_line - 1:end_line] = []
 
-    return '\n'.join(new_lines), changes
+    return '\n'.join(lines), changes
 
 
 def sort_imports(code: str) -> Tuple[str, List[RefactorChange]]:
     """
     Sort import statements (stdlib, third-party, local).
+
+    SAFETY: Only operates on the contiguous import block at the top of the file.
+    Imports scattered throughout the file are NOT touched.
 
     Args:
         code: Source code
@@ -341,16 +409,6 @@ def sort_imports(code: str) -> Tuple[str, List[RefactorChange]]:
         return code, []
 
     lines = code.split('\n')
-    import_collector = ImportCollector()
-    import_collector.visit(tree)
-
-    if not import_collector.import_lines:
-        return code, []
-
-    # Group imports
-    stdlib = []
-    third_party = []
-    local = []
 
     # Common stdlib modules
     STDLIB = {
@@ -360,15 +418,69 @@ def sort_imports(code: str) -> Tuple[str, List[RefactorChange]]:
         'ast', 'inspect', 'copy', 'enum', 'dataclasses', 'abc', 'io',
         'logging', 'unittest', 'argparse', 'configparser', 'csv', 'hashlib',
         'socket', 'http', 'urllib', 'email', 'html', 'xml', 'sqlite3',
+        'contextlib', 'textwrap', 'string', 'struct', 'base64', 'binascii',
     }
 
-    import_lines_sorted = sorted(import_collector.import_lines)
-    first_import = min(import_lines_sorted)
-    last_import = max(import_lines_sorted)
+    # Find the contiguous import block at the top of the file
+    # Skip: blank lines, comments, docstrings (triple-quoted strings)
+    first_import_line = None
+    last_import_line = None
+    in_docstring = False
+    docstring_char = None
 
-    for line_num in import_lines_sorted:
-        line = lines[line_num - 1].strip()
-        if not line:
+    for i, line in enumerate(lines):
+        line_num = i + 1
+        stripped = line.strip()
+
+        # Track docstrings (module-level docstrings before imports)
+        if not in_docstring:
+            if stripped.startswith('"""') or stripped.startswith("'''"):
+                docstring_char = stripped[:3]
+                # Check if it's a single-line docstring
+                if stripped.count(docstring_char) >= 2:
+                    continue  # Single-line docstring, skip it
+                in_docstring = True
+                continue
+        else:
+            if docstring_char in stripped:
+                in_docstring = False
+            continue
+
+        # Skip blank lines and comments before/during imports
+        if not stripped or stripped.startswith('#'):
+            # If we're in the import block, blank lines are OK
+            if first_import_line is not None:
+                continue
+            else:
+                continue
+
+        # Check if this is an import line
+        if stripped.startswith('import ') or stripped.startswith('from '):
+            if first_import_line is None:
+                first_import_line = line_num
+            last_import_line = line_num
+        else:
+            # Hit non-import code - stop here
+            if first_import_line is not None:
+                break
+            # If we hit code before any imports, no imports to sort
+            else:
+                return code, []
+
+    if first_import_line is None:
+        return code, []
+
+    # Collect imports only from the contiguous block
+    stdlib = []
+    third_party = []
+    local = []
+
+    for i in range(first_import_line - 1, last_import_line):
+        line = lines[i].strip()
+        if not line or line.startswith('#'):
+            continue
+
+        if not (line.startswith('import ') or line.startswith('from ')):
             continue
 
         # Determine category
@@ -377,7 +489,7 @@ def sort_imports(code: str) -> Tuple[str, List[RefactorChange]]:
         else:
             # Extract module name
             if line.startswith('import '):
-                module = line.split()[1].split('.')[0]
+                module = line.split()[1].split('.')[0].split(',')[0]
             else:
                 # from X import ...
                 module = line.split()[1].split('.')[0]
@@ -407,16 +519,16 @@ def sort_imports(code: str) -> Tuple[str, List[RefactorChange]]:
             new_imports.append('')
         new_imports.extend(local)
 
-    # Replace import section
-    new_lines = lines[:first_import - 1]
+    # Replace ONLY the import block (not everything between first and last import)
+    new_lines = lines[:first_import_line - 1]
     new_lines.extend(new_imports)
-    new_lines.extend(lines[last_import:])
+    new_lines.extend(lines[last_import_line:])
 
     result = '\n'.join(new_lines)
 
     if result != code:
         changes.append(RefactorChange(
-            location=CodeLocation(first_import, 0, last_import, 0),
+            location=CodeLocation(first_import_line, 0, last_import_line, 0),
             original="<import section>",
             replacement="<sorted imports>",
             description="Sorted imports (stdlib, third-party, local)"

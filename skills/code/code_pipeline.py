@@ -58,20 +58,27 @@ SKILL_META = {
     "name": "code_pipeline",
     "description": "Orchestrate code quality pipeline - review, coverage, test generation, auto-fix",
     "tier": "tested",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "author": "duro",
     "phase": "4.4",
     "triggers": ["run pipeline", "code pipeline", "project health", "quality check", "fix code"],
 }
 
-# Safe operations that can be auto-applied
-SAFE_FIX_OPERATIONS = [
-    "remove_unused_imports",
-    "sort_imports",
-]
+# WARNING: Fix operations have known bugs with multi-line imports!
+# They can corrupt files that use parenthesized imports like:
+#   from typing import (
+#       List,
+#       Dict,
+#   )
+# These operations are DISABLED until the bugs are fixed.
+# See: remove_unused_imports, sort_imports in code_refactor.py
+
+SAFE_FIX_OPERATIONS = []  # DISABLED - was: ["remove_unused_imports", "sort_imports"]
 
 # Operations that require confirmation (not auto-applied by default)
 UNSAFE_FIX_OPERATIONS = [
+    "remove_unused_imports",  # BUG: corrupts multi-line imports
+    "sort_imports",           # BUG: corrupts multi-line imports
     "convert_to_fstring",
     "remove_dead_code",
 ]
