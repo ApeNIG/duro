@@ -217,13 +217,15 @@ def suggest_direction_pair(project_type: str) -> tuple:
     return suggestions.get(project_type, suggestions["default"])
 
 # Skill metadata for Duro
-SKILL_METADATA = {
-    "id": "dual_direction_design",
-    "name": "Dual Direction Design",
-    "version": "1.0",
-    "tier": "core",
+SKILL_META = {
+    "name": "dual_direction_design",
     "description": "Create two design directions, evaluate, and blend into optimal solution",
+    "tier": "tested",
+    "version": "1.0.1",
+    "author": "duro",
     "triggers": ["design", "mockup", "UI", "UX", "new screen", "new page"],
     "requires": ["mcp__pencil__*"],
     "outputs": ["DesignDecision", "final_mockup_id"],
+    "validated": "2026-02-18",
+    "note": "Library skill - provides functions, not run() entry point",
 }

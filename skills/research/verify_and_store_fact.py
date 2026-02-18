@@ -26,9 +26,10 @@ from typing import Dict, List, Optional, Any
 SKILL_META = {
     "name": "verify_and_store_fact",
     "description": "Verifies claims via web search before storing as facts",
-    "tier": "core",
-    "version": "2.1.0",
+    "tier": "tested",
+    "version": "2.1.1",
     "author": "duro",
+    "validated": "2026-02-18",
 }
 
 # Default timeout in seconds

@@ -20,8 +20,8 @@ from enum import Enum
 SKILL_META = {
     "name": "production_cost_estimator",
     "description": "Calculate AI generation costs before running jobs",
-    "tier": "core",
-    "version": "1.0.0",
+    "tier": "tested",
+    "version": "1.0.1",
     "phase": "3.2",
     "keywords": [
         "cost", "estimate", "budget", "price", "production",
@@ -32,6 +32,7 @@ SKILL_META = {
     "expected_runtime_seconds": 1,
     "dependencies": [],
     "side_effects": [],
+    "validated": "2026-02-18",
 }
 
 

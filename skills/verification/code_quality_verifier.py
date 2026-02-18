@@ -49,10 +49,11 @@ except ImportError:
 SKILL_META = {
     "name": "code_quality_verifier",
     "description": "Check code against quality rules with high accuracy",
-    "tier": "core",
-    "version": "1.0.0",
+    "tier": "tested",
+    "version": "1.0.1",
     "author": "duro",
     "triggers": ["check quality", "lint code", "code review", "quality check"],
+    "validated": "2026-02-18",
 }
 
 # Required capabilities
