@@ -186,30 +186,72 @@ class NestingVisitor(ast.NodeVisitor):
 class SecurityVisitor(ast.NodeVisitor):
     """Detect security issues in Python code."""
 
+    # Dangerous module.function patterns (module prefix required)
+    DANGEROUS_ATTR_CALLS = {
+        ("os", "system"),
+        ("os", "popen"),
+        ("os", "spawn"),
+        ("os", "spawnl"),
+        ("os", "spawnle"),
+        ("os", "spawnlp"),
+        ("os", "spawnlpe"),
+        ("os", "spawnv"),
+        ("os", "spawnve"),
+        ("os", "spawnvp"),
+        ("os", "spawnvpe"),
+        ("subprocess", "call"),
+        ("subprocess", "run"),
+        ("subprocess", "Popen"),
+        ("subprocess", "check_output"),
+        ("subprocess", "check_call"),
+        ("commands", "getoutput"),
+        ("commands", "getstatusoutput"),
+    }
+
     def __init__(self, banned_functions: List[str]):
         self.banned_functions = set(banned_functions)
         self.findings: List[Tuple[int, int, str, str]] = []  # line, col, issue, message
 
     def visit_Call(self, node):
-        func_name = None
-
-        # Direct call: eval(...)
+        # Direct call: eval(...), exec(...), compile(...)
+        # Only flag these for banned built-in functions
         if isinstance(node.func, ast.Name):
             func_name = node.func.id
-        # Attribute call: os.system(...)
+            if func_name in self.banned_functions:
+                self.findings.append((
+                    node.lineno,
+                    node.col_offset,
+                    f"banned_function_{func_name}",
+                    f"Use of banned built-in '{func_name}' detected"
+                ))
+
+        # Attribute call: os.system(...), subprocess.run(...)
+        # Only flag known dangerous module.function patterns
         elif isinstance(node.func, ast.Attribute):
-            func_name = node.func.attr
+            attr_name = node.func.attr
+            # Get the module/object name if it's a simple Name
+            if isinstance(node.func.value, ast.Name):
+                module_name = node.func.value.id
+                if (module_name, attr_name) in self.DANGEROUS_ATTR_CALLS:
+                    self.findings.append((
+                        node.lineno,
+                        node.col_offset,
+                        f"dangerous_call_{module_name}_{attr_name}",
+                        f"Use of dangerous function '{module_name}.{attr_name}' detected"
+                    ))
 
-        if func_name and func_name in self.banned_functions:
-            self.findings.append((
-                node.lineno,
-                node.col_offset,
-                f"banned_function_{func_name}",
-                f"Use of banned function '{func_name}' detected"
-            ))
+        # Check for shell=True in subprocess calls
+        shell_dangerous_funcs = {"call", "run", "Popen", "check_output", "check_call"}
+        is_subprocess_call = False
 
-        # Check for shell=True in subprocess
-        if func_name in ("call", "run", "Popen", "check_output", "check_call"):
+        if isinstance(node.func, ast.Attribute):
+            if node.func.attr in shell_dangerous_funcs:
+                is_subprocess_call = True
+        elif isinstance(node.func, ast.Name):
+            if node.func.id in shell_dangerous_funcs:
+                is_subprocess_call = True
+
+        if is_subprocess_call:
             for keyword in node.keywords:
                 if keyword.arg == "shell" and isinstance(keyword.value, ast.Constant):
                     if keyword.value.value is True:
