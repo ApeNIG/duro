@@ -1,0 +1,47 @@
+{
+  "id": "ep_20260219_095451_b5ru6k",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-19T09:54:51.326804Z",
+  "updated_at": "2026-02-19T09:54:51.374977Z",
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "decision-outcome"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Smoke test - decision validation",
+    "status": "closed",
+    "plan": [
+      "Make decision",
+      "Execute",
+      "Validate outcome"
+    ],
+    "context": {
+      "decision_under_test": "decision_20260219_095451_t2b3y4"
+    },
+    "actions": [],
+    "result": "success",
+    "result_summary": "Decision validated - async processing worked well",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [
+        "decision_20260219_095451_t2b3y4"
+      ],
+      "decisions_used": [],
+      "skills_used": [
+        "planning"
+      ],
+      "evaluation_id": null
+    },
+    "started_at": "2026-02-19T09:54:51.326804Z",
+    "closed_at": "2026-02-19T09:54:51.374954Z",
+    "duration_mins": 0.0,
+    "warnings": []
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_061140_dczd0y",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T06:11:40.079499Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Security"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Policy gates must be in the execution path, not advisory. A \"policy gate\" that agents optionally call is security cosplay. The gate must be the first thing executed in every tool handler, with fail-closed behavior if the autonomy system is unavailable.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "fact_20260219_095451_1s2x6r",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-19T09:54:51.854258Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "write-search-test",
+    "w2s_tok_316121b4075c"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Write-search test w2s_tok_316121b4075c verifies sync embedding works correctly",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "unknown"
+  }
+}

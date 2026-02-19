@@ -1,0 +1,56 @@
+{
+  "id": "chk_20260219_122159_ohcsng",
+  "type": "checklist_template",
+  "version": "1.0",
+  "created_at": "2026-02-19T12:21:59.687942Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "project",
+    "governance",
+    "constitution",
+    "onboarding"
+  ],
+  "source": {
+    "workflow": "checklist",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "name": "project_entry",
+    "description": "Run when entering a new project directory to work on it",
+    "items": [
+      {
+        "text": "Check for CONSTITUTION.md in project root",
+        "category": "governance",
+        "required": true
+      },
+      {
+        "text": "If constitution exists, read and load as context",
+        "category": "governance",
+        "required": true
+      },
+      {
+        "text": "If no constitution, analyze: architecture.md, data-model.md, CLAUDE.md, sprint docs",
+        "category": "governance",
+        "required": true
+      },
+      {
+        "text": "If no constitution, create CONSTITUTION.md with: identity, constraints, laws, axes, gates, deferred scope",
+        "category": "governance",
+        "required": true
+      },
+      {
+        "text": "Check for CLAUDE.md or AGENTS.md for project-specific instructions",
+        "category": "context",
+        "required": true
+      },
+      {
+        "text": "Identify tech stack and dev commands",
+        "category": "context",
+        "required": false
+      }
+    ],
+    "code_snippets": {}
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_143549_c854el",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T14:35:49.680935Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Fixed Duro intent_guard.py: MCP tool names come prefixed as 'mcp__duro__tool_name' but the INTENT_REQUIRED_TOOLS and SAFE_AUTO_START_TOOLS sets use unprefixed names. Added normalize_tool_name() function to strip MCP prefixes before checking against allowed tools.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

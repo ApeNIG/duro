@@ -1,0 +1,3 @@
+{"ts": "2026-02-19T06:25:04.493785Z", "tool": "file_write", "path": "C:\\Windows\\System32\\config.json", "reason": "[file_path] Path outside allowed workspaces: C:\\Windows\\System32\\config.json", "risk_level": "blocked", "valid": false, "requires_approval": false}
+{"ts": "2026-02-19T06:27:02.538743Z", "tool": "file_write", "path": "C:\\Windows\\System32\\evil.dll", "reason": "[file_path] Path outside allowed workspaces: C:\\Windows\\System32\\evil.dll", "risk_level": "blocked", "valid": false, "requires_approval": false}
+{"ts": "2026-02-19T06:27:02.540396Z", "tool": "file_read", "path": "unknown", "reason": "[path] Path traversal detected: ..", "risk_level": "blocked", "valid": false, "requires_approval": false}

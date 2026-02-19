@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_143548_g5nz8t",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T14:35:48.585400Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "For dark-mode automotive/tech portals: Deep blacks (#0A0A0A to #1A1A1A) for backgrounds, blue accents (#3B82F6) for primary interactions, green (#22C55E) for success/CTAs. Use layered surface elevation instead of shadows. Typography: Sora for bold display headlines with tight letter-spacing, Inter for UI and body text.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

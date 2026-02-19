@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_064926_9051pw",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T06:49:26.748621Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Security"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When writing test cases that include secret-like patterns (for secret detection testing), use obviously fake prefixes like FAKE/TEST/DEMO, but be aware that GitHub Push Protection may still block patterns like sk_test_ (Stripe test keys). Comment out or exclude patterns that can't be tested safely in CI/CD.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

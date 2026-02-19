@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_080327_2zxwua",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T08:03:27.003512Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Security Architecture"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Intent issuance must happen at the actual request boundary (start of call_tool), not just when imported. The hook pattern - issuing intent automatically for trusted contexts and blocking when session has untrusted output - is the correct architecture for preventing prompt injection escalation.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

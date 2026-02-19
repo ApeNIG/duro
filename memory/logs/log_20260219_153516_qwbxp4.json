@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_153516_qwbxp4",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T15:35:16.973451Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Session Learnings"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "info",
+    "message": "## Session Learnings - Feb 19, 2026\n\n### MCP Reliability Fixes (Technical)\n- **File-based logging**: Use rotating file logger (5MB, 3 backups) to avoid stdio backpressure deadlocks\n- **Embedding preload**: Thread-safe locking + background preload on startup prevents cold-start latency\n- **Concurrency control**: Semaphore limiting (4 concurrent) + per-tool timeouts (30s default, 120s heavy) prevents hangs\n- **Heartbeat diagnostic**: Quick tool to verify event loop responsiveness without heavy operations\n\n### MCP Testing Approach\n- Test categories: heartbeat, concurrency, embedding ops, file logging, stress test\n- All tests should complete in parallel to verify semaphore works\n- Check log file exists and has recent entries for logging verification\n\n### Design Workflow (from earlier session)\n- Competitor Research → Competitive Analysis Board → Moodboard → Mockups → Implementation\n- Keep competitive analysis (features/UX) separate from moodboard (visual direction)",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_081905_igyu2u",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T08:19:05.725499Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Security Architecture"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Capability tokens should be bound to their originating event (turn_id) not just have TTL. Validation must check token.turn_id == session.current_turn_id to prevent \"wrong token, right TTL\" attacks where an old valid token authorizes actions in a new context.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

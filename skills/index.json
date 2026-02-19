@@ -157,8 +157,8 @@
         "truth",
         "evidence"
       ],
-      "usage_count": 2,
-      "success_rate": 0.5,
+      "usage_count": 3,
+      "success_rate": 0.6666666666666666,
       "requires_network": true,
       "timeout_seconds": 120,
       "expected_runtime_seconds": 30,
@@ -175,7 +175,7 @@
         "rule_005"
       ],
       "notes": "Prevents 'confident liar database' by requiring verification for high-confidence facts",
-      "last_used": "2026-02-10T22:57:13.722528"
+      "last_used": "2026-02-19T11:07:47.771491"
     },
     {
       "id": "skill_ops_001",

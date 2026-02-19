@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_063335_l8rt3m",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T06:33:35.417828Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Security"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Secrets must be redacted in THREE places: (1) gate audit logging, (2) any tool that writes memory/artifacts, (3) any tool that logs outputs. If you only redact in one place, secrets leak through the others. Redact both inputs AND outputs - CLI tools echoing tokens is an exfil pipeline.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

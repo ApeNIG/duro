@@ -1,0 +1,59 @@
+{
+  "id": "eval_20260219_095628_jqzu7c",
+  "type": "evaluation",
+  "version": "1.0",
+  "created_at": "2026-02-19T09:56:28.344027Z",
+  "updated_at": "2026-02-19T09:56:28.452822Z",
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "episode_id": "ep_20260219_095626_tx5128",
+    "rubric": {
+      "outcome_quality": {
+        "score": 5,
+        "notes": "Automated smoke test"
+      },
+      "cost": {
+        "tools_used": 1,
+        "duration_mins": 0.1,
+        "tokens_bucket": "XS"
+      },
+      "correctness_risk": {
+        "score": 0,
+        "notes": "Test only"
+      },
+      "reusability": {
+        "score": 5,
+        "notes": "Automated"
+      },
+      "reproducibility": {
+        "score": 5,
+        "notes": "Deterministic"
+      }
+    },
+    "grade": "A",
+    "memory_updates": {
+      "reinforce": [
+        {
+          "id": "ss_planning",
+          "type": "skill_stats",
+          "delta": 0.01
+        }
+      ],
+      "decay": []
+    },
+    "applied": true,
+    "applied_at": "2026-02-19T09:56:28.452822Z",
+    "next_change": null,
+    "guardrail": {
+      "skipped_count": 0,
+      "skipped_items": []
+    },
+    "breadcrumbs": []
+  }
+}

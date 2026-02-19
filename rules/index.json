@@ -128,6 +128,16 @@
       "enforcement": "skill_runner",
       "measurable": true,
       "trigger_keywords": ["rate limit", "429", "too many requests", "throttled"]
+    },
+    {
+      "id": "rule_workflow_design_001",
+      "name": "Design Workflow - Moodboard First",
+      "file": "workflows/design_workflow.json",
+      "type": "hard",
+      "priority": 1,
+      "enforcement": "manual",
+      "measurable": true,
+      "trigger_keywords": ["design", "UI", "UX", "mockup", "interface", "dashboard", "portal", "landing page", "build UI"]
     }
   ],
   "soft_rules": [
@@ -157,9 +167,10 @@
   "candidates_count": 44,
   "candidates_note": "Demoted rules that may be promoted if enforcement points are added",
   "statistics": {
-    "total_active": 13,
+    "total_active": 14,
     "hard_enforced_now": 6,
     "hard_future": 5,
+    "hard_manual": 1,
     "soft": 2,
     "candidates": 44
   },

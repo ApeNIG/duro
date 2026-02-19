@@ -1,0 +1,33 @@
+{
+  "id": "decision_20260219_055047_05vvf9",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-19T05:50:47.044116Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "security",
+    "roadmap",
+    "policy-gate",
+    "production-hardening"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Security implementation order: (1) Execution-path policy gate, (2) Workspace allowlist + file op constraints, (3) Secrets out of prompts + log redaction, (4) Sandbox browser automation, (5) Audit log + replay, (6) Prompt injection firewall",
+    "rationale": "Policy gate is the constitution - everything else depends on it being in the execution path. Can't enforce workspace limits without a gate. Can't redact secrets without a gate. Order optimizes for \"each layer enables the next\" rather than \"easiest first\".",
+    "alternatives": [],
+    "context": "Building production-grade security for Duro agent workers. Current state: advisory gates exist but not enforced in execution path.",
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

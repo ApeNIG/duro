@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_134654_6s3ee9",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T13:46:54.455707Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Design"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Moodboard structure should include: (1) Color palette with 5-7 colors and roles, (2) Typography pairings with tone, (3) Imagery/illustration style, (4) Textures/materials for depth, (5) UI element feel (not features), (6) Keywords/adjectives (4-5 words), (7) Want/Don't Want annotations on references.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

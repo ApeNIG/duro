@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_082919_zwqwfg",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T08:29:19.277254Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Testing"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Security tests should directly poke internal state (_tokens, _store) to inject bad/corrupt data. This is intentional - you need to simulate real-world corruption, migration junk, and edge cases that \"clean\" APIs would prevent. If you refactor internals, keep a way to inject bad tokens for tests or you lose the ability to prove the gate works.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

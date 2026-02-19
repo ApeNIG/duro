@@ -1,0 +1,25 @@
+{
+  "id": "dval_20260219_064321_nwx6aw",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-19T06:43:21.850631Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260219_064321_jm218b",
+    "status": "validated",
+    "result": "success",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "episode_id": "ep_20260219_064321_uxg2hz",
+    "notes": "Async processing confirmed to improve throughput in smoke test"
+  }
+}
