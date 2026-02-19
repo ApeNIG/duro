@@ -18,7 +18,7 @@
     "claim": "Low confidence facts bypass verification requirements",
     "source_urls": [],
     "snippet": null,
-    "confidence": 0.5,
+    "confidence": 0.49975,
     "verified": false,
     "evidence_type": "none",
     "provenance": "user"

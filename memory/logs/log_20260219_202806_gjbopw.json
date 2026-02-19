@@ -1,0 +1,23 @@
+{
+  "id": "log_20260219_202806_gjbopw",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T20:28:06.919883Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "System Integrity Audit - Thread Pool Zombie Fix: Applied Windows-safe fix to duro_mcp_server.py: split executors (fast 8-worker + heavy 2-worker), heavy semaphore prevents dogpiling, quarantine rotation on timeout with 10s cooldown, executor captured inside semaphore to prevent race. HEAVY_TOOLS limited to batch ops only (reembed, apply_decay, compress_logs, reindex). User-facing tools like semantic_search stay on fast pool.",
+    "task": "System Integrity Audit - Thread Pool Zombie Fix",
+    "outcome": "Applied Windows-safe fix to duro_mcp_server.py: split executors (fast 8-worker + heavy 2-worker), heavy semaphore prevents dogpiling, quarantine rotation on timeout with 10s cooldown, executor captured inside semaphore to prevent race. HEAVY_TOOLS limited to batch ops only (reembed, apply_decay, compress_logs, reindex). User-facing tools like semantic_search stay on fast pool.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

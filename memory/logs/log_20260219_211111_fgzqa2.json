@@ -1,0 +1,25 @@
+{
+  "id": "log_20260219_211111_fgzqa2",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T21:11:11.586144Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Always use defensive (arguments or {}).get() pattern when accessing tool arguments - prevents 'NoneType has no attribute get' crashes if caller passes None.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

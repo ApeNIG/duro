@@ -19,7 +19,7 @@
     "claim": "Duro orchestration loop test completed on 2026-02-10",
     "source_urls": [],
     "snippet": null,
-    "confidence": 0.5,
+    "confidence": 0.49975,
     "verified": false,
     "evidence_type": "none",
     "provenance": "tool_output"

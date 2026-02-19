@@ -22,7 +22,7 @@
     "claim": "Duro rule_006 (Layered Governance Constitution) can be bypassed by rephrasing task descriptions to avoid trigger keywords. Behavior-based triggering (checking file paths at execution time) is required to make it bulletproof.",
     "source_urls": [],
     "snippet": "Test results: 'bypass the lint check' - No trigger. 'skip check in CI' - No trigger. 'edit .devkit-waiver.yml' - Triggered (matched 'waiver' substring). Adding keywords to index.json did not make them matchable.",
-    "confidence": 0.5,
+    "confidence": 0.49975,
     "verified": false,
     "evidence_type": "inference",
     "provenance": "tool_output"

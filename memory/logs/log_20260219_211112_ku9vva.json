@@ -1,0 +1,23 @@
+{
+  "id": "log_20260219_211112_ku9vva",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T21:11:12.092753Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Complete MCP reliability hardening session: Implemented: (1) Cooperative cancellation for duro_reembed with checkpoint every 25 items, (2) duro_cancel_operation tool, (3) Timeout triggers cancel signal for zombie threads, (4) Defensive None handling, (5) UX message clarifying \"may take up to 25 items to stop\". Verified policy_gate.py logging is safe (sys already imported). Three-layer reliability: executor split, heavy semaphore, timeout+cancel.",
+    "task": "Complete MCP reliability hardening session",
+    "outcome": "Implemented: (1) Cooperative cancellation for duro_reembed with checkpoint every 25 items, (2) duro_cancel_operation tool, (3) Timeout triggers cancel signal for zombie threads, (4) Defensive None handling, (5) UX message clarifying \"may take up to 25 items to stop\". Verified policy_gate.py logging is safe (sys already imported). Three-layer reliability: executor split, heavy semaphore, timeout+cancel.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

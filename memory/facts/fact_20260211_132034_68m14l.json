@@ -22,7 +22,7 @@
     "claim": "GEOMETRIC HERO COMPOSITION - POSITIONING FORMULAS:\n\n**Circle Cluster Positioning (for 1440px wide canvas):**\n- Primary circle: x = 15-25% from left edge (216-360px)\n- Secondary circle: x = 30-40% from left (432-576px), overlapping primary by 30-40%\n- Tertiary circle: x = 45-55% from left (648-792px), overlapping secondary\n\n**Vertical Positioning for Depth:**\n- Larger circles: HIGHER (y = 5-15% from top)\n- Smaller circles: LOWER (y = 20-35% from top)\n- Creates \"cascading\" or \"tumbling\" effect\n\n**Text Integration:**\n- Hero text should EMERGE from cluster, not compete\n- Position text to start where circles end OR cut through intersection\n- Text at ~35-45% from left, vertically centered with cluster\n\n**Common Mistakes I Made:**\n1. Equal spacing between circles (feels mechanical, not organic)\n2. Circles too far apart (breaks Gestalt proximity)\n3. Similar sizes (no depth/hierarchy)\n4. Text competing with circles instead of integrating\n5. Adding extra elements (badges, dots) that create competing focal points",
     "source_urls": [],
     "snippet": null,
-    "confidence": 0.5,
+    "confidence": 0.49975,
     "verified": false,
     "evidence_type": "inference",
     "provenance": "user"

@@ -23,7 +23,7 @@
     "claim": "SONORA GEOMETRIC FORMULA (PROVEN):\nCanvas: 1440px × 460px hero\n\nCIRCLE SIZES (Golden Ratio):\n- Primary: 400px (1.0x) - teal accent\n- Secondary: 248px (0.62x) - image\n- Tertiary: 152px (0.38x) - image\n\nPOSITIONS:\n- Primary: x=200, y=50\n- Secondary: x=500, y=10 (40% overlap with primary)\n- Tertiary: x=680, y=120 (45% overlap with secondary)\n\nTEXT: x=540, y=230, fontSize=140px\nCTA: x=620, y=365\n\nRESULT: Circles read as unified cluster, diagonal cascade creates movement, text emerges from composition.",
     "source_urls": [],
     "snippet": null,
-    "confidence": 0.5,
+    "confidence": 0.49975,
     "verified": false,
     "evidence_type": "quote",
     "provenance": "tool_output"

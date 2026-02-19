@@ -19,7 +19,7 @@
     "claim": "The verify_and_store_fact skill now has 30 second timeout handling",
     "source_urls": [],
     "snippet": null,
-    "confidence": 0.3,
+    "confidence": 0.29985,
     "verified": false,
     "evidence_type": "none",
     "provenance": "user"
