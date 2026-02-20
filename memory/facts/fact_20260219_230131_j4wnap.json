@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260219_230131_j4wnap",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-19T23:01:31.857117Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "user-preference",
+    "property-search",
+    "criteria",
+    "core",
+    "pinned"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Property search criteria: Oldham area (Chadderton, Failsworth, Hollinwood, Moston, Newton Heath, Miles Platting), budget up to 230,000 GBP, 3-4 bedrooms, must have garden. Prefers: Lees (4.5/5), Shaw (4.0/5), Royton (4.0/5). Avoids: Glodwick (2.5/5).",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

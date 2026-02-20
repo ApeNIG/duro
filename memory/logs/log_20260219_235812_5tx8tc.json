@@ -1,0 +1,23 @@
+{
+  "id": "log_20260219_235812_5tx8tc",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T23:58:12.725887Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fix promotion compactor enum serialization bug: Found root cause: sys.path prioritizes .agent/lib over local duro-mcp, so imports used the full-featured version. That version had a JSON serialization bug - asdict() doesn't convert enums, causing TypeError mid-write and truncated files. Fixed by converting enum to .value before json.dump. Two separate issues from yesterday's debug session: (1) the duro-mcp version had wrong enum names, (2) the .agent/lib version had serialization bug.",
+    "task": "Fix promotion compactor enum serialization bug",
+    "outcome": "Found root cause: sys.path prioritizes .agent/lib over local duro-mcp, so imports used the full-featured version. That version had a JSON serialization bug - asdict() doesn't convert enums, causing TypeError mid-write and truncated files. Fixed by converting enum to .value before json.dump. Two separate issues from yesterday's debug session: (1) the duro-mcp version had wrong enum names, (2) the .agent/lib version had serialization bug.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

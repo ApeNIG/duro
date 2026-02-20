@@ -1,0 +1,68 @@
+project_id: intersphere
+name: InterSphere
+version: "0.1.0"
+updated_at: "2026-02-19"
+
+north_star:
+  statement: "Help users explore topics via curated cards and AI-generated content."
+  primary_user_job: "Search a topic, get structured knowledge cards with visuals."
+  tone: "Intelligent, accessible, visually rich"
+
+laws:
+  - id: law.arch.separation
+    rule: "Web (Next.js App Router) and API (FastAPI) are separate services."
+    strength: hard
+    applies_to: [architecture]
+
+  - id: law.data.flow
+    rule: "User searches -> Web -> API -> cache check -> external sources + LLM -> JSON -> UI."
+    strength: hard
+    applies_to: [architecture]
+    rationale: "Clear data flow prevents coupling."
+
+  - id: law.safety.guardrails
+    rule: "All safety logic lives in api/app/guardrails.py. Treat as policy + tests."
+    strength: hard
+    applies_to: [safety]
+    rationale: "Single source of truth for content filtering."
+
+  - id: law.docs.ownership
+    rule: "web rules in web/CLAUDE.md, api rules in api/CLAUDE.md, design in DESIGN_SYSTEM.md."
+    strength: hard
+    applies_to: [documentation]
+
+  - id: law.perf.caching
+    rule: "SWR for client-side, edge caching headers (1h TTL) on API routes."
+    strength: soft
+    applies_to: [performance]
+
+  - id: law.perf.timeout
+    rule: "Handle Vercel 10s timeout with graceful fallbacks."
+    strength: hard
+    applies_to: [performance]
+
+constraints:
+  do_not:
+    - "Duplicate hex values and contrast tables outside DESIGN_SYSTEM.md."
+    - "Add guardrails rules without corresponding tests."
+    - "Let this doc rot - patterns over file lists."
+    - "Hardcode magic numbers - link to config/code defining them."
+  accessibility:
+    min_contrast: "WCAG 2.1 AA"
+  performance:
+    vercel_timeout_s: 10
+
+patterns_top:
+  - id: pattern.docs.routing
+    pattern: "Frontend changes -> web/CLAUDE.md, API changes -> api/CLAUDE.md"
+    when: "Updating documentation"
+    value: "Prevents doc drift"
+
+deciding_axes:
+  - "Patterns over file lists (files move; conventions survive)."
+  - "One source of truth per domain."
+  - "Cache aggressively but handle staleness gracefully."
+
+conflict_policy:
+  order: ["hard laws", "accessibility", "soft laws", "patterns"]
+  tie_break: newer_version_wins

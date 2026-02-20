@@ -1,0 +1,24 @@
+{
+  "id": "dval_20260219_224358_hyxm1r",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-19T22:43:58.339460Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260217_024136_a8dnjj",
+    "status": "validated",
+    "result": "success",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Semantic search is working well for proactive recall. Testing promotion feeder."
+  }
+}

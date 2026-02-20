@@ -1,0 +1,25 @@
+{
+  "id": "dval_20260219_235035_v13pwg",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-19T23:50:35.734454Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260219_122137_e0rf3h",
+    "status": "validated",
+    "result": "success",
+    "actual_outcome": "Constitution-based governance is working - used for 360-auto-construct today",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Testing promotion feeder on fresh validation"
+  }
+}

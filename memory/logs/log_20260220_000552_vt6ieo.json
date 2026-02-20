@@ -1,0 +1,25 @@
+{
+  "id": "log_20260220_000552_vt6ieo",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-20T00:05:52.535087Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Technical"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "When sys.path.insert(0, path) is used at startup, imports will load modules from that path first, even if newer versions exist elsewhere. This is by design but can cause confusion during debugging when local edits don't seem to take effect.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

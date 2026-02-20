@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-17T02:41:36.253530Z",
-  "updated_at": null,
+  "updated_at": "2026-02-19T22:43:58.330359Z",
   "sensitivity": "internal",
   "tags": [
     "duro",
@@ -27,10 +27,10 @@
     "context": null,
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-19T22:43:58.330359Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.6
     },
     "episodes_used": []
   }

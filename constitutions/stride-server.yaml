@@ -1,0 +1,59 @@
+project_id: stride-server
+name: Stride Server
+version: "0.1.0"
+updated_at: "2026-02-19"
+
+north_star:
+  statement: "Family productivity app connecting teens and parents through shared goals."
+  primary_user_job: "Parents track family tasks; teens manage responsibilities with autonomy."
+  tone: "Supportive, clear, family-friendly"
+
+laws:
+  - id: law.arch.stack
+    rule: "Backend: Express + Prisma + PostgreSQL. Frontend: React + Vite."
+    strength: hard
+    applies_to: [architecture]
+
+  - id: law.arch.ports
+    rule: "Frontend on 5173, Backend on 4000, Database on 5433."
+    strength: hard
+    applies_to: [infrastructure]
+
+  - id: law.auth.roles
+    rule: "Two roles: teen and parent. All features must respect role permissions."
+    strength: hard
+    applies_to: [auth]
+    rationale: "Core to the product - teens have different capabilities than parents."
+
+  - id: law.dev.docker
+    rule: "Docker Compose is the recommended dev setup. Manual setup is fallback."
+    strength: soft
+    applies_to: [development]
+
+  - id: law.db.prisma
+    rule: "Use Prisma for all database operations. Migrations via npm run prisma:migrate."
+    strength: hard
+    applies_to: [database]
+
+constraints:
+  do_not:
+    - "Allow teens to modify parent-only settings."
+    - "Expose raw database errors to clients."
+    - "Skip Prisma migrations for schema changes."
+    - "Run without proper environment variables."
+
+patterns_top:
+  - id: pattern.dev.startup
+    pattern: "docker-compose up OR (cd server && npm run dev) + (cd client && npm run dev)"
+    when: "Starting development"
+    value: "Consistent dev environment"
+
+deciding_axes:
+  - "Family safety over individual convenience."
+  - "Parent visibility over teen privacy for shared tasks."
+  - "Simplicity over feature richness."
+  - "Encouragement over punishment in UX."
+
+conflict_policy:
+  order: ["hard laws", "constraints", "soft laws", "patterns"]
+  tie_break: stricter_wins

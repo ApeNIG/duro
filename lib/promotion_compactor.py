@@ -125,9 +125,13 @@ def save_pending(candidate: PromotionCandidate) -> Path:
     """Save a candidate to pending promotions."""
     PENDING_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Convert to dict with enum values serialized
+    data = asdict(candidate)
+    data['type'] = candidate.type.value  # Convert enum to string value
+
     filepath = PENDING_DIR / f"{candidate.id}.json"
     with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(asdict(candidate), f, indent=2)
+        json.dump(data, f, indent=2)
 
     return filepath
 

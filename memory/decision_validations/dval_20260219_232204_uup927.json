@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260219_232204_uup927",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-19T23:22:04.767067Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260217_060348_jmjwqw",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Option B (enhance existing tool) would be cleaner than new tools",
+    "actual_outcome": "duro_validate_decision now has append-only history and works well",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.6,
+    "notes": "Testing promotion feeder - validating the decision closure architecture choice"
+  }
+}

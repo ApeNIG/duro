@@ -1,0 +1,18 @@
+{
+  "id": "promo_20260220_000016_35cbd1",
+  "type": "preference_to_law",
+  "content": {
+    "decision": "Next phase is usage telemetry: log which injected skills were actually useful, then automatically promote expansions that get used, demote those that don't. This is how Duro becomes \"earned defaults\" not a fancy filing cabinet.",
+    "rationale": "Without usage telemetry, the system is just static configuration. With it, the system learns per-project taste and the right context gets pulled automatically. The practical test: if Duro nails design drills with supporting skills auto-pulled, we're done.",
+    "domain": "meta"
+  },
+  "source_decisions": [
+    "decision_20260217_075555_2wbmyz"
+  ],
+  "occurrences": 1,
+  "user_endorsed": true,
+  "prevented_failure": false,
+  "contradicted_later": false,
+  "created_at": "2026-02-20T00:00:16.198842Z",
+  "last_seen": "2026-02-20T00:00:16.198842Z"
+}

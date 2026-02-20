@@ -1,0 +1,20 @@
+{
+  "strict_mode": true,
+  "high_risk_approval_required": true,
+  "allowed_workspaces": [
+    "C:\\Users\\sibag\\.agent",
+    "C:\\Users\\sibag\\.claude",
+    "C:\\Users\\sibag\\Desktop\\BUILD",
+    "C:\\Users\\sibag\\property-scraper",
+    "C:\\Users\\sibag\\life-system",
+    "C:\\Users\\sibag\\stride-server",
+    "C:\\Users\\sibag\\homecoach",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\alabi-portfolio",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\intersphere",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\page-builder-demo",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\.claude",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\telegram-duo",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\planify",
+    "C:\\Users\\sibag\\Desktop\\BUILD\\msj"
+  ]
+}

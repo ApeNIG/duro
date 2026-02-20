@@ -1,0 +1,43 @@
+{
+  "id": "ep_20260220_002706_hsif25",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-20T00:27:06.492185Z",
+  "updated_at": "2026-02-20T00:27:06.646124Z",
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "auto-update"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Smoke test - skill auto-update",
+    "status": "closed",
+    "plan": [
+      "Test auto skill updates"
+    ],
+    "context": {
+      "test_type": "auto_skill_update"
+    },
+    "actions": [],
+    "result": "success",
+    "result_summary": "Auto skill update test",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [],
+      "skills_used": [
+        "auto_test"
+      ],
+      "evaluation_id": "eval_20260220_002706_mulvug"
+    },
+    "started_at": "2026-02-20T00:27:06.492185Z",
+    "closed_at": "2026-02-20T00:27:06.555438Z",
+    "duration_mins": 0.0,
+    "warnings": []
+  }
+}

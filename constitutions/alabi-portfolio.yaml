@@ -1,0 +1,64 @@
+project_id: alabi-portfolio
+name: Alabi Portfolio
+version: "0.1.0"
+updated_at: "2026-02-19"
+
+north_star:
+  statement: "Showcase creative and technical work with distinctive visual identity."
+  primary_user_job: "Explore Alabi's projects and understand capabilities quickly."
+  tone: "Modern, confident, visually distinctive"
+
+laws:
+  - id: law.stack.nextjs
+    rule: "Next.js 15 with App Router, React 18, TypeScript, Tailwind CSS 4."
+    strength: hard
+    applies_to: [architecture]
+
+  - id: law.rendering.dynamic
+    rule: "Pages use force-dynamic to avoid static generation issues."
+    strength: hard
+    applies_to: [rendering]
+    rationale: "Prevents build-time data fetching issues."
+
+  - id: law.imports.barrel
+    rule: "Use barrel exports via index.ts for component groups (@/components/layout, @/components/landing)."
+    strength: soft
+    applies_to: [code-organization]
+
+  - id: law.typography.fonts
+    rule: "Display font is Space Grotesk (headings); body font is Inter (text)."
+    strength: hard
+    applies_to: [typography]
+
+  - id: law.data.projects
+    rule: "Projects stored in src/data/projects.ts. Use helper functions for filtered access."
+    strength: soft
+    applies_to: [data]
+
+constraints:
+  do_not:
+    - "Use relative imports outside of the same directory - use @/* path alias."
+    - "Add projects directly to page components - use data layer."
+    - "Mix display and body fonts inappropriately."
+  performance:
+    max_bundle_kb: 300
+
+patterns_top:
+  - id: pattern.route.structure
+    pattern: "/ (landing), /work (grid), /work/[slug] (detail)"
+    when: "Adding new routes"
+    value: "Consistent navigation structure"
+
+  - id: pattern.project.categories
+    pattern: "video | build | creative"
+    when: "Categorizing projects"
+    value: "Clear work segmentation"
+
+deciding_axes:
+  - "Visual impact over information density."
+  - "Performance over animation complexity."
+  - "Mobile-first responsive design."
+
+conflict_policy:
+  order: ["hard laws", "performance constraints", "soft laws", "patterns"]
+  tie_break: newer_version_wins

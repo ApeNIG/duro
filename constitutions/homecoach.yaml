@@ -1,0 +1,63 @@
+project_id: homecoach
+name: HomeCoach
+version: "0.1.0"
+updated_at: "2026-02-19"
+
+north_star:
+  statement: "AI-powered practice paper generator and auto-marker for students."
+  primary_user_job: "Get personalized practice questions and instant feedback."
+  tone: "Educational, encouraging, precise"
+
+laws:
+  - id: law.arch.monorepo
+    rule: "Monorepo structure: apps/api (FastAPI), apps/web (Next.js 14), apps/worker, packages/types."
+    strength: hard
+    applies_to: [architecture]
+
+  - id: law.stack.backend
+    rule: "FastAPI + PostgreSQL + Redis for backend services."
+    strength: hard
+    applies_to: [backend]
+
+  - id: law.stack.frontend
+    rule: "Next.js 14 + TypeScript + Tailwind for frontend."
+    strength: hard
+    applies_to: [frontend]
+
+  - id: law.auth.clerk
+    rule: "Authentication via Clerk. No custom auth implementation."
+    strength: hard
+    applies_to: [auth]
+
+  - id: law.ai.stack
+    rule: "OpenAI GPT-4 for generation, SymPy for math validation, Mathpix for OCR."
+    strength: hard
+    applies_to: [ai]
+
+  - id: law.storage.r2
+    rule: "Use Cloudflare R2 for file storage."
+    strength: hard
+    applies_to: [storage]
+
+constraints:
+  do_not:
+    - "Generate questions without validation via SymPy for math problems."
+    - "Store student data without proper encryption."
+    - "Skip OCR preprocessing for handwritten submissions."
+    - "Deploy without dev container testing."
+
+patterns_top:
+  - id: pattern.types.shared
+    pattern: "Shared types live in packages/types, imported by both api and web."
+    when: "Adding new data models"
+    value: "Type consistency across stack"
+
+deciding_axes:
+  - "Accuracy over speed in marking."
+  - "Encouragement over harsh feedback."
+  - "Personalization over generic content."
+  - "Student privacy over analytics convenience."
+
+conflict_policy:
+  order: ["hard laws", "constraints", "soft laws", "patterns"]
+  tie_break: stricter_wins

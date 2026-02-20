@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260219_230133_7ehbnk",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-19T23:01:33.392182Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "user-context",
+    "duro",
+    "philosophy",
+    "core",
+    "pinned"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "User built Duro (personal agent orchestration system), wants orchestration across multiple projects, values local-first owns-their-data approach.",
+    "source_urls": [],
+    "snippet": null,
+    "confidence": 0.95,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "user"
+  }
+}

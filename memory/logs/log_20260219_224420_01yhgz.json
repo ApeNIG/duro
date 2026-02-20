@@ -1,0 +1,23 @@
+{
+  "id": "log_20260219_224420_01yhgz",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-19T22:44:20.904734Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Implement promotion feeder in duro_validate_decision: Added ~25 lines to duro_mcp_server.py that calls record_observation() when decisions are validated. Signals: user_endorsed=True always, prevented_failure=True if tags include reliability/incident/fix/postmortem/security/bug. Creates PREFERENCE_TO_LAW promotion candidates. Non-blocking (wrapped in try/except). Requires MCP restart to activate.",
+    "task": "Implement promotion feeder in duro_validate_decision",
+    "outcome": "Added ~25 lines to duro_mcp_server.py that calls record_observation() when decisions are validated. Signals: user_endorsed=True always, prevented_failure=True if tags include reliability/incident/fix/postmortem/security/bug. Creates PREFERENCE_TO_LAW promotion candidates. Non-blocking (wrapped in try/except). Requires MCP restart to activate.",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

@@ -1,0 +1,61 @@
+project_id: planify
+name: Planify
+version: "0.1.0"
+updated_at: "2026-02-19"
+
+north_star:
+  statement: "Multi-agent planning orchestrator that produces actionable implementation plans."
+  primary_user_job: "Describe a feature, get a comprehensive plan with risks identified."
+  tone: "Precise, thorough, constructively critical"
+
+laws:
+  - id: law.agents.roles
+    rule: "Three agents: Architect (OpenAI drafts), Critic (Claude challenges), Integrator (merges)."
+    strength: hard
+    applies_to: [architecture]
+    rationale: "Adversarial planning produces better plans than single-agent."
+
+  - id: law.human.loop
+    rule: "Human-in-the-loop review after each phase. Never auto-proceed without approval."
+    strength: hard
+    applies_to: [workflow]
+    rationale: "Humans catch context that agents miss."
+
+  - id: law.session.persistence
+    rule: "Sessions persist to JSON files. Must be resumable."
+    strength: hard
+    applies_to: [state]
+
+  - id: law.security.scrubbing
+    rule: "Automatically redact API keys and secrets from all outputs."
+    strength: hard
+    applies_to: [security]
+    rationale: "Plans may be shared or stored."
+
+  - id: law.install.poetry
+    rule: "Use Poetry for dependency management."
+    strength: soft
+    applies_to: [development]
+
+constraints:
+  do_not:
+    - "Skip the Critic phase - it catches major gaps."
+    - "Output plans without structured sections."
+    - "Include raw API keys in session files."
+    - "Auto-approve without human review."
+
+patterns_top:
+  - id: pattern.phases
+    pattern: "Architect -> Human Review -> Critic -> Human Review -> Integrator -> Final Plan"
+    when: "Running planning workflow"
+    value: "Structured critique improves quality"
+
+deciding_axes:
+  - "Thoroughness over speed."
+  - "Explicit risks over optimistic assumptions."
+  - "Actionable steps over vague recommendations."
+  - "Human judgment over AI confidence."
+
+conflict_policy:
+  order: ["hard laws", "security", "soft laws", "patterns"]
+  tie_break: stricter_wins

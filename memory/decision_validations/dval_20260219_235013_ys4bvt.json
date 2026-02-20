@@ -1,0 +1,25 @@
+{
+  "id": "dval_20260219_235013_ys4bvt",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-19T23:50:13.569313Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260210_220944_8m1dj7",
+    "status": "validated",
+    "result": "success",
+    "actual_outcome": "Orchestration Phase 1 is working as designed",
+    "confidence_delta": 0.1,
+    "confidence_after": 0.8,
+    "notes": "Testing promotion feeder visibility"
+  }
+}
