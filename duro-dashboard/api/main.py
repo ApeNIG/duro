@@ -1,0 +1,55 @@
+"""Duro Dashboard API - FastAPI backend for real-time memory monitoring."""
+
+import os
+import sys
+from pathlib import Path
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# Add duro-mcp to path for importing
+DURO_MCP_PATH = Path.home() / "duro-mcp"
+if DURO_MCP_PATH.exists():
+    sys.path.insert(0, str(DURO_MCP_PATH))
+
+from routers import stats, artifacts, stream, reviews, actions
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan events."""
+    print("Duro Dashboard API starting...")
+    yield
+    print("Duro Dashboard API shutting down...")
+
+
+app = FastAPI(
+    title="Duro Dashboard API",
+    description="Real-time monitoring for the Duro memory system",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(stats.router, prefix="/api", tags=["stats"])
+app.include_router(artifacts.router, prefix="/api", tags=["artifacts"])
+app.include_router(stream.router, prefix="/api/stream", tags=["stream"])
+app.include_router(reviews.router, prefix="/api", tags=["reviews"])
+app.include_router(actions.router, prefix="/api/actions", tags=["actions"])
+
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {"message": "Duro Dashboard API", "version": "1.0.0"}
+
