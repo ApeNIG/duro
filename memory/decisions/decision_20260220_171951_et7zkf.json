@@ -1,0 +1,36 @@
+{
+  "id": "decision_20260220_171951_et7zkf",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-20T17:19:51.156846Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "duro",
+    "pricing",
+    "strategy"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Duro pricing: Free / $19 Pro / $29 Team / Custom Enterprise",
+    "rationale": "$19 Pro is impulse buy for developers. $29 Team undercuts Copilot Business + memory tool combined. Both under expense report threshold ($50). Free tier drives adoption, Pro proves willingness to pay, Team is real business.",
+    "alternatives": [
+      "Higher pricing ($49 Pro, $99 Team)",
+      "Usage-based pricing",
+      "Free forever with enterprise only"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "ep_20260220_161302_jdk0v4",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-20T16:13:02.566118Z",
+  "updated_at": "2026-02-20T16:13:20.888019Z",
+  "sensitivity": "internal",
+  "tags": [
+    "arif-asad",
+    "storytelling",
+    "kids-project",
+    "season1",
+    "creative",
+    "family"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Arif & Asad Storytelling Project - Season 1 Development",
+    "status": "open",
+    "plan": [
+      "Design project landing card with creator profiles",
+      "Create Season 1 Overview with 6 episode cards",
+      "Generate AI thumbnails for each episode",
+      "Develop individual episode content/storyboards",
+      "Create character assets and scene illustrations",
+      "Build episode detail pages"
+    ],
+    "context": {
+      "domain": "creative/kids-content",
+      "constraints": [
+        "Kid-friendly content only",
+        "Cartoon illustration style",
+        "Arif (8yo) as Lead Director",
+        "Asad (5yo) as Story Creator"
+      ],
+      "environment": {
+        "design_file": "drills.pen",
+        "project_card_id": "nO1pM",
+        "season1_overview_id": "vbgfl",
+        "position": "x:66140"
+      }
+    },
+    "actions": [
+      {
+        "run_id": null,
+        "tool": "pencil",
+        "summary": "Created project landing card (nO1pM) with Arif & Asad profiles, and Season 1 Overview (vbgfl) with 6 episode cards including AI-generated thumbnails",
+        "timestamp": "2026-02-20T16:13:20.887976Z"
+      }
+    ],
+    "result": null,
+    "result_summary": null,
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [],
+      "skills_used": [],
+      "evaluation_id": null
+    },
+    "started_at": "2026-02-20T16:13:02.566118Z",
+    "closed_at": null,
+    "duration_mins": null
+  }
+}

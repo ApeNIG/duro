@@ -1,0 +1,39 @@
+{
+  "id": "decision_20260220_125247_aul0rb",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-20T12:52:47.543171Z",
+  "updated_at": "2026-02-20T16:47:19.275530+00:00Z",
+  "sensitivity": "internal",
+  "tags": [
+    "design-workflow",
+    "process",
+    "creative",
+    "best-practice",
+    "rule"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Always follow the design workflow: Style guide \u2192 Moodboard/Direction exploration \u2192 Mockups with assets \u2192 User approval \u2192 Implementation. Never jump straight to code.",
+    "rationale": "Jumping straight to code produces generic, forgettable designs. Following the design-first workflow with style guides, multiple directions, and proper mockups produces distinctive, memorable work with the \"wow factor\". The comparison between Direction A/B (generic) and Direction C (cosmic futurism) proved this - proper workflow yields better creative output.",
+    "alternatives": [
+      "Jump straight to code",
+      "Skip style guide exploration",
+      "Only create one design direction"
+    ],
+    "context": "TecArc agency website project - user requested comparison of code-first vs design-first approaches",
+    "reversible": false,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": [],
+    "outcome_status": "validated"
+  }
+}

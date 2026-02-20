@@ -533,7 +533,10 @@
         "better",
         "issues"
       ],
-      "has_precompiled_renderings": true
+      "has_precompiled_renderings": true,
+      "usage_count": 1,
+      "success_rate": 0.0,
+      "last_used": "2026-02-20T12:39:38.918297"
     },
     {
       "id": "skill_design_components",

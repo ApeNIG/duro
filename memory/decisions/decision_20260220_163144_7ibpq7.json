@@ -1,0 +1,38 @@
+{
+  "id": "decision_20260220_163144_7ibpq7",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-20T16:31:44.059515Z",
+  "updated_at": "2026-02-20T16:47:38.652723+00:00Z",
+  "sensitivity": "internal",
+  "tags": [
+    "duro",
+    "strategy",
+    "positioning",
+    "competitive"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Duro competitive positioning: Focus on learning loops and local-first as primary differentiators against Mem0/Zep",
+    "rationale": "Mem0 and Zep have memory but not learning. They store facts but don't track decisions, validate outcomes, or compound intelligence. Duro's episode\u2192evaluation\u2192skill_stats loop is unique. Local-first ownership is additional moat against cloud-dependent competitors.",
+    "alternatives": [
+      "Position against coding assistants (too narrow)",
+      "Position as PKM tool (crowded market)",
+      "Position as orchestration framework (CrewAI/LangGraph dominant)"
+    ],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": [],
+    "outcome_status": "validated"
+  }
+}

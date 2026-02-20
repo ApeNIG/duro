@@ -1,0 +1,29 @@
+{
+  "id": "fact_20260220_164433_fo1iti",
+  "type": "fact",
+  "version": "1.1",
+  "created_at": "2026-02-20T16:44:33.904318Z",
+  "updated_at": null,
+  "sensitivity": "public",
+  "tags": [
+    "duro",
+    "competitive-analysis",
+    "documentation",
+    "market-research",
+    "reference"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "claim": "Duro competitive analysis document saved at ~/.agent/memory/docs/duro-competitive-analysis-2026-02.md - comprehensive 60+ product analysis covering memory systems, orchestration frameworks, PKM tools, local-first assistants, and coding assistants.",
+    "source_urls": [],
+    "snippet": "File path: C:\\Users\\sibag\\.agent\\memory\\docs\\duro-competitive-analysis-2026-02.md. Contains: threat assessment, competitor profiles (Mem0, Zep, Letta, Khoj, CrewAI, LangGraph), strategic recommendations, Duro moat analysis, full product list of 60+ analyzed tools.",
+    "confidence": 0.5,
+    "verified": false,
+    "evidence_type": "none",
+    "provenance": "local_file"
+  }
+}
