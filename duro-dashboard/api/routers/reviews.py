@@ -32,75 +32,77 @@ class ReviewResponse(BaseModel):
 async def create_review(request: ReviewRequest):
     """
     Submit a review for a decision.
-    Calls the Duro MCP validate_decision tool.
+    Creates a validation file in the Duro format.
     """
+    import json
+    import random
+    import string
+
     try:
-        # Try to use Duro MCP tools directly
-        try:
-            from src.tools.decision_tools import validate_decision
+        # Generate validation ID in Duro format
+        now = datetime.now(timezone.utc)
+        random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        validation_id = f"dval_{now.strftime('%Y%m%d_%H%M%S')}_{random_suffix}"
 
-            result = await validate_decision(
-                decision_id=request.decision_id,
-                status=request.status,
-                notes=request.notes or "",
-                actual_outcome=request.notes or f"Marked as {request.status} via dashboard",
-            )
-
-            return ReviewResponse(
-                success=True,
-                message=f"Decision {request.status}",
-                validation_id=result.get("validation_id") if isinstance(result, dict) else None
-            )
-        except ImportError:
-            # Fallback: Store as a simple validation artifact
-            import sqlite3
-            import json
-            import uuid
-
-            DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
-
-            validation_id = f"val_{uuid.uuid4().hex[:12]}"
-            now = datetime.now(timezone.utc).isoformat()
-
-            # Create validation artifact
-            artifact = {
-                "id": validation_id,
-                "type": "decision_validation",
-                "created_at": now,
-                "title": f"Review: {request.status} - {request.decision_id[:20]}",
-                "sensitivity": "internal",
+        # Create validation artifact in Duro format
+        artifact = {
+            "id": validation_id,
+            "type": "decision_validation",
+            "version": "1.0",
+            "created_at": now.isoformat() + "Z",
+            "updated_at": None,
+            "sensitivity": "internal",
+            "tags": ["decision-closure", "dashboard-review"],
+            "source": {
                 "workflow": "dashboard",
-                "tags": ["dashboard-review", request.status],
+                "run_id": None,
+                "tool_trace_path": None
+            },
+            "data": {
                 "decision_id": request.decision_id,
                 "status": request.status,
-                "notes": request.notes,
-                "timestamp": now,
+                "result": "success" if request.status == "validated" else "failed",
+                "confidence_delta": 0.1 if request.status == "validated" else -0.1,
+                "confidence_after": None,
+                "notes": request.notes or f"Marked as {request.status} via dashboard"
             }
+        }
 
-            conn = sqlite3.connect(str(DURO_DB_PATH))
-            cursor = conn.cursor()
+        # Write to file
+        validations_dir = Path.home() / ".agent" / "memory" / "decision_validations"
+        validations_dir.mkdir(parents=True, exist_ok=True)
 
-            cursor.execute("""
-                INSERT INTO artifacts (id, type, created_at, title, sensitivity, tags, data)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                validation_id,
-                "decision_validation",
-                now,
-                artifact["title"],
-                "internal",
-                json.dumps(artifact["tags"]),
-                json.dumps(artifact)
-            ))
+        file_path = validations_dir / f"{validation_id}.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(artifact, f, indent=2)
 
-            conn.commit()
-            conn.close()
+        # Also update the decision file directly to set outcome_status
+        decisions_dir = Path.home() / ".agent" / "memory" / "decisions"
+        decision_file = decisions_dir / f"{request.decision_id}.json"
 
-            return ReviewResponse(
-                success=True,
-                message=f"Decision {request.status}",
-                validation_id=validation_id
-            )
+        if decision_file.exists():
+            try:
+                with open(decision_file, "r", encoding="utf-8") as f:
+                    decision_data = json.load(f)
+
+                # Update outcome_status in the decision file
+                if "data" in decision_data:
+                    decision_data["data"]["outcome_status"] = request.status
+                else:
+                    decision_data["outcome_status"] = request.status
+
+                decision_data["updated_at"] = now.isoformat() + "Z"
+
+                with open(decision_file, "w", encoding="utf-8") as f:
+                    json.dump(decision_data, f, indent=2)
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"Warning: Could not update decision file: {e}")
+
+        return ReviewResponse(
+            success=True,
+            message=f"Decision {request.status}",
+            validation_id=validation_id
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -161,24 +163,45 @@ async def get_decisions(
                 except (json.JSONDecodeError, FileNotFoundError, OSError):
                     pass
 
-            # Check for validation status by searching validation artifacts
-            val_cursor = conn.execute("""
-                SELECT file_path FROM artifacts
-                WHERE type = 'decision_validation'
-                AND title LIKE ?
-                ORDER BY created_at DESC
-                LIMIT 1
-            """, (f'%{row["id"]}%',))
-
-            val_row = val_cursor.fetchone()
-            if val_row and val_row["file_path"]:
+            # Check for validation status
+            # First check if decision file has outcome_status
+            if file_path:
                 try:
-                    with open(val_row["file_path"], "r", encoding="utf-8") as f:
-                        val_data = json.load(f)
-                        decision["outcome_status"] = val_data.get("status", "pending")
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        file_data = json.load(f)
+                        # Check in data.outcome_status or directly
+                        if "data" in file_data and file_data["data"].get("outcome_status"):
+                            decision["outcome_status"] = file_data["data"]["outcome_status"]
+                        elif file_data.get("outcome_status"):
+                            decision["outcome_status"] = file_data["outcome_status"]
                 except (json.JSONDecodeError, FileNotFoundError, OSError):
-                    decision["outcome_status"] = "pending"
-            else:
+                    pass
+
+            # If not found in decision file, search validation files
+            if not decision.get("outcome_status"):
+                validations_dir = Path.home() / ".agent" / "memory" / "decision_validations"
+                if validations_dir.exists():
+                    # Find latest validation for this decision
+                    latest_validation = None
+                    latest_time = None
+
+                    for val_file in validations_dir.glob("dval_*.json"):
+                        try:
+                            with open(val_file, "r", encoding="utf-8") as f:
+                                val_data = json.load(f)
+                                if val_data.get("data", {}).get("decision_id") == row["id"]:
+                                    val_time = val_data.get("created_at", "")
+                                    if latest_time is None or val_time > latest_time:
+                                        latest_time = val_time
+                                        latest_validation = val_data
+                        except (json.JSONDecodeError, OSError):
+                            continue
+
+                    if latest_validation:
+                        decision["outcome_status"] = latest_validation.get("data", {}).get("status", "pending")
+
+            # Default to pending if no status found
+            if not decision.get("outcome_status"):
                 decision["outcome_status"] = "pending"
 
             # Filter by status if requested
