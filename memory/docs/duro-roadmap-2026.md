@@ -1,6 +1,6 @@
 # DURO ROADMAP 2026
 ## From Philosophy to Product to Paying Customers
-### February 2026
+### February 2026 (v2 - Structural Upgrades)
 
 ---
 
@@ -10,34 +10,91 @@ This roadmap synthesizes:
 - Competitive Analysis (60+ products)
 - Business Model v2 (trust-first, bottoms-up B2B)
 - Builder's Compass (operationalized philosophy)
+- Structural feedback on adoption levers
 
 **The Goal:** 500 installs → 50 active users → 20 Pro users → 5 paying teams → $100K+ ARR Year 1
+
+---
+
+## Critical Success Factors (Added)
+
+### Time-to-First-Value (TTFV)
+How fast a new user sees Duro *do something for them*.
+**Target: Under 10 minutes to "holy sh*t, it remembers with receipts"**
+
+### Deterministic Wow
+The demo must work every time, on any machine, any day.
+**No randomness. Scripted failure → Duro saves → proof trail.**
+
+### Trust Before Revenue
+Users must trust Duro before they'll pay.
+**Provenance, confidence, easy delete/revert visible everywhere.**
 
 ---
 
 ## Phase 0: Foundation (Now - Week 2)
 ### "Make It Real"
 
-**Objective:** Get Duro ready for public eyes. Build the "moment of wow."
+**Objective:** Get Duro ready for public eyes. Build the deterministic "moment of wow."
 
-#### Week 1: The Moment of Wow
+### Week 1: The Deterministic Wow Demo
+
+**CRITICAL: The demo must be deterministic.** Pick a failure that reliably happens on any machine, any day.
+
+#### Best Candidates for Standardized Failure:
+
+| Scenario | Why It Works |
+|----------|--------------|
+| **Rate-limit / API contract** | Agent assumes wrong value, Duro corrects with stored decision + provenance |
+| **Known repo footgun** | "Don't use X helper, it breaks Y" → Duro interrupts with past decision |
+| **Recurring build/lint break** | Agent repeats known wrong fix, Duro shows prior validated fix |
+
+#### The Deterministic Wow Flow:
+
+```
+1. Start fresh Claude Code session
+2. Trigger the SCRIPTED failure (same every time)
+3. Duro surfaces: "This happened before. Here's what we learned."
+   → Shows decision with source link
+4. Agent corrects itself, links provenance
+5. "Why did we do it this way?" → Duro answers with source
+6. "Pin this as validated" → Duro shows validated status with link
+   ↑ THIS STEP TURNS IT FROM "COOL" INTO "THIS IS A SYSTEM"
+```
+
+#### Demo Script (Example: Rate Limit Scenario)
+
+```markdown
+## Setup (one-time)
+1. Store decision: "API rate limit is 100/min, not 1000/min"
+   - Source: "Production incident 2026-02-10"
+   - Status: validated
+
+## Demo (reproducible)
+1. Start fresh Claude Code session
+2. Ask: "What's our API rate limit? I think it's 1000/min"
+3. Agent starts to use 1000/min
+4. Duro interrupts: "Past decision found: Rate limit is 100/min (validated)"
+   - Shows source: Production incident link
+   - Shows confidence: 0.9
+5. Agent corrects: "Actually, it's 100/min based on this incident"
+6. Ask: "Why 100 and not 1000?"
+7. Duro shows full provenance chain
+8. Pin as decision, mark validated
+
+## Result
+- Agent wrong → Duro memory → Agent self-corrects → Proof trail
+- Works EVERY TIME
+```
 
 | Task | Details | Deliverable |
 |------|---------|-------------|
-| Build the wow demo | Agent fails → Duro shows past decision → Agent self-corrects with provenance | 2-minute video/GIF |
-| Script the demo | Write exact steps, make it reproducible | Demo script |
-| Record screen capture | Clean, professional, no fumbling | MP4 + GIF |
+| Design scripted failure | Pick scenario, make reproducible | Failure script |
+| Build wow demo | Exact steps, deterministic | Demo script |
+| Record screen capture | Clean, professional, works every time | MP4 + GIF (2 min) |
+| Test on 3 different machines | Must work everywhere | Verification |
 
-**The Wow Flow:**
-```
-1. Start fresh Claude Code session
-2. Ask it to do something it will get wrong
-3. Duro surfaces: "This happened before. Here's what we learned."
-4. Agent corrects itself, links provenance
-5. "Why did we do it this way?" → Duro answers with source
-```
-
-#### Week 2: One Sentence + One Screenshot
+### Week 2: One Sentence + One Screenshot
 
 For each pillar, create visual proof:
 
@@ -51,7 +108,8 @@ For each pillar, create visual proof:
 **Deliverables:**
 - [ ] 4 polished screenshots
 - [ ] 4 one-sentence descriptions
-- [ ] Wow demo video/GIF
+- [ ] Deterministic wow demo video/GIF
+- [ ] Demo script (reproducible)
 
 ---
 
@@ -60,14 +118,74 @@ For each pillar, create visual proof:
 
 **Objective:** Ship to GitHub, get 500 installs, 50 active daily users.
 
-### Week 3-4: Installation & Docs
+### Week 3-4: 10-Minute Onboarding Path (NEW)
 
-| Task | Details | Owner |
-|------|---------|-------|
-| Polish installation | One-command install, clear error messages | Dev |
-| README.md overhaul | Clear value prop, quick start, screenshots | Dev |
-| Documentation site | Installation, configuration, MCP setup, tutorials | Dev |
-| Troubleshooting guide | Common issues, solutions, debug steps | Dev |
+**This is the real adoption lever.** Docs don't create love. A smooth first run does.
+
+#### Guided Onboarding Script (CLI or in Claude Code):
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              DURO FIRST RUN                                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Step 1/5: Connect your repo                               │
+│  > duro init                                                │
+│  ✓ Connected to: ~/projects/my-app                         │
+│                                                             │
+│  Step 2/5: Import starter facts                            │
+│  > duro import --from-readme                               │
+│  ✓ Found 3 facts in README.md                              │
+│    • "Uses PostgreSQL 15"                                   │
+│    • "Node.js 20 required"                                  │
+│    • "Run npm test before committing"                       │
+│                                                             │
+│  Step 3/5: Run memory check                                │
+│  > duro status                                              │
+│  ✓ 3 facts (100% with sources)                             │
+│  ✓ 0 stale items                                           │
+│  ✓ Memory health: Good                                      │
+│                                                             │
+│  Step 4/5: Experience the wow                              │
+│  > duro demo                                                │
+│  [Triggers scripted failure scenario]                       │
+│  ✓ Agent corrected itself using past decision!             │
+│                                                             │
+│  Step 5/5: Inspect your memory                             │
+│  > duro inspect                                             │
+│  [Opens Memory Inspector]                                   │
+│                                                             │
+│  🎉 You're ready! Your AI now remembers with receipts.     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**TTFV Targets:**
+
+| Step | Time | Feeling |
+|------|------|---------|
+| Install | 60 sec | "That was easy" |
+| Connect repo | 30 sec | "It sees my project" |
+| Import facts | 60 sec | "It already knows things" |
+| Run demo | 3 min | "Holy sh*t, it remembers" |
+| Inspect memory | 2 min | "I can see everything with receipts" |
+| **Total** | **<10 min** | **"I need this"** |
+
+| Task | Details | Deliverable |
+|------|---------|-------------|
+| Build `duro init` | One-command project setup | CLI command |
+| Build `duro import` | Pull facts from README/docs | CLI command |
+| Build `duro demo` | Run deterministic wow | CLI command |
+| Build `duro status` | Quick health check | CLI command |
+| Polish installation | One-command install, clear errors | Installer |
+
+### Week 3-4: Installation & Docs (Parallel)
+
+| Task | Details | Deliverable |
+|------|---------|-------------|
+| README.md overhaul | Clear value prop, quick start, screenshots | README |
+| Documentation site | Installation, configuration, MCP setup | Docs site |
+| Troubleshooting guide | Common issues, solutions, debug steps | Docs |
 
 **README Structure:**
 ```markdown
@@ -81,10 +199,10 @@ Your AI forgets everything. Every session starts fresh.
 Mistakes repeat. Decisions aren't tracked. Nothing compounds.
 
 ## The Solution
-[Screenshot of wow demo]
+[Wow demo GIF - deterministic scenario]
 
-## Quick Start
-[One-command install]
+## Quick Start (10 minutes)
+[One-command install → duro init → duro demo]
 
 ## How It Works
 [4 pillars with screenshots]
@@ -124,41 +242,34 @@ Build the features that create trust:
 
 | Task | Details | Deliverable |
 |------|---------|-------------|
-| Landing page | Simple, clear, wow demo embedded | duro.dev or similar |
-| GitHub release | Proper versioning, changelog, release notes | v1.0.0 |
-| Launch content | HN post, Twitter thread, Reddit posts | 3 pieces |
-| Community setup | Discord or GitHub Discussions | Community space |
+| Landing page | Simple, clear, wow demo embedded | duro.dev |
+| GitHub release | Proper versioning, changelog | v1.0.0 |
+| Launch content | HN post, Twitter thread, Reddit | 3 pieces |
+| Community setup | Discord or GitHub Discussions | Community |
 
 **Landing Page Structure:**
 ```
 Hero: "AI generates. Builders verify. Duro remembers."
-       [Wow demo GIF]
-       [Install Now button]
+       [Deterministic wow demo GIF]
+       [Install Now → 10 min to first value]
 
 Problem: Your AI forgets everything
 Solution: 4 pillars with screenshots
 Social Proof: (empty for now, add later)
-CTA: Get started in 60 seconds
+CTA: Get started in 10 minutes
 ```
 
-**Launch Checklist:**
-- [ ] GitHub repo public with proper README
-- [ ] Landing page live
-- [ ] Docs site live
-- [ ] Wow demo embedded
-- [ ] HN post drafted
-- [ ] Twitter thread drafted
-- [ ] r/ClaudeAI post drafted
+### Phase 1 Success Metrics (UPDATED)
 
-### Phase 1 Success Metrics
-
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| GitHub stars | 200+ | GitHub |
-| Installs | 500+ | Download stats / npm |
-| Active daily users | 50+ | Telemetry (opt-in) |
-| Discord members | 100+ | Discord |
-| Bug reports | <10 critical | GitHub Issues |
+| Metric | Target | How to Measure | Why It Matters |
+|--------|--------|----------------|----------------|
+| GitHub stars | 200+ | GitHub | Visibility |
+| Installs | 500+ | Download stats | Top of funnel |
+| **Activation rate** | 60%+ | % who complete onboarding | **Product working** |
+| **Week-1 retention** | 40%+ | % who use 3+ days in first week | **Product sticky** |
+| **Wow completion rate** | 80%+ | % who run wow demo successfully | **Demo working** |
+| Active daily users | 50+ | Telemetry | Engagement |
+| Bug reports | <10 critical | GitHub Issues | Quality |
 
 ---
 
@@ -167,14 +278,22 @@ CTA: Get started in 60 seconds
 
 **Objective:** Launch Pro tier, get 20 paying users at $19/mo.
 
+### Pro Positioning (UPDATED)
+
+**Don't lead with "backup." Lead with "control."**
+
+Pro should feel like: **"I can trust and manage this."**
+
+**Tagline:** "Power tools for memory hygiene."
+
 ### Week 9-10: Pro Features
 
-| Feature | Description | Effort |
-|---------|-------------|--------|
-| **Diff & Rollback** | See changes to any artifact, undo mistakes | 1 week |
-| **Advanced Search** | Semantic search across all memory | 3 days |
-| **Export/Backup** | JSON export, manual backup | 2 days |
-| **E2E Encrypted Backup** | Cloud backup (optional), encrypted client-side | 1 week |
+| Feature | Description | Why It Converts |
+|---------|-------------|-----------------|
+| **Diff & Rollback** | See changes, undo mistakes | "I can fix errors" |
+| **Advanced Search** | Semantic search across memory | "I can find anything" |
+| **Export/Backup** | JSON export, manual backup | "I own my data" |
+| **E2E Encrypted Backup** | Cloud backup (optional) | Seatbelt, not engine |
 
 **Diff & Rollback Spec:**
 ```
@@ -199,6 +318,33 @@ CTA: Get started in 60 seconds
 └─────────────────────────────────────────────────┘
 ```
 
+### Week 9-10: Mini Compass Score v0 (MOVED EARLIER)
+
+**Ship a minimal scoreboard early.** It becomes retention engine AND sales wedge.
+
+| Metric | What It Shows | Implementation |
+|--------|---------------|----------------|
+| **Staleness %** | Facts past decay threshold | Simple query |
+| **Decisions pending review** | Unverified decisions >14 days | Simple query |
+| **Tool reliability %** | % of tool calls that succeed | Track outcomes |
+
+**Mini Score Spec (v0):**
+```
+┌─────────────────────────────────────────────────┐
+│              MEMORY HEALTH                       │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  Staleness: 12%      ████████████████░░ Good   │
+│  Pending review: 3   ⚠️ 3 decisions need review │
+│  Tool reliability: 96%  ████████████████░ Good │
+│                                                 │
+│  [View stale facts] [Review decisions]          │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+This makes Duro feel **alive and self-improving**.
+
 ### Week 11: Billing & Accounts
 
 | Task | Description | Effort |
@@ -214,20 +360,22 @@ CTA: Get started in 60 seconds
 │                    PRICING                       │
 ├─────────────────────────────────────────────────┤
 │                                                 │
-│  FREE           PRO              TEAM           │
-│  $0/mo          $19/mo           $39/user/mo    │
+│  FREE             PRO                TEAM       │
+│  $0/mo            $19/mo             $39/user   │
 │                                                 │
-│  ✓ Full core    ✓ Everything     ✓ Everything   │
-│  ✓ Local only     in Free          in Pro       │
-│  ✓ Single user  ✓ Memory         ✓ Namespaces   │
-│                   inspector      ✓ ACL          │
-│                 ✓ Diff/rollback  ✓ Audit logs   │
-│                 ✓ Provenance     ✓ GitHub       │
-│                 ✓ E2E backup       integration  │
-│                 ✓ Advanced       ✓ Admin        │
-│                   search           dashboard    │
+│  ✓ Full core      ✓ Everything       ✓ Everything│
+│  ✓ Local only       in Free            in Pro   │
+│  ✓ Single user    ✓ Diff/rollback    ✓ Namespaces│
+│                   ✓ Advanced search  ✓ ACL      │
+│                   ✓ Memory health    ✓ Audit    │
+│                   ✓ Export/backup    ✓ GitHub   │
+│                   ✓ E2E backup       ✓ Admin    │
 │                                                 │
-│  [Get Started]  [Upgrade]        [Contact]      │
+│  "Try it"         "Power tools       "Scale the │
+│                    for memory         culture"  │
+│                    hygiene"                     │
+│                                                 │
+│  [Get Started]    [Upgrade]          [Contact]  │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
@@ -236,20 +384,21 @@ CTA: Get started in 60 seconds
 
 | Task | Details | Deliverable |
 |------|---------|-------------|
-| Pro launch post | Blog post explaining Pro value | Blog post |
+| Pro launch post | Blog: "Power tools for memory hygiene" | Blog post |
 | Email existing users | "Pro is here" announcement | Email |
 | Update landing page | Add pricing section | Updated site |
 | Pro documentation | Document all Pro features | Docs |
 
-### Phase 2 Success Metrics
+### Phase 2 Success Metrics (UPDATED)
 
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| Pro conversions | 20+ | Stripe |
-| MRR | $380+ | Stripe |
-| Conversion rate | 4%+ | Pro users / total installs |
-| Churn | <5%/mo | Stripe |
-| NPS | 40+ | Survey |
+| Metric | Target | How to Measure | Why It Matters |
+|--------|--------|----------------|----------------|
+| Pro conversions | 20+ | Stripe | Revenue |
+| MRR | $380+ | Stripe | Business viability |
+| Conversion rate | 4%+ | Pro / total installs | Funnel health |
+| **Free→Pro activation** | 10%+ | % who use Pro features in trial | Feature value |
+| Churn | <5%/mo | Stripe | Retention |
+| NPS | 40+ | Survey | Satisfaction |
 
 ---
 
@@ -364,30 +513,30 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 |--------|--------|----------------|
 | Team conversions | 5+ teams | Stripe |
 | Average team size | 5+ users | Stripe |
-| Team MRR | $975+ | Stripe (5 teams × 5 users × $39) |
+| Team MRR | $975+ | Stripe |
 | Total MRR | $2,000+ | Stripe |
 | GitHub integration usage | 50%+ of teams | Telemetry |
 
 ---
 
-## Phase 4: Builder's Compass Score (Weeks 21-24)
+## Phase 4: Full Compass Score (Weeks 21-24)
 ### "The Dashboard That Sells"
 
-**Objective:** Build the scoreboard. This becomes the product AND the sales wedge.
+**Objective:** Expand mini score to full dashboard. This is the product AND the sales wedge.
 
-### Week 21-22: Core Metrics
+### Week 21-22: Full Metrics
 
 | Metric | What It Measures | Implementation |
 |--------|------------------|----------------|
-| **Verification Coverage** | % of decisions with validation status | Query decisions, calculate % validated/reversed |
-| **Staleness Index** | % of facts past decay threshold | Query facts, check last_reinforced |
-| **Decision Closure Rate** | % validated/reversed within 14 days | Query decisions by age and status |
-| **Skill Reuse Rate** | Average uses per skill | Track skill usage in episodes |
-| **Tool Reliability** | % of tool calls that succeed | Track orchestrator outcomes |
+| **Verification Coverage** | % of decisions with validation status | Query decisions |
+| **Staleness Index** | % of facts past decay threshold | Query facts |
+| **Decision Closure Rate** | % validated/reversed within 14 days | Query by age |
+| **Skill Reuse Rate** | Average uses per skill | Track episodes |
+| **Tool Reliability** | % of tool calls that succeed | Track outcomes |
 
-### Week 23-24: Dashboard UI
+### Week 23-24: Full Dashboard UI
 
-**Dashboard Spec:**
+**Full Dashboard Spec:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │              BUILDER'S COMPASS SCORE                        │
@@ -425,9 +574,9 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 
 | Metric | Target | How to Measure |
 |--------|--------|----------------|
-| Dashboard adoption | 70%+ of Pro/Team users | Telemetry |
-| Score improvement | Users improve score over time | Track scores |
-| Feature in sales convos | Used in 80%+ of Team demos | Sales tracking |
+| Dashboard adoption | 70%+ of Pro/Team | Telemetry |
+| Score improvement | Users improve over time | Track scores |
+| Sales wedge usage | 80%+ of Team demos | Sales tracking |
 
 ---
 
@@ -441,7 +590,7 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 | Task | Details | Deliverable |
 |------|---------|-------------|
 | Talk to large users | Interview any teams using Duro | Interview notes |
-| Identify requirements | What do they need that we don't have? | Requirements doc |
+| Identify requirements | What do they need? | Requirements doc |
 | Scope enterprise features | On-prem, SSO, retention, DLP | Feature specs |
 
 **Common Enterprise Requirements:**
@@ -460,7 +609,7 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 |---------|-------------|--------|
 | **SSO (Google/GitHub)** | OAuth for team onboarding | 1 week |
 | **Retention Policies** | Auto-delete, legal hold | 1 week |
-| **Enterprise Audit** | Extended audit retention, export | 3 days |
+| **Enterprise Audit** | Extended retention, export | 3 days |
 
 ### Phase 5 Success Metrics
 
@@ -468,7 +617,34 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 |--------|--------|----------------|
 | Enterprise conversations | 3+ | CRM / notes |
 | Pilot agreements | 1-2 | Signed agreements |
-| Enterprise requirements doc | Complete | Internal doc |
+| Requirements doc | Complete | Internal doc |
+
+---
+
+## Risk Mitigation (UPDATED)
+
+### Primary Risks
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| **Trust collapse** | CRITICAL | Default "proposed" state for external facts; clear confidence + source always visible; easy delete/revert; don't pretend certainty |
+| **No one installs** | High | Double down on deterministic wow demo, post in more communities |
+| **Installs but no activation** | High | Improve onboarding, track TTFV, iterate on first 10 minutes |
+| **No Pro conversions** | Medium | Talk to users, understand what Pro needs |
+| **Teams don't close** | Medium | May need to adjust price, add features, find different ICP |
+| **Competitor copies** | Medium | Move fast, focus on workflow integration (the moat) |
+
+### Trust Collapse Prevention (NEW)
+
+If Duro stores one wrong fact confidently, or loses provenance, it'll get roasted publicly.
+
+**Safeguards:**
+- [ ] Default "proposed" state for externally-derived facts
+- [ ] Clear confidence + source always visible
+- [ ] Easy delete/revert with one click
+- [ ] Never pretend certainty where it doesn't exist
+- [ ] Version history on everything
+- [ ] Audit trail for all changes
 
 ---
 
@@ -482,20 +658,11 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 | 5 | "The hidden cost of AI amnesia" | Blog + HN |
 | 7 | Launch announcement | HN + Twitter + Reddit |
 | 9 | "How to build a decision feedback loop" | Blog + Twitter |
-| 11 | Pro launch announcement | Blog + Email |
+| 11 | Pro launch: "Power tools for memory hygiene" | Blog + Email |
 | 13 | "Shared AI memory without the chaos" | Blog + LinkedIn |
 | 16 | GitHub integration announcement | Blog + Twitter |
 | 20 | Team launch + case study | Blog + Email |
 | 22 | "The Builder's Compass Score" | Blog + Twitter |
-
-### Content Themes
-
-| Theme | Articles |
-|-------|----------|
-| **Philosophy** | Why verification > generation, The compounding advantage |
-| **Practical** | Decision feedback loops, Memory hygiene, Debugging with context |
-| **Product** | Feature announcements, How-tos, Case studies |
-| **Thought Leadership** | Future of AI agents, Why memory matters |
 
 ---
 
@@ -503,47 +670,61 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 
 | Week | Milestone | Success Metric |
 |------|-----------|----------------|
-| 2 | Wow demo complete | Video/GIF ready |
-| 4 | Docs & README done | Clear, professional |
+| 2 | Deterministic wow demo | Works every time |
+| 4 | 10-min onboarding path | TTFV <10 min |
 | 6 | Trust features shipped | Inspector, proposed/pinned |
-| 8 | **PUBLIC LAUNCH** | 500 installs |
-| 12 | **PRO LAUNCH** | 20 paying users, $380 MRR |
+| 8 | **PUBLIC LAUNCH** | 500 installs, 60% activation |
+| 10 | Mini Compass Score v0 | Retention engine live |
+| 12 | **PRO LAUNCH** | 20 users, $380 MRR |
 | 20 | **TEAM LAUNCH** | 5 teams, $2K+ MRR |
-| 24 | Compass Score shipped | Dashboard live |
+| 24 | Full Compass Score | Dashboard live |
 | 28 | Enterprise pilots | 2-3 conversations |
 
 ---
 
-## Resource Requirements
+## Quick Reference: What to Build When
 
-### Solo Founder Path
+### Phase 0-1 (Weeks 1-8): Free Product
+- [x] Core memory system (exists)
+- [x] Decision validation (exists)
+- [x] Episode tracking (exists)
+- [x] MCP server (exists)
+- [ ] **Deterministic wow demo** (scripted failure)
+- [ ] **10-minute onboarding path** (duro init/import/demo)
+- [ ] 4 pillar screenshots
+- [ ] README overhaul
+- [ ] Docs site
+- [ ] Landing page
+- [ ] Memory inspector
+- [ ] Proposed/Pinned workflow
 
-| Phase | Focus | Hours/Week |
-|-------|-------|------------|
-| 0-1 | Build + docs | 40-50 |
-| 2 | Build + launch | 40-50 |
-| 3 | Build + sales | 30 build, 10 sales |
-| 4-5 | Build + enterprise | 20 build, 20 sales |
+### Phase 2 (Weeks 9-12): Pro ($19/mo)
+- [ ] Diff & rollback
+- [ ] Advanced search
+- [ ] **Mini Compass Score v0** (3 metrics)
+- [ ] Export/backup
+- [ ] E2E encrypted backup
+- [ ] Stripe billing
+- [ ] Account system
 
-### With Help
+### Phase 3 (Weeks 13-20): Team ($39/user/mo)
+- [ ] Team namespaces
+- [ ] Roles (reader/writer/admin)
+- [ ] Audit logs
+- [ ] GitHub integration
+- [ ] Admin dashboard
+- [ ] Team billing
 
-| Role | When Needed | Why |
-|------|-------------|-----|
-| Part-time designer | Week 3 | Landing page, screenshots |
-| Part-time content | Week 5 | Blog posts, docs |
-| First hire (eng) | Week 16+ | Team features, scale |
+### Phase 4 (Weeks 21-24): Full Dashboard
+- [ ] Full Compass Score (5 metrics)
+- [ ] Recommendations engine
+- [ ] Export/share reports
 
----
-
-## Risk Mitigation
-
-| Risk | Mitigation |
-|------|------------|
-| **No one installs** | Double down on wow demo, post in more communities |
-| **Installs but no active users** | Interview churned users, improve onboarding |
-| **No Pro conversions** | Talk to users, understand what Pro would need to have |
-| **Teams don't close** | May need to lower price, add features, or find different ICP |
-| **Competitor copies features** | Move fast, focus on workflow integration (the moat) |
+### Phase 5 (Weeks 25-28): Enterprise Prep
+- [ ] SSO (Google/GitHub)
+- [ ] Retention policies
+- [ ] Enterprise audit
+- [ ] Enterprise sales materials
 
 ---
 
@@ -559,50 +740,14 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 
 ---
 
-## Quick Reference: What to Build When
+## Summary of Structural Upgrades (v2)
 
-### Phase 0-1 (Weeks 1-8): Free Product
-- [x] Core memory system (exists)
-- [x] Decision validation (exists)
-- [x] Episode tracking (exists)
-- [x] MCP server (exists)
-- [ ] Wow demo
-- [ ] 4 pillar screenshots
-- [ ] README overhaul
-- [ ] Docs site
-- [ ] Landing page
-- [ ] Memory inspector
-- [ ] Proposed/Pinned workflow
-
-### Phase 2 (Weeks 9-12): Pro ($19/mo)
-- [ ] Diff & rollback
-- [ ] Advanced search
-- [ ] E2E encrypted backup
-- [ ] Stripe billing
-- [ ] Account system
-- [ ] License validation
-
-### Phase 3 (Weeks 13-20): Team ($39/user/mo)
-- [ ] Team namespaces
-- [ ] Roles (reader/writer/admin)
-- [ ] Audit logs
-- [ ] GitHub integration
-- [ ] Admin dashboard
-- [ ] Team billing
-
-### Phase 4 (Weeks 21-24): Dashboard
-- [ ] Verification coverage metric
-- [ ] Staleness index metric
-- [ ] Decision closure rate
-- [ ] Skill reuse rate
-- [ ] Tool reliability
-- [ ] Compass Score dashboard
-
-### Phase 5 (Weeks 25-28): Enterprise Prep
-- [ ] SSO (Google/GitHub)
-- [ ] Retention policies
-- [ ] Enterprise audit
-- [ ] Enterprise sales materials
+1. **Deterministic Wow Demo** - Scripted failure, works every time
+2. **10-Minute Onboarding Path** - TTFV is the real adoption lever
+3. **Mini Compass Score Earlier** - Week 9-10, not Week 21
+4. **Trust Collapse as Primary Risk** - Safeguards built in
+5. **Better Metrics** - Activation rate, week-1 retention, wow completion
+6. **Pro = "Power tools for memory hygiene"** - Not "backup"
 
 ---
 
@@ -616,4 +761,5 @@ Later: "What's our rate limit?" → Duro answers with PR provenance
 ---
 
 *Created: February 20, 2026*
+*Updated: February 20, 2026 (v2 - Structural upgrades)*
 *Review: Weekly progress check against milestones*
