@@ -1,0 +1,37 @@
+{
+  "id": "decision_20260220_224148_ujsi0b",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-20T22:41:48.242142Z",
+  "updated_at": "2026-02-20T22:41:58.923812Z",
+  "sensitivity": "internal",
+  "tags": [
+    "api",
+    "rate-limit",
+    "production-incident",
+    "demo",
+    "wow-demo"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "API rate limit is 100 requests per minute, not 1000. Always use 100/min in code and documentation.",
+    "rationale": "Production incident on 2026-02-10: Service crashed when we assumed 1000/min limit. The actual limit from the provider is 100/min. Confirmed via API docs and support ticket #4521.",
+    "alternatives": [
+      "Assumed 1000/min based on old documentation",
+      "Requested limit increase (denied - enterprise tier only)"
+    ],
+    "context": "A developer assumed the API allowed 1000 requests/minute based on outdated docs. In production, we hit rate limiting at 100/min, causing cascade failures. Support confirmed the 100/min limit is correct.",
+    "reversible": true,
+    "outcome": {
+      "status": "validated",
+      "verified_at": "2026-02-20T22:41:58.923812Z",
+      "evidence": [],
+      "confidence": 0.8
+    },
+    "episodes_used": []
+  }
+}

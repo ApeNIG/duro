@@ -1,0 +1,26 @@
+{
+  "id": "dval_20260220_224158_yx6gay",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-20T22:41:58.932722Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure"
+  ],
+  "source": {
+    "workflow": "validate_decision",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260220_224148_ujsi0b",
+    "status": "validated",
+    "result": "success",
+    "expected_outcome": "Use 100/min limit to avoid rate limiting errors",
+    "actual_outcome": "After switching to 100/min, no more rate limit errors in production",
+    "confidence_delta": 0.3,
+    "confidence_after": 0.8,
+    "notes": "Validated in production over 2 weeks. Zero rate limit errors since implementing the 100/min limit."
+  }
+}
