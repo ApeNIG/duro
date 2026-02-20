@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-17T07:54:45.330371Z",
-  "updated_at": null,
+  "updated_at": "2026-02-20T07:01:54.588165+00:00Z",
   "sensitivity": "internal",
   "tags": [
     "meta",
@@ -18,7 +18,7 @@
     "tool_trace_path": null
   },
   "data": {
-    "decision": "Stop engineering Duro's systems when 10-20 real tasks pass: (1) ≥80% context precision (injected skills actually used), (2) ≤1 recall miss per 10 tasks, (3) budget discipline without babysitting, (4) deterministic (same task → same pack). Then freeze and ship features.",
+    "decision": "Stop engineering Duro's systems when 10-20 real tasks pass: (1) \u226580% context precision (injected skills actually used), (2) \u22641 recall miss per 10 tasks, (3) budget discipline without babysitting, (4) deterministic (same task \u2192 same pack). Then freeze and ship features.",
     "rationale": "Engineering ends when next improvement stops buying real wins. Current skeleton (Gate, Amplifier, Bounded Expansion) is minimum viable. Third-order cleverness before paying \"does this help real tasks?\" debt = over-engineering. Standing at cliff edge now.",
     "alternatives": [
       "Continue adding features (EXPANSION_SCORE tweaks, multi-domain priority, draft status)",
@@ -33,6 +33,7 @@
       "evidence": [],
       "confidence": 0.5
     },
-    "episodes_used": []
+    "episodes_used": [],
+    "outcome_status": "validated"
   }
 }

@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-18T02:53:40.347390Z",
-  "updated_at": null,
+  "updated_at": "2026-02-20T07:02:20.810182+00:00Z",
   "sensitivity": "internal",
   "tags": [
     "pipeline",
@@ -19,7 +19,7 @@
   },
   "data": {
     "decision": "Code pipeline orchestrator design: sequential stages with health scoring",
-    "rationale": "Pipeline runs stages in order (review → coverage → test_generate) so coverage results can inform test generation targets. Health score (0-100) provides single metric for project quality. Exit code reflects pass/fail for CI integration.",
+    "rationale": "Pipeline runs stages in order (review \u2192 coverage \u2192 test_generate) so coverage results can inform test generation targets. Health score (0-100) provides single metric for project quality. Exit code reflects pass/fail for CI integration.",
     "alternatives": [
       "Parallel stage execution",
       "Separate skills with no orchestration",
@@ -33,6 +33,7 @@
       "evidence": [],
       "confidence": 0.5
     },
-    "episodes_used": []
+    "episodes_used": [],
+    "outcome_status": "validated"
   }
 }

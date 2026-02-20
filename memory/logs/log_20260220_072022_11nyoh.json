@@ -1,0 +1,23 @@
+{
+  "id": "log_20260220_072022_11nyoh",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-20T07:20:22.541091Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "task_complete",
+    "message": "Fixed reviews persistence in Duro Dashboard - validations now write files correctly and decisions show updated status: Success - POST /reviews writes validation files in Duro format and updates decision files, GET /decisions properly reads outcome_status",
+    "task": "Fixed reviews persistence in Duro Dashboard - validations now write files correctly and decisions show updated status",
+    "outcome": "Success - POST /reviews writes validation files in Duro format and updates decision files, GET /decisions properly reads outcome_status",
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

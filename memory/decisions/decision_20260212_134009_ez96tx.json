@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-12T13:40:09.185656Z",
-  "updated_at": "2026-02-12T13:40:09.249992Z",
+  "updated_at": "2026-02-20T07:02:24.997936+00:00Z",
   "sensitivity": "internal",
   "tags": [
     "test",
@@ -37,6 +37,7 @@
     },
     "episodes_used": [
       "ep_20260212_134009_gq9niz"
-    ]
+    ],
+    "outcome_status": "validated"
   }
 }

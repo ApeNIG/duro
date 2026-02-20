@@ -1,0 +1,25 @@
+{
+  "id": "dval_20260220_070007_826uc2",
+  "type": "decision_validation",
+  "version": "1.0",
+  "created_at": "2026-02-20T07:00:07.517121+00:00Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "decision-closure",
+    "dashboard-review"
+  ],
+  "source": {
+    "workflow": "dashboard",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision_id": "decision_20260218_021506_mqx6bd",
+    "status": "validated",
+    "result": "success",
+    "confidence_delta": 0.1,
+    "confidence_after": null,
+    "notes": "Marked as validated via dashboard"
+  }
+}

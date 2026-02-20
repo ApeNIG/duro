@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-14T12:30:43.637876Z",
-  "updated_at": "2026-02-14T12:32:22.077373Z",
+  "updated_at": "2026-02-20T06:58:25.800244+00:00Z",
   "sensitivity": "internal",
   "tags": [
     "e2e-test",
@@ -40,6 +40,7 @@
     },
     "episodes_used": [
       "ep_20260214_123138_o72j54"
-    ]
+    ],
+    "outcome_status": "validated"
   }
 }

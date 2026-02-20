@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-20T00:05:39.227834Z",
-  "updated_at": "2026-02-20T00:05:39.577160Z",
+  "updated_at": "2026-02-20T06:58:48.577646+00:00Z",
   "sensitivity": "internal",
   "tags": [
     "smoke-test",
@@ -30,6 +30,7 @@
       "confidence": 0.505,
       "last_evaluated_at": "2026-02-20T00:05:39.577140Z"
     },
-    "episodes_used": []
+    "episodes_used": [],
+    "outcome_status": "validated"
   }
 }
