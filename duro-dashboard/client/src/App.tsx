@@ -6,6 +6,9 @@ import Activity from './pages/Activity'
 import Settings from './pages/Settings'
 import Reviews from './pages/Reviews'
 import Relationships from './pages/Relationships'
+import Episodes from './pages/Episodes'
+import Skills from './pages/Skills'
+import Incidents from './pages/Incidents'
 
 export default function App() {
   return (
@@ -16,6 +19,9 @@ export default function App() {
         <Route path="memory" element={<Memory />} />
         <Route path="activity" element={<Activity />} />
         <Route path="reviews" element={<Reviews />} />
+        <Route path="episodes" element={<Episodes />} />
+        <Route path="skills" element={<Skills />} />
+        <Route path="incidents" element={<Incidents />} />
         <Route path="relationships" element={<Relationships />} />
         <Route path="settings" element={<Settings />} />
       </Route>

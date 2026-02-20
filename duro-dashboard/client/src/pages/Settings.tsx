@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings as SettingsIcon, Database, FolderOpen, Shield, Palette, Save } from 'lucide-react'
+import { Settings as SettingsIcon, Database, FolderOpen, Shield, Palette } from 'lucide-react'
 import { useHealth } from '@/hooks/useStats'
 
 interface SettingCardProps {

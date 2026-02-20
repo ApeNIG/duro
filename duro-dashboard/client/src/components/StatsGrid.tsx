@@ -1,4 +1,4 @@
-import { Database, FileText, Brain, Clock, ScrollText, AlertTriangle, Zap, GitCommit, BarChart3 } from 'lucide-react'
+import { Database, FileText, Brain, Clock, ScrollText, AlertTriangle, Zap, GitCommit } from 'lucide-react'
 import { useStats } from '@/hooks/useStats'
 
 interface StatCardProps {

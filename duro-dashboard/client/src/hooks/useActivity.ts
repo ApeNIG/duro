@@ -4,8 +4,11 @@ export interface ActivityEvent {
   id: string
   type: string
   created_at: string
+  updated_at: string | null
   title: string | null
   sensitivity: string
+  tags: string[]
+  source_workflow: string | null
 }
 
 export function useActivity(maxItems = 50) {

@@ -13,7 +13,7 @@ DURO_MCP_PATH = Path.home() / "duro-mcp"
 if DURO_MCP_PATH.exists():
     sys.path.insert(0, str(DURO_MCP_PATH))
 
-from routers import stats, artifacts, stream, reviews, actions, insights
+from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents
 
 
 @asynccontextmanager
@@ -47,6 +47,9 @@ app.include_router(stream.router, prefix="/api/stream", tags=["stream"])
 app.include_router(reviews.router, prefix="/api", tags=["reviews"])
 app.include_router(actions.router, prefix="/api/actions", tags=["actions"])
 app.include_router(insights.router, prefix="/api", tags=["insights"])
+app.include_router(episodes.router, prefix="/api", tags=["episodes"])
+app.include_router(skills.router, prefix="/api", tags=["skills"])
+app.include_router(incidents.router, prefix="/api", tags=["incidents"])
 
 
 @app.get("/")

@@ -82,11 +82,12 @@ export interface InsightsResponse {
 export const api = {
   health: () => fetchJSON<HealthResponse>('/health'),
   stats: () => fetchJSON<StatsResponse>('/stats'),
-  artifacts: (params?: { type?: string; limit?: number; offset?: number }) => {
+  artifacts: (params?: { type?: string; limit?: number; offset?: number; search?: string }) => {
     const searchParams = new URLSearchParams()
     if (params?.type) searchParams.set('type', params.type)
     if (params?.limit) searchParams.set('limit', params.limit.toString())
     if (params?.offset) searchParams.set('offset', params.offset.toString())
+    if (params?.search) searchParams.set('search', params.search)
     const query = searchParams.toString()
     return fetchJSON<ArtifactsResponse>(`/artifacts${query ? `?${query}` : ''}`)
   },
