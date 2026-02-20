@@ -1,0 +1,33 @@
+{
+  "id": "decision_20260220_220925_ui41i0",
+  "type": "decision",
+  "version": "1.0",
+  "created_at": "2026-02-20T22:09:25.227689Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "duro",
+    "roadmap",
+    "strategic",
+    "2026"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "decision": "Duro 2026 Roadmap: 5 phases over 28 weeks. Phase 0-1 (Wk 1-8): Foundation + wow demo + public launch. Phase 2 (Wk 9-12): Pro $19/mo. Phase 3 (Wk 13-20): Team $39/user. Phase 4 (Wk 21-24): Compass Score dashboard. Phase 5 (Wk 25-28): Enterprise prep.",
+    "rationale": "Synthesized from competitive analysis (60+ products), business model v2 (trust-first GTM), and operationalized Builder's Compass. Prioritizes wow demo first, trust features before cloud sync, GitHub integration for stickiness.",
+    "alternatives": [],
+    "context": null,
+    "reversible": true,
+    "outcome": {
+      "status": "unverified",
+      "verified_at": null,
+      "evidence": [],
+      "confidence": 0.5
+    },
+    "episodes_used": []
+  }
+}
