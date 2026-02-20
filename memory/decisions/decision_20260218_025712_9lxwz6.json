@@ -3,7 +3,7 @@
   "type": "decision",
   "version": "1.0",
   "created_at": "2026-02-18T02:57:12.514308Z",
-  "updated_at": "2026-02-20T07:02:37.269238+00:00Z",
+  "updated_at": "2026-02-20T10:43:45.615733Z",
   "sensitivity": "internal",
   "tags": [
     "code_refactor",
@@ -28,10 +28,10 @@
     "context": null,
     "reversible": true,
     "outcome": {
-      "status": "unverified",
-      "verified_at": null,
+      "status": "validated",
+      "verified_at": "2026-02-20T10:43:45.615733Z",
       "evidence": [],
-      "confidence": 0.5
+      "confidence": 0.75
     },
     "episodes_used": [],
     "outcome_status": "validated"
