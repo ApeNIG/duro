@@ -57,6 +57,28 @@ export interface DecisionsResponse {
   has_more: boolean
 }
 
+export interface ActionItem {
+  type: 'unreviewed_decision'
+  id: string
+  title: string
+  age_days: number
+  priority: 'high' | 'medium' | 'low'
+}
+
+export interface InsightsSummary {
+  total_facts: number
+  total_decisions: number
+  pending_review: number
+  oldest_unreviewed_days: number
+  recent_24h: number
+}
+
+export interface InsightsResponse {
+  summary: InsightsSummary
+  action_items: ActionItem[]
+  timestamp: string
+}
+
 export const api = {
   health: () => fetchJSON<HealthResponse>('/health'),
   stats: () => fetchJSON<StatsResponse>('/stats'),
@@ -76,4 +98,5 @@ export const api = {
     const query = searchParams.toString()
     return fetchJSON<DecisionsResponse>(`/decisions${query ? `?${query}` : ''}`)
   },
+  insights: () => fetchJSON<InsightsResponse>('/insights'),
 }
