@@ -1,0 +1,43 @@
+{
+  "id": "ep_20260220_214151_hqqu9h",
+  "type": "episode",
+  "version": "1.0",
+  "created_at": "2026-02-20T21:41:51.084778Z",
+  "updated_at": "2026-02-20T21:41:51.242258Z",
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "guardrail"
+  ],
+  "source": {
+    "workflow": "manual",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "goal": "Smoke test - guardrail verification",
+    "status": "closed",
+    "plan": [
+      "Test guardrail blocks unauthorized updates"
+    ],
+    "context": {
+      "test_type": "guardrail_test"
+    },
+    "actions": [],
+    "result": "success",
+    "result_summary": "Guardrail test",
+    "links": {
+      "facts_created": [],
+      "decisions_created": [],
+      "decisions_used": [],
+      "skills_used": [
+        "planning"
+      ],
+      "evaluation_id": "eval_20260220_214151_kxayzw"
+    },
+    "started_at": "2026-02-20T21:41:51.084778Z",
+    "closed_at": "2026-02-20T21:41:51.156870Z",
+    "duration_mins": 0.0,
+    "warnings": []
+  }
+}

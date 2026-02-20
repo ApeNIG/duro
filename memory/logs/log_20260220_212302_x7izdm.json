@@ -1,0 +1,25 @@
+{
+  "id": "log_20260220_212302_x7izdm",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-20T21:23:02.130108Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Strategy"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Builder's Compass framework maps directly to Duro features: Memory (facts/episodes/decisions), Verification (validation loops/evaluations), Orchestration (MCP/autonomy), Domain Expertise (skills/rules). This creates philosophy-led positioning that competitors can't copy - \"you can clone features, you can't clone identity.\"",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

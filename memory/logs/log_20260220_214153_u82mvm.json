@@ -1,0 +1,26 @@
+{
+  "id": "log_20260220_214153_u82mvm",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-20T21:41:53.057676Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "smoke-test",
+    "logging-verification"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "smoke_test",
+    "message": "Smoke test log entry smoke_log_test_62f50379",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}

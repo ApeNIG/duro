@@ -1,0 +1,25 @@
+{
+  "id": "log_20260220_212304_6fijsj",
+  "type": "log",
+  "version": "1.0",
+  "created_at": "2026-02-20T21:23:04.600442Z",
+  "updated_at": null,
+  "sensitivity": "internal",
+  "tags": [
+    "Marketing"
+  ],
+  "source": {
+    "workflow": "session",
+    "run_id": null,
+    "tool_trace_path": null
+  },
+  "data": {
+    "event_type": "learning",
+    "message": "Tagline evolution: \"Memory for AI agents\" (technical) → \"How builders verify, remember, and compose\" (philosophy) → \"AI generates. Builders verify. Duro remembers.\" (punchy). Philosophy positioning justifies pricing better than features alone.",
+    "task": null,
+    "outcome": null,
+    "error": null,
+    "lesson": null,
+    "duration_ms": null
+  }
+}
