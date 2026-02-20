@@ -79,18 +79,19 @@ async def list_incidents(
         for row in cursor.fetchall():
             incident = row_to_dict(row)
 
-            # Load full content
+            # Load full content - data is nested inside "data" field
             if incident.get("file_path"):
                 content = load_json_file(incident["file_path"])
                 if content:
-                    incident["symptom"] = content.get("symptom")
-                    incident["actual_cause"] = content.get("actual_cause")
-                    incident["fix"] = content.get("fix")
-                    incident["prevention"] = content.get("prevention")
-                    incident["severity"] = content.get("severity", "medium")
-                    incident["repro_steps"] = content.get("repro_steps", [])
-                    incident["first_bad_boundary"] = content.get("first_bad_boundary")
-                    incident["why_not_caught"] = content.get("why_not_caught")
+                    data = content.get("data", {})
+                    incident["symptom"] = data.get("symptom")
+                    incident["actual_cause"] = data.get("actual_cause")
+                    incident["fix"] = data.get("fix")
+                    incident["prevention"] = data.get("prevention")
+                    incident["severity"] = data.get("severity", "medium")
+                    incident["repro_steps"] = data.get("repro_steps", [])
+                    incident["first_bad_boundary"] = data.get("first_bad_boundary")
+                    incident["why_not_caught"] = data.get("why_not_caught")
 
             # Filter by severity if specified
             if severity and incident.get("severity") != severity:
@@ -107,38 +108,6 @@ async def list_incidents(
             "offset": offset,
             "has_more": offset + len(incidents) < total,
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/incidents/{incident_id}")
-async def get_incident(incident_id: str) -> dict[str, Any]:
-    """Get a single incident with full RCA details."""
-    try:
-        conn = get_db_connection()
-
-        cursor = conn.execute(
-            "SELECT * FROM artifacts WHERE id = ? AND type = 'incident_rca'",
-            (incident_id,)
-        )
-        row = cursor.fetchone()
-
-        if not row:
-            raise HTTPException(status_code=404, detail="Incident not found")
-
-        incident = row_to_dict(row)
-
-        # Load full content
-        if incident.get("file_path"):
-            content = load_json_file(incident["file_path"])
-            if content:
-                incident["content"] = content
-
-        conn.close()
-
-        return incident
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -162,14 +131,15 @@ async def get_incident_stats() -> dict[str, Any]:
             content = load_json_file(row["file_path"]) if row["file_path"] else None
 
             if content:
-                severity = content.get("severity", "medium")
+                data = content.get("data", {})
+                severity = data.get("severity", "medium")
                 severity_counts[severity] += 1
 
-                boundary = content.get("first_bad_boundary")
+                boundary = data.get("first_bad_boundary")
                 if boundary:
                     boundary_counts[boundary] += 1
 
-                cause = content.get("actual_cause")
+                cause = data.get("actual_cause")
                 if cause:
                     all_causes.append(cause)
 
@@ -222,12 +192,13 @@ async def get_incident_patterns() -> dict[str, Any]:
         for row in cursor.fetchall():
             content = load_json_file(row["file_path"]) if row["file_path"] else None
             if content:
-                if content.get("first_bad_boundary"):
-                    boundaries.append(content["first_bad_boundary"])
-                if content.get("prevention"):
-                    preventions.append(content["prevention"])
-                if content.get("why_not_caught"):
-                    why_not_caught.append(content["why_not_caught"])
+                data = content.get("data", {})
+                if data.get("first_bad_boundary"):
+                    boundaries.append(data["first_bad_boundary"])
+                if data.get("prevention"):
+                    preventions.append(data["prevention"])
+                if data.get("why_not_caught"):
+                    why_not_caught.append(data["why_not_caught"])
 
         conn.close()
 
@@ -248,5 +219,37 @@ async def get_incident_patterns() -> dict[str, Any]:
                 "has_recurring_patterns": any(c > 1 for c in boundary_freq.values()),
             },
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/incidents/{incident_id}")
+async def get_incident(incident_id: str) -> dict[str, Any]:
+    """Get a single incident with full RCA details."""
+    try:
+        conn = get_db_connection()
+
+        cursor = conn.execute(
+            "SELECT * FROM artifacts WHERE id = ? AND type = 'incident_rca'",
+            (incident_id,)
+        )
+        row = cursor.fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Incident not found")
+
+        incident = row_to_dict(row)
+
+        # Load full content
+        if incident.get("file_path"):
+            content = load_json_file(incident["file_path"])
+            if content:
+                incident["content"] = content
+
+        conn.close()
+
+        return incident
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
