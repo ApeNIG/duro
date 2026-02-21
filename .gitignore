@@ -1,3 +1,31 @@
+# Internal directories (keep in duro-private)
+memory/
+rules/
+skills/
+projects/
+evals/
+constitutions/
+creativity-gym/
+tmp/
+proposals/
+routines/
+metrics/
+pending_promotions/
+hooks-backup/
+config/
+agents/
+launch/
+
+# Internal strategy files
+soul.md
+COMPREHENSIVE_OVERVIEW.md
+EVOLUTION_BLUEPRINT.md
+GUARDRAILS.md
+ORCHESTRATOR.md
+PHASE_3_SPEC.md
+PHASE_4_SPEC.md
+VERIFICATION.md
+
 # SQLite database (can be rebuilt from artifact files)
 memory/artifacts.db
 memory/artifacts.db-journal
