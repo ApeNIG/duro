@@ -3,9 +3,15 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import QuickActions from './QuickActions'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    onEscape: () => setSidebarOpen(false),
+  })
 
   return (
     <div className="h-screen flex bg-page">
