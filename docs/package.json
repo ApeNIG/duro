@@ -1,0 +1,14 @@
+{
+  "name": "duro-docs",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Documentation for Duro - Memory layer for AI agents",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  }
+}
