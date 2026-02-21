@@ -8,20 +8,9 @@ from typing import Any, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from .stats import get_db_connection, DURO_DB_PATH
+
 router = APIRouter()
-
-DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
-
-
-def get_db_connection() -> sqlite3.Connection:
-    """Create read-only connection to Duro database."""
-    if not DURO_DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="Duro database not found")
-
-    conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 3000")
-    return conn
 
 
 def row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -84,8 +73,6 @@ async def list_artifacts(
         """
         cursor = conn.execute(query, params + [limit, offset])
         artifacts = [row_to_dict(row) for row in cursor.fetchall()]
-
-        conn.close()
 
         return {
             "artifacts": artifacts,
@@ -187,8 +174,6 @@ async def get_artifact(artifact_id: str) -> dict[str, Any]:
             except Exception:
                 artifact["content"] = None
 
-        conn.close()
-
         return artifact
     except HTTPException:
         raise
@@ -268,8 +253,6 @@ async def get_relationships(
 
         # Filter edges to only include targets that exist in our nodes
         edges = [e for e in edges if e["target"] in seen_ids]
-
-        conn.close()
 
         return {
             "nodes": nodes,

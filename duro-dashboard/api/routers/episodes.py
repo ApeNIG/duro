@@ -1,27 +1,16 @@
 """Episode listing and timeline endpoints."""
 
-import sqlite3
 import json
 from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
+from .stats import get_db_connection
+
 router = APIRouter()
 
-DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
 MEMORY_PATH = Path.home() / ".agent" / "memory"
-
-
-def get_db_connection() -> sqlite3.Connection:
-    """Create read-only connection to Duro database."""
-    if not DURO_DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="Duro database not found")
-
-    conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 3000")
-    return conn
 
 
 def row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -98,8 +87,6 @@ async def list_episodes(
 
             episodes.append(episode)
 
-        conn.close()
-
         return {
             "episodes": episodes[:limit],  # Respect limit after filtering
             "total": total,
@@ -152,8 +139,6 @@ async def get_episode(episode_id: str) -> dict[str, Any]:
                     "next_change": eval_content.get("next_change"),
                 }
 
-        conn.close()
-
         return episode
     except HTTPException:
         raise
@@ -197,8 +182,6 @@ async def get_episode_stats() -> dict[str, Any]:
                 if duration:
                     total_duration += duration
                     duration_count += 1
-
-        conn.close()
 
         return {
             "total": total,

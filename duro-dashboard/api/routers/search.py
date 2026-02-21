@@ -1,16 +1,13 @@
 """Semantic search endpoint."""
 
-import sys
+import sqlite3
 import time
-from pathlib import Path
+import json
 from typing import Optional
 
 from fastapi import APIRouter, Query
 
-# Add duro-mcp to path for importing
-DURO_MCP_PATH = Path.home() / "duro-mcp"
-if DURO_MCP_PATH.exists():
-    sys.path.insert(0, str(DURO_MCP_PATH))
+from .stats import get_db_connection
 
 router = APIRouter()
 
@@ -25,16 +22,10 @@ async def search_artifacts(
     Semantic search across artifacts.
     Uses hybrid search (vector + keyword) when available.
     """
-    import sqlite3
-    import json
-
     start_time = time.time()
 
-    DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
-
     try:
-        conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-        conn.row_factory = sqlite3.Row
+        conn = get_db_connection()
 
         # Try FTS search first
         hits = []
@@ -158,8 +149,6 @@ async def search_artifacts(
 
         # Sort by final score
         hits.sort(key=lambda x: x["final_score"], reverse=True)
-
-        conn.close()
 
         took_ms = (time.time() - start_time) * 1000
 
