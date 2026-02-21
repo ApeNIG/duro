@@ -19,8 +19,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional, Set
 
-from .autonomy_state import AutonomyStateStore
-from .surfacing import QuietModeCalculator, ResultBuffer, FeedbackTracker
+from autonomy_state import AutonomyStateStore
+from surfacing import QuietModeCalculator, ResultBuffer, FeedbackTracker
 
 logger = logging.getLogger(__name__)
 

@@ -3749,7 +3749,7 @@ Contact the system administrator or check duro-mcp installation.""")]
 - Hard: {rule_summary['hard_rules']} | Soft: {rule_summary['soft_rules']}
 
 **Status:** Operational
-**Timestamp:** {datetime.now().isoformat()}
+**Timestamp:** {utc_now_iso()}
 """
             return [TextContent(type="text", text=result)]
 
@@ -3823,7 +3823,6 @@ Contact the system administrator or check duro-mcp installation.""")]
             echo = arguments.get("echo", "")
 
             # Get current timestamp
-            from time_utils import utc_now_iso
             timestamp = utc_now_iso()
 
             # Measure how long it took to get here
@@ -4011,7 +4010,6 @@ Contact the system administrator or check duro-mcp installation.""")]
 
                 if override and override.get("enabled"):
                     until = override.get("until_unix", 0)
-                    from datetime import datetime
                     until_dt = datetime.fromtimestamp(until)
                     lines.append(f"**Override:** Active until {until_dt.strftime('%H:%M')}")
 
