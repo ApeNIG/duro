@@ -49,6 +49,11 @@ memory/logs/repairs.jsonl
 __pycache__/
 *.pyc
 *.pyo
+venv/
+
+# Environment and config
+.env
+config.json
 
 # Hypothesis test database
 .hypothesis/

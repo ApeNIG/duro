@@ -1,1 +1,1 @@
-# Duro test suite
+# Duro MCP test suite
