@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   X,
   ExternalLink,
@@ -14,9 +14,12 @@ import {
   ChevronRight,
   Sparkles,
   AlertCircle,
+  Trash2,
+  Loader2,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { Artifact } from '@/lib/api'
+import { useToast } from './Toast'
 
 interface ArtifactModalProps {
   artifactId: string
@@ -139,6 +142,10 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const queryClient = useQueryClient()
+  const { addToast } = useToast()
 
   useEffect(() => {
     setLoading(true)
@@ -179,6 +186,26 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
       navigator.clipboard.writeText(JSON.stringify(artifact.content, null, 2))
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/artifacts/${artifactId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.detail || 'Failed to delete')
+      }
+      queryClient.invalidateQueries({ queryKey: ['artifacts'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
+      addToast({ type: 'success', title: 'Artifact deleted', message: artifact?.title || artifactId })
+      onClose()
+    } catch (e) {
+      addToast({ type: 'error', title: 'Delete failed', message: (e as Error).message })
+    } finally {
+      setDeleting(false)
+      setShowDeleteConfirm(false)
     }
   }
 
@@ -437,14 +464,48 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
               )}
 
               {/* Footer */}
-              <div className="pt-4 border-t border-border flex items-center justify-between">
-                <div className="text-xs text-text-secondary">
-                  <span className="opacity-50">ID:</span>{' '}
-                  <code className="font-mono bg-page px-1.5 py-0.5 rounded">{artifact.id}</code>
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-text-secondary">
+                    <span className="opacity-50">ID:</span>{' '}
+                    <code className="font-mono bg-page px-1.5 py-0.5 rounded">{artifact.id}</code>
+                  </div>
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </button>
                 </div>
-                {artifact.file_path && (
-                  <div className="text-xs text-text-secondary truncate max-w-xs" title={artifact.file_path}>
-                    {artifact.file_path.split(/[/\\]/).slice(-2).join('/')}
+
+                {/* Delete Confirmation */}
+                {showDeleteConfirm && (
+                  <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-sm text-red-400 mb-3">
+                      Delete this {artifact.type}? This cannot be undone.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                      >
+                        {deleting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        {deleting ? 'Deleting...' : 'Yes, delete'}
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(false)}
+                        disabled={deleting}
+                        className="flex-1 px-3 py-2 bg-card border border-border rounded text-sm text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

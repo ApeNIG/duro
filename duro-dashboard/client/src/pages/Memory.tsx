@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Database, Search, Filter, ChevronDown, Loader2, X } from 'lucide-react'
+import { Database, Search, Filter, ChevronDown, Loader2, X, Trash2, CheckSquare, Square } from 'lucide-react'
 import type { Artifact } from '@/lib/api'
 import { api } from '@/lib/api'
 import ArtifactModal from '@/components/ArtifactModal'
+import { useToast } from '@/components/Toast'
 
 const typeColors: Record<string, string> = {
   fact: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -33,14 +34,36 @@ function formatDate(isoString: string): string {
   })
 }
 
-function ArtifactRow({ artifact, onClick }: { artifact: Artifact; onClick: () => void }) {
+function ArtifactRow({
+  artifact,
+  onClick,
+  selected,
+  onToggleSelect,
+}: {
+  artifact: Artifact
+  onClick: () => void
+  selected: boolean
+  onToggleSelect: () => void
+}) {
   const colorClasses = typeColors[artifact.type] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 
   return (
     <tr
-      className="border-b border-border hover:bg-white/5 cursor-pointer transition-colors"
+      className={`border-b border-border hover:bg-white/5 cursor-pointer transition-colors ${selected ? 'bg-accent/5' : ''}`}
       onClick={onClick}
     >
+      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={onToggleSelect}
+          className="p-1 hover:bg-white/10 rounded transition-colors"
+        >
+          {selected ? (
+            <CheckSquare className="w-4 h-4 text-accent" />
+          ) : (
+            <Square className="w-4 h-4 text-text-secondary" />
+          )}
+        </button>
+      </td>
       <td className="py-3 px-4">
         <span className={`text-xs font-mono uppercase px-2 py-1 rounded border ${colorClasses}`}>
           {artifact.type}
@@ -85,6 +108,68 @@ export default function Memory() {
   const [hasMore, setHasMore] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showBulkDelete, setShowBulkDelete] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const { addToast } = useToast()
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === artifacts.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(artifacts.map((a) => a.id)))
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+
+    setIsDeleting(true)
+    try {
+      const res = await fetch('/api/artifacts/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artifact_ids: Array.from(selectedIds) }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Failed to delete')
+      }
+
+      // Remove deleted artifacts from list
+      setArtifacts((prev) => prev.filter((a) => !selectedIds.has(a.id)))
+      setTotal((prev) => prev - data.deleted_count)
+      setSelectedIds(new Set())
+      setShowBulkDelete(false)
+
+      addToast({
+        type: 'success',
+        title: `Deleted ${data.deleted_count} artifacts`,
+        message: data.failed_count > 0 ? `${data.failed_count} failed` : undefined,
+      })
+    } catch (e) {
+      addToast({
+        type: 'error',
+        title: 'Bulk delete failed',
+        message: (e as Error).message,
+      })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   // Computed type filter
   const effectiveType = selectedType === 'all'
@@ -95,6 +180,7 @@ export default function Memory() {
   useEffect(() => {
     setIsLoading(true)
     setArtifacts([])
+    setSelectedIds(new Set()) // Clear selection on filter change
 
     api.artifacts({
       type: effectiveType === 'no_logs' ? undefined : effectiveType,
@@ -196,13 +282,67 @@ export default function Memory() {
           />
           Hide logs
         </label>
+
+        {/* Bulk Delete Button */}
+        {selectedIds.size > 0 && (
+          <button
+            onClick={() => setShowBulkDelete(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded hover:bg-red-500/20 transition-colors text-sm"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete {selectedIds.size} selected
+          </button>
+        )}
       </div>
+
+      {/* Bulk Delete Confirmation */}
+      {showBulkDelete && (
+        <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-sm text-red-400 mb-3">
+            Delete {selectedIds.size} artifacts? This cannot be undone.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+              {isDeleting ? 'Deleting...' : 'Yes, delete all'}
+            </button>
+            <button
+              onClick={() => setShowBulkDelete(false)}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-card border border-border rounded text-sm text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="flex-1 overflow-auto min-h-0 bg-card border border-border rounded-lg">
         <table className="w-full">
           <thead className="sticky top-0 bg-card border-b border-border">
             <tr className="text-xs text-text-secondary uppercase">
+              <th className="py-3 px-4 text-left font-medium w-10">
+                <button
+                  onClick={toggleSelectAll}
+                  className="p-1 hover:bg-white/10 rounded transition-colors"
+                  title={selectedIds.size === artifacts.length ? 'Deselect all' : 'Select all'}
+                >
+                  {selectedIds.size === artifacts.length && artifacts.length > 0 ? (
+                    <CheckSquare className="w-4 h-4 text-accent" />
+                  ) : (
+                    <Square className="w-4 h-4 text-text-secondary" />
+                  )}
+                </button>
+              </th>
               <th className="py-3 px-4 text-left font-medium">Type</th>
               <th className="py-3 px-4 text-left font-medium">Title</th>
               <th className="py-3 px-4 text-left font-medium">Tags</th>
@@ -212,13 +352,13 @@ export default function Memory() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center">
+                <td colSpan={5} className="py-12 text-center">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-text-secondary" />
                 </td>
               </tr>
             ) : artifacts.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-text-secondary">
+                <td colSpan={5} className="py-12 text-center text-text-secondary">
                   No artifacts found
                 </td>
               </tr>
@@ -228,6 +368,8 @@ export default function Memory() {
                   key={artifact.id}
                   artifact={artifact}
                   onClick={() => setSelectedArtifactId(artifact.id)}
+                  selected={selectedIds.has(artifact.id)}
+                  onToggleSelect={() => toggleSelect(artifact.id)}
                 />
               ))
             )}

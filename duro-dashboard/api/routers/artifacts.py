@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -92,6 +93,69 @@ async def list_artifacts(
             "limit": limit,
             "offset": offset,
             "has_more": offset + len(artifacts) < total,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class BulkDeleteRequest(BaseModel):
+    """Request model for bulk delete."""
+    artifact_ids: list[str]
+
+
+@router.post("/artifacts/bulk-delete")
+async def bulk_delete_artifacts(request: BulkDeleteRequest) -> dict[str, Any]:
+    """Delete multiple artifacts by ID."""
+    try:
+        conn = sqlite3.connect(str(DURO_DB_PATH), timeout=10.0)
+        conn.execute("PRAGMA busy_timeout = 10000")
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.row_factory = sqlite3.Row
+
+        deleted = []
+        failed = []
+
+        for artifact_id in request.artifact_ids:
+            try:
+                cursor = conn.execute(
+                    "SELECT id, file_path, type, title FROM artifacts WHERE id = ?",
+                    (artifact_id,)
+                )
+                row = cursor.fetchone()
+
+                if not row:
+                    failed.append({"id": artifact_id, "reason": "not found"})
+                    continue
+
+                artifact = dict(row)
+                file_path = artifact.get("file_path")
+
+                # Delete from database
+                conn.execute("DELETE FROM artifacts WHERE id = ?", (artifact_id,))
+
+                # Delete the file if it exists
+                if file_path:
+                    path = Path(file_path)
+                    if path.exists():
+                        path.unlink()
+
+                deleted.append({
+                    "id": artifact_id,
+                    "type": artifact.get("type"),
+                    "title": artifact.get("title"),
+                })
+            except Exception as e:
+                failed.append({"id": artifact_id, "reason": str(e)})
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "success": True,
+            "deleted_count": len(deleted),
+            "deleted": deleted,
+            "failed_count": len(failed),
+            "failed": failed,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -213,5 +277,51 @@ async def get_relationships(
             "total_nodes": len(nodes),
             "total_edges": len(edges),
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/artifacts/{artifact_id}")
+async def delete_artifact(artifact_id: str) -> dict[str, Any]:
+    """Delete an artifact by ID."""
+    try:
+        # First get the artifact to find the file path
+        conn = sqlite3.connect(str(DURO_DB_PATH), timeout=10.0)
+        conn.execute("PRAGMA busy_timeout = 10000")
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.row_factory = sqlite3.Row
+
+        cursor = conn.execute(
+            "SELECT id, file_path, type, title FROM artifacts WHERE id = ?",
+            (artifact_id,)
+        )
+        row = cursor.fetchone()
+
+        if not row:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Artifact not found")
+
+        artifact = dict(row)
+        file_path = artifact.get("file_path")
+
+        # Delete from database
+        conn.execute("DELETE FROM artifacts WHERE id = ?", (artifact_id,))
+        conn.commit()
+        conn.close()
+
+        # Delete the file if it exists
+        if file_path:
+            path = Path(file_path)
+            if path.exists():
+                path.unlink()
+
+        return {
+            "success": True,
+            "deleted_id": artifact_id,
+            "type": artifact.get("type"),
+            "title": artifact.get("title"),
+        }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
