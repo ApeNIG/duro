@@ -181,7 +181,7 @@ export default function QuickActions() {
   return (
     <>
       {/* Floating Action Button */}
-      <div className="fixed bottom-8 right-8 z-40">
+      <div className="fixed bottom-4 right-4 z-40">
         <div className={`flex flex-col-reverse gap-3 mb-4 transition-all duration-200 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
           <ActionButton
             icon={<Lightbulb className="w-4 h-4" />}
