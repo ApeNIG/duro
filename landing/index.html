@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duro - Memory for AI Agents</title>
+  <meta name="description" content="Memory layer for AI agents that compounds intelligence over time. Every fact has a source. Every decision gets validated.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'duro-bg': '#0A0A0A',
+            'duro-bg-alt': '#0F0F0F',
+            'duro-green': '#10B981',
+            'duro-amber': '#F59E0B',
+            'duro-cyan': '#06B6D4',
+            'duro-border': '#2a2a2a',
+            'duro-text': '#FAFAFA',
+            'duro-muted': '#6B7280',
+          },
+          fontFamily: {
+            'mono': ['JetBrains Mono', 'monospace'],
+            'plex': ['IBM Plex Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html, body {
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="bg-duro-bg text-duro-text font-mono antialiased">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between h-20 px-20 max-w-[1440px] mx-auto">
+    <div class="flex items-center gap-2">
+      <span class="text-duro-green text-xl font-bold">&gt;</span>
+      <span class="text-duro-text text-lg font-medium">duro</span>
+    </div>
+    <nav class="flex items-center gap-8">
+      <a href="https://apenig.github.io/duro/" class="text-duro-muted text-sm hover:text-duro-text transition-colors">docs</a>
+      <a href="https://github.com/ApeNIG/duro" class="text-duro-muted text-sm hover:text-duro-text transition-colors">github</a>
+      <a href="#pricing" class="text-duro-muted text-sm hover:text-duro-text transition-colors">pricing</a>
+      <a href="https://github.com/ApeNIG/duro" class="flex items-center h-10 px-5 bg-duro-green text-duro-bg text-sm font-medium hover:bg-opacity-90 transition-colors">
+        get started
+      </a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="flex flex-col items-center gap-8 py-32 px-20 max-w-[1440px] mx-auto">
+    <div class="flex items-center gap-4">
+      <span class="text-duro-green text-5xl md:text-6xl font-bold">&gt;</span>
+      <h1 class="text-duro-text text-5xl md:text-6xl font-bold">memory for ai agents</h1>
+    </div>
+    <p class="text-duro-muted font-plex text-lg text-center max-w-[800px]">
+      # every fact has a source. every decision gets validated. intelligence compounds.
+    </p>
+    <div class="flex items-center gap-4">
+      <a href="https://github.com/ApeNIG/duro" class="flex items-center h-12 px-8 bg-duro-green text-duro-bg font-medium hover:bg-opacity-90 transition-colors">
+        start building →
+      </a>
+      <a href="https://apenig.github.io/duro/" class="flex items-center h-12 px-8 border border-duro-border text-duro-text hover:border-duro-muted transition-colors">
+        read the docs
+      </a>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="bg-duro-bg-alt py-20 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col gap-12">
+      <span class="text-white text-xs font-mono">// the_problem</span>
+      <div class="flex flex-col md:flex-row gap-12">
+        <div class="flex-1 flex flex-col gap-6">
+          <h2 class="text-duro-text text-3xl font-bold">your ai forgets everything</h2>
+          <p class="text-duro-muted font-plex text-base leading-relaxed">
+            every conversation starts from zero. past mistakes get repeated. lessons learned disappear. there is no audit trail for what your agent knows.
+          </p>
+        </div>
+        <div class="flex-1 flex flex-col gap-4 p-6 border border-duro-amber">
+          <span class="text-duro-amber text-sm font-mono">[!] agent suggests 1000 req/min</span>
+          <span class="text-duro-amber text-sm font-mono">[!] ships broken code</span>
+          <span class="text-duro-amber text-sm font-mono">[!] production incident</span>
+          <span class="text-duro-muted text-sm font-mono">[!] same mistake next month</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution Section -->
+  <section class="py-20 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col gap-12">
+      <span class="text-white text-xs font-mono">// the_solution</span>
+      <div class="flex flex-col md:flex-row gap-12">
+        <div class="flex-1 flex flex-col gap-6">
+          <h2 class="text-duro-text text-3xl font-bold">duro remembers with receipts</h2>
+          <p class="text-duro-muted font-plex text-base leading-relaxed">
+            structured memory with provenance. every fact has a source. every decision can be validated. intelligence compounds instead of resetting.
+          </p>
+        </div>
+        <div class="flex-1 flex flex-col gap-4 p-6 border border-duro-green">
+          <span class="text-duro-muted text-sm font-mono">&gt; agent suggests 1000 req/min</span>
+          <span class="text-duro-green text-sm font-mono">$ duro recalls: "we learned it's 100/min"</span>
+          <span class="text-duro-green text-sm font-mono">&gt; agent self-corrects</span>
+          <span class="text-duro-green text-sm font-mono">[validated] decision with provenance</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pillars Section -->
+  <section class="bg-duro-bg-alt py-20 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col gap-12">
+      <div class="flex flex-col gap-4">
+        <span class="text-white text-xs font-mono">// the_builders_compass</span>
+        <h2 class="text-duro-text text-3xl font-bold">four pillars of compounding intelligence</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Pillar 1 -->
+        <div class="flex flex-col gap-4 p-6 border border-duro-border">
+          <span class="text-duro-green text-3xl font-bold">01</span>
+          <span class="text-duro-text text-base font-bold">memory/</span>
+          <p class="text-duro-muted font-plex text-sm leading-relaxed">"every fact has a source and confidence"</p>
+        </div>
+        <!-- Pillar 2 -->
+        <div class="flex flex-col gap-4 p-6 border border-duro-border">
+          <span class="text-duro-green text-3xl font-bold">02</span>
+          <span class="text-duro-text text-base font-bold">verification/</span>
+          <p class="text-duro-muted font-plex text-sm leading-relaxed">"every decision gets validated"</p>
+        </div>
+        <!-- Pillar 3 -->
+        <div class="flex flex-col gap-4 p-6 border border-duro-border">
+          <span class="text-duro-green text-3xl font-bold">03</span>
+          <span class="text-duro-text text-base font-bold">orchestration/</span>
+          <p class="text-duro-muted font-plex text-sm leading-relaxed">"every action is permissioned"</p>
+        </div>
+        <!-- Pillar 4 -->
+        <div class="flex flex-col gap-4 p-6 border border-duro-border">
+          <span class="text-duro-green text-3xl font-bold">04</span>
+          <span class="text-duro-text text-base font-bold">expertise/</span>
+          <p class="text-duro-muted font-plex text-sm leading-relaxed">"patterns become reusable skills"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wow Demo Section -->
+  <section class="py-20 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col items-center gap-12">
+      <div class="flex flex-col gap-4 w-full">
+        <span class="text-white text-xs font-mono">// see_it_in_action</span>
+        <h2 class="text-duro-text text-3xl font-bold">the moment duro saves you</h2>
+      </div>
+
+      <!-- Terminal -->
+      <div class="w-full max-w-[900px] border border-duro-border">
+        <!-- Terminal Header -->
+        <div class="flex items-center gap-2 h-10 px-4 bg-duro-bg-alt border-b border-duro-border">
+          <span class="w-3 h-3 rounded-full bg-red-500"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500"></span>
+          <span class="text-duro-muted text-xs ml-4">~/project</span>
+        </div>
+        <!-- Terminal Body -->
+        <div class="flex flex-col gap-4 p-6">
+          <span class="text-duro-muted text-sm font-mono">&gt; what's our rate limit? i think it's 1000/min</span>
+          <span class="text-duro-green text-sm font-mono">$ duro_semantic_search("rate limit")</span>
+          <span class="text-duro-cyan text-sm font-mono">[decision found] score: 0.95</span>
+
+          <!-- Result Box -->
+          <div class="flex flex-col gap-2 p-4 border border-duro-green">
+            <span class="text-duro-text text-sm font-bold font-mono">decision: api rate limit is 100/min, not 1000</span>
+            <span class="text-duro-green text-xs font-mono">status: [validated] confidence: 0.95</span>
+            <span class="text-duro-muted font-plex text-xs">source: production incident 2026-02-10</span>
+          </div>
+
+          <span class="text-duro-text text-sm font-mono">&gt; actually, the rate limit is 100/min. confirmed after incident.</span>
+          <span class="text-duro-muted font-plex text-xs">// crisis averted. intelligence compounds.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audience Section -->
+  <section class="bg-duro-bg-alt py-20 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col items-center gap-8">
+      <span class="text-white text-xs font-mono">// who_its_for</span>
+      <h2 class="text-duro-text text-3xl font-bold text-center">builders who care about correctness</h2>
+      <p class="text-duro-muted font-plex text-base text-center max-w-[600px]">
+        teams that want learning to compound. those who don't want to ship nonsense.
+      </p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <span class="px-4 py-2 border border-duro-border text-duro-green text-xs font-mono">[ai developers]</span>
+        <span class="px-4 py-2 border border-duro-border text-duro-green text-xs font-mono">[claude code users]</span>
+        <span class="px-4 py-2 border border-duro-border text-duro-green text-xs font-mono">[teams building ai]</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="py-24 px-20">
+    <div class="max-w-[1440px] mx-auto flex flex-col items-center gap-8">
+      <h2 class="text-duro-text text-4xl font-bold text-center">
+        <span class="text-duro-green">&gt;</span> start building with memory
+      </h2>
+      <p class="text-duro-muted font-plex text-base">free forever. local first. open source.</p>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/ApeNIG/duro" class="flex items-center h-14 px-10 bg-duro-green text-duro-bg font-medium text-lg hover:bg-opacity-90 transition-colors">
+          get started free →
+        </a>
+        <a href="https://apenig.github.io/duro/" class="flex items-center h-14 px-10 border border-duro-border text-duro-text hover:border-duro-muted transition-colors">
+          view documentation
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="flex items-center justify-between h-20 px-20 border-t border-duro-border max-w-[1440px] mx-auto">
+    <div class="flex items-center gap-2">
+      <span class="text-duro-green text-base font-bold">&gt;</span>
+      <span class="text-duro-text text-sm font-medium">duro</span>
+    </div>
+    <span class="text-duro-muted font-plex text-xs">// built by builders who don't ship nonsense</span>
+  </footer>
+
+</body>
+</html>
