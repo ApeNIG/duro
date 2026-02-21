@@ -8,13 +8,14 @@ interface Decision extends Artifact {
   rationale?: string
   alternatives?: string[]
   context?: string
-  outcome_status?: 'pending' | 'validated' | 'reversed' | 'superseded'
+  outcome_status?: 'pending' | 'validated' | 'partial' | 'reversed' | 'superseded'
   confidence?: number
 }
 
 const statusColors = {
   pending: 'text-warning bg-warning/10 border-warning/30',
   validated: 'text-green-400 bg-green-500/10 border-green-500/30',
+  partial: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30',
   reversed: 'text-red-400 bg-red-500/10 border-red-500/30',
   superseded: 'text-gray-400 bg-gray-500/10 border-gray-500/30',
 }
@@ -36,7 +37,7 @@ function DecisionCard({
   onReview,
 }: {
   decision: Decision
-  onReview: (id: string, status: 'validated' | 'reversed', notes: string) => void
+  onReview: (id: string, status: 'validated' | 'partial' | 'reversed', notes: string) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const [notes, setNotes] = useState('')
@@ -45,7 +46,7 @@ function DecisionCard({
   const status = decision.outcome_status || 'pending'
   const statusClass = statusColors[status] || statusColors.pending
 
-  const handleReview = async (newStatus: 'validated' | 'reversed') => {
+  const handleReview = async (newStatus: 'validated' | 'partial' | 'reversed') => {
     setIsSubmitting(true)
     await onReview(decision.id, newStatus, notes)
     setIsSubmitting(false)
@@ -155,27 +156,49 @@ function DecisionCard({
                 <button
                   onClick={() => handleReview('validated')}
                   disabled={isSubmitting}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                  className="flex-1 flex flex-col items-center justify-center gap-1 py-2 px-4 bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-4 h-4" />
-                  )}
-                  Worked
+                  <span className="flex items-center gap-2">
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4" />
+                    )}
+                    Worked
+                  </span>
+                  <span className="text-xs opacity-70">+10% confidence</span>
+                </button>
+
+                <button
+                  onClick={() => handleReview('partial')}
+                  disabled={isSubmitting}
+                  className="flex-1 flex flex-col items-center justify-center gap-1 py-2 px-4 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded hover:bg-yellow-500/30 transition-colors disabled:opacity-50"
+                >
+                  <span className="flex items-center gap-2">
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4" />
+                    )}
+                    Partial
+                  </span>
+                  <span className="text-xs opacity-70">no change</span>
                 </button>
 
                 <button
                   onClick={() => handleReview('reversed')}
                   disabled={isSubmitting}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-red-500/20 text-red-400 border border-red-500/30 rounded hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                  className="flex-1 flex flex-col items-center justify-center gap-1 py-2 px-4 bg-red-500/20 text-red-400 border border-red-500/30 rounded hover:bg-red-500/30 transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <XCircle className="w-4 h-4" />
-                  )}
-                  Didn't work
+                  <span className="flex items-center gap-2">
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <XCircle className="w-4 h-4" />
+                    )}
+                    Didn't work
+                  </span>
+                  <span className="text-xs opacity-70">-10% confidence</span>
                 </button>
               </div>
             </div>
@@ -185,6 +208,7 @@ function DecisionCard({
           {status !== 'pending' && (
             <div className={`text-sm ${statusClass} p-3 rounded border`}>
               {status === 'validated' && 'This decision was marked as successful'}
+              {status === 'partial' && 'This decision partially worked'}
               {status === 'reversed' && 'This decision was marked as unsuccessful'}
               {status === 'superseded' && 'This decision was superseded by another'}
             </div>
@@ -219,7 +243,7 @@ export default function Reviews() {
     loadDecisions()
   }, [])
 
-  const handleReview = async (id: string, status: 'validated' | 'reversed', notes: string) => {
+  const handleReview = async (id: string, status: 'validated' | 'partial' | 'reversed', notes: string) => {
     // Call the backend to record the validation
     try {
       const response = await fetch('/api/reviews', {

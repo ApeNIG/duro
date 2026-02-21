@@ -48,7 +48,7 @@ async function fetchJSON<T>(url: string): Promise<T> {
 export interface Decision extends Artifact {
   decision?: string
   rationale?: string
-  outcome_status?: 'pending' | 'validated' | 'reversed' | 'superseded'
+  outcome_status?: 'pending' | 'validated' | 'partial' | 'reversed' | 'superseded'
 }
 
 export interface DecisionsResponse {

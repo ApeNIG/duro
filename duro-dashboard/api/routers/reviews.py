@@ -18,7 +18,7 @@ router = APIRouter()
 
 class ReviewRequest(BaseModel):
     decision_id: str
-    status: str  # 'validated' or 'reversed'
+    status: str  # 'validated', 'partial', or 'reversed'
     notes: Optional[str] = None
 
 
@@ -61,8 +61,8 @@ async def create_review(request: ReviewRequest):
             "data": {
                 "decision_id": request.decision_id,
                 "status": request.status,
-                "result": "success" if request.status == "validated" else "failed",
-                "confidence_delta": 0.1 if request.status == "validated" else -0.1,
+                "result": "success" if request.status == "validated" else ("partial" if request.status == "partial" else "failed"),
+                "confidence_delta": 0.1 if request.status == "validated" else (0.0 if request.status == "partial" else -0.1),
                 "confidence_after": None,
                 "notes": request.notes or f"Marked as {request.status} via dashboard"
             }
