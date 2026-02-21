@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Trash2,
   Loader2,
+  Network,
+  ArrowRight,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { Artifact } from '@/lib/api'
@@ -171,6 +173,22 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
       }))
     },
     enabled: artifact?.type === 'decision',
+  })
+
+  // Fetch related artifacts (by tags)
+  const { data: relatedArtifacts } = useQuery<Artifact[]>({
+    queryKey: ['related-artifacts', artifactId, artifact?.tags],
+    queryFn: async () => {
+      if (!artifact?.tags || artifact.tags.length === 0) return []
+      // Search by first few tags
+      const searchTag = artifact.tags[0]
+      const res = await fetch(`/api/artifacts?search=${encodeURIComponent(searchTag)}&limit=6`)
+      if (!res.ok) return []
+      const data = await res.json()
+      // Filter out the current artifact
+      return data.artifacts.filter((a: Artifact) => a.id !== artifactId)
+    },
+    enabled: !!artifact?.tags && artifact.tags.length > 0,
   })
 
   useEffect(() => {
@@ -448,6 +466,37 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
                             {event.confidence_delta > 0 ? '+' : ''}{event.confidence_delta}
                           </span>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleSection>
+              )}
+
+              {/* Related Artifacts */}
+              {relatedArtifacts && relatedArtifacts.length > 0 && (
+                <CollapsibleSection title="Related Artifacts" icon={Network} defaultOpen={false}>
+                  <div className="space-y-2">
+                    {relatedArtifacts.slice(0, 5).map((related) => (
+                      <div
+                        key={related.id}
+                        className="flex items-center gap-2 p-2 bg-card border border-border rounded hover:border-accent/30 cursor-pointer transition-colors group"
+                        onClick={() => {
+                          // Navigate to related artifact
+                          setArtifact(null)
+                          setLoading(true)
+                          api.artifact(related.id)
+                            .then((data) => setArtifact(data as ArtifactWithContent))
+                            .catch((e: Error) => setError(e.message))
+                            .finally(() => setLoading(false))
+                        }}
+                      >
+                        <span className={`text-xs font-mono uppercase px-1 py-0.5 rounded border ${typeColors[related.type] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+                          {related.type.replace('_', ' ')}
+                        </span>
+                        <span className="text-xs text-text-primary truncate flex-1">
+                          {related.title || related.id}
+                        </span>
+                        <ArrowRight className="w-3 h-3 text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     ))}
                   </div>

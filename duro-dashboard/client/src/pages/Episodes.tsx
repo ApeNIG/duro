@@ -12,6 +12,8 @@ import {
   Zap,
   Award,
   AlertCircle,
+  LayoutGrid,
+  GitCommit,
 } from 'lucide-react'
 
 interface Episode {
@@ -79,6 +81,126 @@ function formatDate(isoString: string): string {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+function TimelineNode({ episode, isLast }: { episode: Episode; isLast: boolean }) {
+  const [expanded, setExpanded] = useState(false)
+  const isOpen = episode.status === 'open'
+  const result = episode.result || 'pending'
+  const ResultIcon = resultIcons[result as keyof typeof resultIcons] || Clock
+
+  return (
+    <div className="flex gap-4">
+      {/* Timeline Line */}
+      <div className="flex flex-col items-center">
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+            isOpen
+              ? 'border-accent bg-accent/20'
+              : result === 'success'
+              ? 'border-green-400 bg-green-500/20'
+              : result === 'failed'
+              ? 'border-red-400 bg-red-500/20'
+              : 'border-warning bg-warning/20'
+          }`}
+        >
+          {isOpen ? (
+            <Play className="w-4 h-4 text-accent" />
+          ) : (
+            <ResultIcon
+              className={`w-4 h-4 ${
+                result === 'success'
+                  ? 'text-green-400'
+                  : result === 'failed'
+                  ? 'text-red-400'
+                  : 'text-warning'
+              }`}
+            />
+          )}
+        </div>
+        {!isLast && <div className="w-0.5 flex-1 bg-border mt-2" />}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 pb-6">
+        <div
+          className="bg-card border border-border rounded-lg p-4 hover:border-accent/30 transition-colors cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-2 text-xs">
+            <span
+              className={`px-2 py-0.5 rounded ${
+                isOpen
+                  ? 'bg-accent/20 text-accent'
+                  : resultColors[result as keyof typeof resultColors] || ''
+              }`}
+            >
+              {isOpen ? 'in progress' : result}
+            </span>
+            {episode.duration_mins && (
+              <span className="text-text-secondary flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {formatDuration(episode.duration_mins)}
+              </span>
+            )}
+            {episode.evaluation?.grade && (
+              <span className="px-2 py-0.5 bg-accent/10 text-accent rounded">
+                {episode.evaluation.grade}
+              </span>
+            )}
+            <span className="text-text-secondary ml-auto">
+              {formatDate(episode.created_at)}
+            </span>
+          </div>
+
+          {/* Goal */}
+          <h3 className="text-sm text-text-primary font-medium mb-1">
+            {episode.goal || episode.title || episode.id}
+          </h3>
+
+          {episode.result_summary && (
+            <p className="text-xs text-text-secondary line-clamp-2 mb-2">
+              {episode.result_summary}
+            </p>
+          )}
+
+          {/* Actions preview */}
+          {episode.actions && episode.actions.length > 0 && (
+            <div className="flex items-center gap-1 text-xs text-text-secondary">
+              <GitCommit className="w-3 h-3" />
+              {episode.actions.length} action{episode.actions.length > 1 ? 's' : ''}
+              <ChevronRight
+                className={`w-3 h-3 ml-auto transition-transform ${expanded ? 'rotate-90' : ''}`}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Expanded Actions */}
+        {expanded && episode.actions && episode.actions.length > 0 && (
+          <div className="mt-2 ml-4 space-y-1">
+            {episode.actions.map((action, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-2 text-xs border-l-2 border-accent/30 pl-3 py-1"
+              >
+                <div className="w-5 h-5 rounded-full bg-accent/10 text-accent flex items-center justify-center flex-shrink-0 text-[10px]">
+                  {i + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-text-primary">{action.summary}</span>
+                  {action.tool && (
+                    <span className="text-text-secondary ml-1">via {action.tool}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function EpisodeCard({ episode }: { episode: Episode }) {
@@ -308,6 +430,7 @@ function EpisodeCard({ episode }: { episode: Episode }) {
 
 export default function Episodes() {
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all')
+  const [viewMode, setViewMode] = useState<'cards' | 'timeline'>('timeline')
 
   const { data, isLoading } = useQuery<EpisodesResponse>({
     queryKey: ['episodes'],
@@ -352,21 +475,50 @@ export default function Episodes() {
           )}
         </div>
 
-        {/* Filter */}
-        <div className="flex items-center gap-2">
-          {(['all', 'open', 'closed'] as const).map((f) => (
+        {/* Controls */}
+        <div className="flex items-center gap-4">
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 bg-card border border-border rounded-lg p-0.5">
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-sm rounded transition-colors capitalize ${
-                filter === f
+              onClick={() => setViewMode('cards')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'cards'
                   ? 'bg-accent text-page'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
+              title="Card view"
             >
-              {f}
+              <LayoutGrid className="w-4 h-4" />
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode('timeline')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'timeline'
+                  ? 'bg-accent text-page'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+              title="Timeline view"
+            >
+              <GitCommit className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Filter */}
+          <div className="flex items-center gap-2">
+            {(['all', 'open', 'closed'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 text-sm rounded transition-colors capitalize ${
+                  filter === f
+                    ? 'bg-accent text-page'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -399,7 +551,7 @@ export default function Episodes() {
       </div>
 
       {/* Episode List */}
-      <div className="flex-1 overflow-auto min-h-0 space-y-3">
+      <div className="flex-1 overflow-auto min-h-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-text-secondary" />
@@ -408,10 +560,22 @@ export default function Episodes() {
           <div className="text-center py-12 text-text-secondary">
             No episodes found
           </div>
+        ) : viewMode === 'timeline' ? (
+          <div className="pl-2">
+            {filteredEpisodes.map((episode, index) => (
+              <TimelineNode
+                key={episode.id}
+                episode={episode}
+                isLast={index === filteredEpisodes.length - 1}
+              />
+            ))}
+          </div>
         ) : (
-          filteredEpisodes.map((episode) => (
-            <EpisodeCard key={episode.id} episode={episode} />
-          ))
+          <div className="space-y-3">
+            {filteredEpisodes.map((episode) => (
+              <EpisodeCard key={episode.id} episode={episode} />
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -9,6 +9,7 @@ import Relationships from './pages/Relationships'
 import Episodes from './pages/Episodes'
 import Skills from './pages/Skills'
 import Incidents from './pages/Incidents'
+import Search from './pages/Search'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route index element={<Navigate to="/overview" replace />} />
         <Route path="overview" element={<Overview />} />
         <Route path="memory" element={<Memory />} />
+        <Route path="search" element={<Search />} />
         <Route path="activity" element={<Activity />} />
         <Route path="reviews" element={<Reviews />} />
         <Route path="episodes" element={<Episodes />} />

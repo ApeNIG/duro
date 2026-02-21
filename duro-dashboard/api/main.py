@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents
+from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents, search
 
 
 @asynccontextmanager
@@ -42,6 +42,7 @@ app.include_router(insights.router, prefix="/api", tags=["insights"])
 app.include_router(episodes.router, prefix="/api", tags=["episodes"])
 app.include_router(skills.router, prefix="/api", tags=["skills"])
 app.include_router(incidents.router, prefix="/api", tags=["incidents"])
+app.include_router(search.router, prefix="/api", tags=["search"])
 
 
 @app.get("/")

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Database, Activity, Brain, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle } from 'lucide-react'
+import { Database, Activity, Brain, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles } from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
@@ -51,6 +51,7 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
         <NavItem to="/overview" icon={<Activity className="w-4 h-4" />} label="Overview" />
+        <NavItem to="/search" icon={<Sparkles className="w-4 h-4" />} label="Search" />
         <NavItem to="/memory" icon={<Database className="w-4 h-4" />} label="Memory" />
         <NavItem to="/activity" icon={<Zap className="w-4 h-4" />} label="Activity" />
         <NavItem to="/reviews" icon={<CheckCircle className="w-4 h-4" />} label="Reviews" badge={pendingCount} />
