@@ -227,11 +227,17 @@ MIT
 
 ---
 
-## Links
+## Documentation
 
+### Getting Started
+- [**Quick Start Guide**](memory/docs/onboarding-quickstart.md) - 10 minutes to first value
+- [**Cheat Sheet**](memory/docs/duro-cheatsheet.md) - All commands at a glance
+
+### Strategy
 - [Competitive Analysis](memory/docs/duro-competitive-analysis-2026-02.md)
 - [Business Model](memory/docs/duro-business-model-2026-02.md)
 - [Builder's Compass Synthesis](memory/docs/duro-builders-compass-synthesis.md)
+- [Roadmap](memory/docs/duro-roadmap-2026.md)
 
 ---
 
