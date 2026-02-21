@@ -84,23 +84,37 @@ Duro runs as an MCP server with Claude Code:
 
 ```bash
 # Clone the repo
-git clone https://github.com/ApeNIG/duro.git ~/.agent
+git clone https://github.com/ApeNIG/duro.git ~/.duro
 
-# Add to Claude Code MCP config
-# (See MCP configuration below)
+# Install dependencies
+cd ~/.duro
+pip install -r requirements.txt
 ```
 
 ### MCP Configuration
 
-Add to your Claude Code MCP settings:
+Add to your Claude Code MCP settings (`~/.claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "duro": {
       "command": "python",
-      "args": ["-m", "duro.mcp_server"],
-      "cwd": "~/.agent"
+      "args": ["src/duro_mcp_server.py"],
+      "cwd": "/path/to/.duro"
+    }
+  }
+}
+```
+
+**Windows:**
+```json
+{
+  "mcpServers": {
+    "duro": {
+      "command": "python",
+      "args": ["src/duro_mcp_server.py"],
+      "cwd": "C:\\Users\\YourName\\.duro"
     }
   }
 }
@@ -163,16 +177,33 @@ Here's what Duro actually does:
 ## Architecture
 
 ```
-~/.agent/
+~/.duro/
+├── src/                      # MCP server code
+│   ├── duro_mcp_server.py    # Main entry point
+│   ├── artifacts.py          # Artifact storage
+│   ├── memory.py             # Memory operations
+│   ├── embeddings.py         # Semantic search
+│   ├── orchestrator.py       # Workflow orchestration
+│   ├── policy_gate.py        # Permission system
+│   └── ...                   # Security, indexing, etc.
+├── migrations/               # Database migrations
+├── tests/                    # Test suite
+├── docs/                     # Documentation
+├── landing/                  # Landing page
+├── requirements.txt          # Python dependencies
+└── config.default.json       # Default configuration
+```
+
+**Runtime data** (created on first use):
+```
+~/.duro/
 ├── memory/
 │   ├── facts/           # Stored facts with provenance
 │   ├── decisions/       # Decisions with validation status
-│   ├── episodes/        # Goal-tracking records
-│   └── docs/            # Documentation and scripts
+│   └── episodes/        # Goal-tracking records
 ├── skills/              # Reusable skill definitions
 ├── rules/               # Behavioral rules
-├── soul.md              # Agent personality config
-└── duro.db              # SQLite index + embeddings
+└── index.db             # SQLite index + embeddings
 ```
 
 All artifacts are JSON files. Human-readable. Git-friendly. No cloud required.
@@ -223,21 +254,23 @@ In the AI age, generation is cheap. Verification, taste, and continuity are scar
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ---
 
 ## Documentation
 
-### Getting Started
-- [**Quick Start Guide**](memory/docs/onboarding-quickstart.md) - 10 minutes to first value
-- [**Cheat Sheet**](memory/docs/duro-cheatsheet.md) - All commands at a glance
+Full documentation: [apenig.github.io/duro](https://apenig.github.io/duro)
 
-### Strategy
-- [Competitive Analysis](memory/docs/duro-competitive-analysis-2026-02.md)
-- [Business Model](memory/docs/duro-business-model-2026-02.md)
-- [Builder's Compass Synthesis](memory/docs/duro-builders-compass-synthesis.md)
-- [Roadmap](memory/docs/duro-roadmap-2026.md)
+### Getting Started
+- [**Quick Start Guide**](docs/guide/getting-started.md) - 10 minutes to first value
+- [**Installation**](docs/guide/installation.md) - Detailed setup instructions
+- [**Cheat Sheet**](docs/guide/cheatsheet.md) - All commands at a glance
+- [**Builder's Compass**](docs/BUILDERS_COMPASS.md) - Core philosophy
+
+### Reference
+- [Known Limitations](KNOWN_LIMITATIONS.md)
+- [Orchestration Design](ORCHESTRATION_DESIGN.md)
 
 ---
 
