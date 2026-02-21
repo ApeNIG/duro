@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
+from threading import Lock
 
 from fastapi import APIRouter, HTTPException
 
@@ -13,16 +14,25 @@ router = APIRouter()
 # Duro database path
 DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
 
+# Connection pool (simple single connection with lock)
+_conn: sqlite3.Connection | None = None
+_conn_lock = Lock()
+
 
 def get_db_connection() -> sqlite3.Connection:
-    """Create read-only connection to Duro database."""
+    """Get shared read-only connection to Duro database."""
+    global _conn
+
     if not DURO_DB_PATH.exists():
         raise HTTPException(status_code=503, detail="Duro database not found")
 
-    conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 3000")
-    return conn
+    with _conn_lock:
+        if _conn is None:
+            _conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True, check_same_thread=False)
+            _conn.row_factory = sqlite3.Row
+            _conn.execute("PRAGMA busy_timeout = 3000")
+            _conn.execute("PRAGMA cache_size = -2000")  # 2MB cache
+        return _conn
 
 
 @router.get("/health")
@@ -34,7 +44,7 @@ async def health_check() -> dict[str, Any]:
         conn = get_db_connection()
         cursor = conn.execute("SELECT COUNT(*) FROM artifacts")
         count = cursor.fetchone()[0]
-        conn.close()
+        # Don't close - shared connection
 
         latency_ms = (time.perf_counter() - start) * 1000
 
@@ -99,7 +109,7 @@ async def get_stats() -> dict[str, Any]:
         """)
         sensitivity_counts = {row["sensitivity"]: row["count"] for row in cursor.fetchall()}
 
-        conn.close()
+        # Don't close - shared connection
 
         return {
             "total": total,
