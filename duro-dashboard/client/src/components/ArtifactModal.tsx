@@ -26,6 +26,7 @@ import { useToast } from './Toast'
 interface ArtifactModalProps {
   artifactId: string
   onClose: () => void
+  onDelete?: () => void
 }
 
 const typeColors: Record<string, string> = {
@@ -139,7 +140,7 @@ function CollapsibleSection({
   )
 }
 
-export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProps) {
+export default function ArtifactModal({ artifactId, onClose, onDelete }: ArtifactModalProps) {
   const [artifact, setArtifact] = useState<ArtifactWithContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -218,6 +219,7 @@ export default function ArtifactModal({ artifactId, onClose }: ArtifactModalProp
       queryClient.invalidateQueries({ queryKey: ['artifacts'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
       addToast({ type: 'success', title: 'Artifact deleted', message: artifact?.title || artifactId })
+      onDelete?.()
       onClose()
     } catch (e) {
       addToast({ type: 'error', title: 'Delete failed', message: (e as Error).message })

@@ -79,6 +79,21 @@ export interface InsightsResponse {
   timestamp: string
 }
 
+export interface DeleteResponse {
+  success: boolean
+  deleted_id: string
+  type: string
+  title: string | null
+}
+
+export interface BulkDeleteResponse {
+  success: boolean
+  deleted_count: number
+  deleted: Array<{ id: string; type: string; title: string | null }>
+  failed_count: number
+  failed: Array<{ id: string; reason: string }>
+}
+
 export const api = {
   health: () => fetchJSON<HealthResponse>('/health'),
   stats: () => fetchJSON<StatsResponse>('/stats'),
@@ -92,6 +107,20 @@ export const api = {
     return fetchJSON<ArtifactsResponse>(`/artifacts${query ? `?${query}` : ''}`)
   },
   artifact: (id: string) => fetchJSON<Artifact & { content?: unknown }>(`/artifacts/${id}`),
+  deleteArtifact: async (id: string): Promise<DeleteResponse> => {
+    const response = await fetch(`${API_BASE}/artifacts/${id}`, { method: 'DELETE' })
+    if (!response.ok) throw new Error(`Delete failed: ${response.status}`)
+    return response.json()
+  },
+  bulkDelete: async (ids: string[]): Promise<BulkDeleteResponse> => {
+    const response = await fetch(`${API_BASE}/artifacts/bulk-delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artifact_ids: ids }),
+    })
+    if (!response.ok) throw new Error(`Bulk delete failed: ${response.status}`)
+    return response.json()
+  },
   decisions: (params?: { status?: string; limit?: number }) => {
     const searchParams = new URLSearchParams()
     if (params?.status) searchParams.set('status', params.status)
