@@ -8,20 +8,9 @@ from collections import Counter
 
 from fastapi import APIRouter, HTTPException, Query
 
+from .stats import get_db_connection
+
 router = APIRouter()
-
-DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
-
-
-def get_db_connection() -> sqlite3.Connection:
-    """Create read-only connection to Duro database."""
-    if not DURO_DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="Duro database not found")
-
-    conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 3000")
-    return conn
 
 
 def row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -99,8 +88,6 @@ async def list_incidents(
 
             incidents.append(incident)
 
-        conn.close()
-
         return {
             "incidents": incidents[:limit],
             "total": total,
@@ -153,8 +140,6 @@ async def get_incident_stats() -> dict[str, Any]:
                 except json.JSONDecodeError:
                     pass
 
-        conn.close()
-
         return {
             "total": sum(severity_counts.values()),
             "by_severity": dict(severity_counts),
@@ -200,8 +185,6 @@ async def get_incident_patterns() -> dict[str, Any]:
                 if data.get("why_not_caught"):
                     why_not_caught.append(data["why_not_caught"])
 
-        conn.close()
-
         # Analyze patterns
         boundary_freq = Counter(boundaries)
 
@@ -245,8 +228,6 @@ async def get_incident(incident_id: str) -> dict[str, Any]:
             content = load_json_file(incident["file_path"])
             if content:
                 incident["content"] = content
-
-        conn.close()
 
         return incident
     except HTTPException:

@@ -1,29 +1,18 @@
 """Proactive Insights endpoint - surfaces actionable intelligence about memory health."""
 
 import json
-import sqlite3
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
+from .stats import get_db_connection
+
 router = APIRouter()
 
-DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
 DECISIONS_DIR = Path.home() / ".agent" / "memory" / "decisions"
 VALIDATIONS_DIR = Path.home() / ".agent" / "memory" / "decision_validations"
-
-
-def get_db_connection() -> sqlite3.Connection:
-    """Create read-only connection to Duro database."""
-    if not DURO_DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="Duro database not found")
-
-    conn = sqlite3.connect(f"file:{DURO_DB_PATH}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 3000")
-    return conn
 
 
 def get_decision_outcome_status(decision_id: str, file_path: str | None) -> str | None:
@@ -144,8 +133,6 @@ async def get_insights() -> dict[str, Any]:
                     "age_days": age_days,
                     "priority": get_priority(age_days),
                 })
-
-        conn.close()
 
         # Sort by age (oldest first) and limit to top 20
         pending_decisions.sort(key=lambda x: -x["age_days"])

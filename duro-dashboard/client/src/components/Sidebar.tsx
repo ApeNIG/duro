@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Database, Activity, Brain, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles } from 'lucide-react'
+import { Database, Activity, Brain, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb } from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
@@ -58,6 +58,7 @@ export default function Sidebar() {
         <NavItem to="/episodes" icon={<Target className="w-4 h-4" />} label="Episodes" />
         <NavItem to="/skills" icon={<Layers className="w-4 h-4" />} label="Skills" />
         <NavItem to="/incidents" icon={<AlertTriangle className="w-4 h-4" />} label="Incidents" />
+        <NavItem to="/insights" icon={<Lightbulb className="w-4 h-4" />} label="Insights" />
         <NavItem to="/relationships" icon={<GitBranch className="w-4 h-4" />} label="Graph" />
         <NavItem to="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" />
       </nav>

@@ -10,6 +10,7 @@ import Episodes from './pages/Episodes'
 import Skills from './pages/Skills'
 import Incidents from './pages/Incidents'
 import Search from './pages/Search'
+import Insights from './pages/Insights'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="episodes" element={<Episodes />} />
         <Route path="skills" element={<Skills />} />
         <Route path="incidents" element={<Incidents />} />
+        <Route path="insights" element={<Insights />} />
         <Route path="relationships" element={<Relationships />} />
         <Route path="settings" element={<Settings />} />
       </Route>
