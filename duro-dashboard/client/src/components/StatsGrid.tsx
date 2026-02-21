@@ -29,7 +29,7 @@ export default function StatsGrid() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div
             key={i}
@@ -58,7 +58,7 @@ export default function StatsGrid() {
   const recentChanges = data?.by_type?.recent_change || 0
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
       <StatCard
         icon={<Database className="w-4 h-4" />}
         label="Total Artifacts"

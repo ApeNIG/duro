@@ -1,10 +1,14 @@
-import { RefreshCw, Sun, Moon } from 'lucide-react'
+import { RefreshCw, Sun, Moon, Menu } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import Heartbeat from './Heartbeat'
 import NotificationCenter from './NotificationCenter'
 import { useTheme } from './ThemeProvider'
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const queryClient = useQueryClient()
   const { theme, toggleTheme } = useTheme()
 
@@ -13,16 +17,26 @@ export default function Header() {
   }
 
   return (
-    <header className="h-14 px-6 flex items-center justify-between border-b border-border bg-card">
-      <div className="flex items-center gap-4">
+    <header className="h-14 px-4 lg:px-6 flex items-center justify-between border-b border-border bg-card">
+      <div className="flex items-center gap-3">
+        {/* Hamburger menu - mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-1.5 rounded hover:bg-accent-dim text-text-secondary hover:text-accent transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         <h1 className="font-display font-semibold text-lg tracking-tight">
           <span className="text-accent">DURO</span>
-          <span className="text-text-secondary ml-2 text-sm font-normal">Dashboard</span>
+          <span className="text-text-secondary ml-2 text-sm font-normal hidden sm:inline">Dashboard</span>
         </h1>
       </div>
 
-      <div className="flex items-center gap-4">
-        <Heartbeat />
+      <div className="flex items-center gap-2 sm:gap-4">
+        <div className="hidden sm:block">
+          <Heartbeat />
+        </div>
 
         <NotificationCenter />
 

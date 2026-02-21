@@ -9,7 +9,7 @@ export default function Overview() {
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null)
 
   return (
-    <div className="h-full flex flex-col gap-6 min-h-0">
+    <div className="h-full flex flex-col gap-4 lg:gap-6 min-h-0">
       {/* Stats Row */}
       <StatsGrid />
 
@@ -17,7 +17,7 @@ export default function Overview() {
       <InsightsPanel onSelectArtifact={setSelectedArtifactId} />
 
       {/* Main Content */}
-      <div className="flex-1 grid grid-cols-2 gap-6 min-h-0">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 min-h-0">
         <ActivityFeed />
         <MemoryBrowser />
       </div>
