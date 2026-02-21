@@ -38,6 +38,17 @@ from embeddings import (
 )
 from mcp_logger import log_info, log_warn, log_error
 
+# Autonomy Layer imports
+AUTONOMY_LAYER_AVAILABLE = False
+AUTONOMY_LAYER_ERROR = None
+try:
+    from autonomy_state import AutonomyStateStore
+    from autonomy_scheduler import AutonomyScheduler, MaintenanceScheduler
+    from surfacing import ResultBuffer, QuietModeCalculator, FeedbackTracker
+    AUTONOMY_LAYER_AVAILABLE = True
+except ImportError as e:
+    AUTONOMY_LAYER_ERROR = str(e)
+
 # Agent lib imports (Cartridge Memory System)
 # Separate flags so one missing module doesn't break everything
 AGENT_LIB_PATH = str(Path.home() / ".agent" / "lib")
@@ -334,6 +345,202 @@ def _startup_ensure_consistency():
 
 # Deferred to main() to avoid MCP startup timeout
 # _startup_ensure_consistency()
+
+
+# ========================================
+# Autonomy Layer Initialization
+# ========================================
+
+# Global autonomy scheduler (initialized lazily in main())
+autonomy_scheduler: "AutonomyScheduler" = None
+
+
+def _get_pending_decisions_callable() -> list:
+    """
+    Callable for autonomy scheduler to get pending decisions.
+    Returns top 5 decisions awaiting review.
+    """
+    try:
+        decisions = artifact_store.list_unreviewed_decisions(
+            older_than_days=14,
+            exclude_tags=["smoke-test", "auto-outcome", "generated", "test"],
+            limit=5
+        )
+        # Transform for surfacing
+        result = []
+        for d in decisions:
+            result.append({
+                "id": d.get("id", ""),
+                "decision": d.get("decision", "")[:100],
+                "age_days": d.get("age_days", 0),
+                "status": d.get("status", "pending"),
+            })
+        return result
+    except Exception as e:
+        log_warn(f"Get pending decisions failed: {e}")
+        return []
+
+
+def _get_stale_facts_callable() -> list:
+    """
+    Callable for autonomy scheduler to get stale facts.
+    Returns cached results from last maintenance run.
+
+    Note: Full fact scanning is expensive (500+ get_artifact calls).
+    This returns cached results from the maintenance loop.
+    """
+    try:
+        if not AUTONOMY_LAYER_AVAILABLE or autonomy_scheduler is None:
+            return []
+        # Get cached stale facts from last maintenance run
+        cached = autonomy_scheduler.state.get("maintenance.stale_facts_cache", [])
+        return cached[:5]
+    except Exception:
+        return []
+
+
+def _run_health_check_callable() -> dict:
+    """Maintenance callable: run health check."""
+    try:
+        result = _startup_health_check()
+        notable = any(
+            c.get("status") in ("error", "warning")
+            for c in result.get("checks", {}).values()
+        )
+        return {
+            "checks": result.get("checks", {}),
+            "issues": result.get("issues", []),
+            "notable": notable,
+            "priority": 80 if notable else 30,
+        }
+    except Exception as e:
+        return {"error": str(e), "notable": True, "priority": 90}
+
+
+def _run_apply_decay_callable() -> dict:
+    """Maintenance callable: apply confidence decay to facts."""
+    try:
+        from decay import calculate_decay, apply_decay_to_store, generate_maintenance_report
+
+        # Get fact IDs from index, then load full artifacts
+        # (index.query returns index entries, but generate_maintenance_report needs full artifacts)
+        fact_entries = artifact_store.index.query(artifact_type="fact", limit=500)
+        facts = []
+        for entry in fact_entries:
+            artifact = artifact_store.get_artifact(entry.get("id"))
+            if artifact:
+                facts.append(artifact)
+
+        # Generate maintenance report with full artifacts
+        report = generate_maintenance_report(facts, top_n_stale=10)
+
+        # Cache stale facts for surfacing
+        stale_cache = []
+        for f in report.stale_high_importance[:5]:
+            artifact = artifact_store.get_artifact(f.get("id"))
+            if artifact:
+                data = artifact.get("data", {})
+                stale_cache.append({
+                    "id": f.get("id"),
+                    "claim": data.get("claim", "")[:100],
+                    "confidence": data.get("confidence", 0.5),
+                    "days_since_reinforced": f.get("days_since_reinforced", 0),
+                })
+
+        # Update cache
+        if AUTONOMY_LAYER_AVAILABLE and autonomy_scheduler:
+            autonomy_scheduler.state.set("maintenance.stale_facts_cache", stale_cache)
+
+        # Apply decay (dry_run=False)
+        decay_result = apply_decay_to_store(artifact_store, dry_run=False)
+
+        notable = len(stale_cache) >= 3
+        return {
+            "total_facts": report.total_facts,
+            "pinned_pct": report.pinned_pct,
+            "stale_pct": report.stale_pct,
+            "decayed_count": decay_result.get("decayed", 0),
+            "stale_high_importance_count": len(stale_cache),
+            "notable": notable,
+            "priority": 50 if notable else 30,
+        }
+    except Exception as e:
+        return {"error": str(e), "notable": True, "priority": 40}
+
+
+def _run_orphan_cleanup_callable() -> dict:
+    """Maintenance callable: prune orphan embeddings."""
+    try:
+        result = artifact_store.index.prune_orphan_embeddings(max_delete=100)
+        notable = result.get("count", 0) > 10
+        return {
+            "pruned_count": result.get("count", 0),
+            "remaining": result.get("remaining", 0),
+            "notable": notable,
+            "priority": 30,
+        }
+    except Exception as e:
+        return {"error": str(e), "notable": False}
+
+
+def _init_autonomy_scheduler():
+    """Initialize the autonomy scheduler with all dependencies."""
+    global autonomy_scheduler
+
+    if not AUTONOMY_LAYER_AVAILABLE:
+        log_warn(f"Autonomy layer not available: {AUTONOMY_LAYER_ERROR}")
+        return None
+
+    try:
+        # State store path
+        state_db_path = MEMORY_DIR / "autonomy_state.db"
+
+        # Initialize state store
+        state = AutonomyStateStore(str(state_db_path))
+        state.ensure_schema()
+
+        # Get reputation store
+        reputation_store = None
+        if AUTONOMY_AVAILABLE:
+            reputation_store = get_reputation_store()
+
+        # Create scheduler
+        autonomy_scheduler = AutonomyScheduler(
+            state=state,
+            artifact_store=artifact_store,
+            reputation_store=reputation_store,
+            index=artifact_store.index,
+            get_pending_decisions=_get_pending_decisions_callable,
+            get_stale_facts=_get_stale_facts_callable,
+        )
+
+        # Register maintenance tasks
+        from datetime import timedelta
+        autonomy_scheduler.maintenance.register_task(
+            "health_check",
+            _run_health_check_callable,
+            interval=timedelta(hours=6),
+            priority=80,
+        )
+        autonomy_scheduler.maintenance.register_task(
+            "decay",
+            _run_apply_decay_callable,
+            interval=timedelta(hours=24),
+            priority=50,
+        )
+        autonomy_scheduler.maintenance.register_task(
+            "orphan_cleanup",
+            _run_orphan_cleanup_callable,
+            interval=timedelta(days=3),
+            priority=30,
+        )
+
+        log_info("Autonomy scheduler initialized")
+        return autonomy_scheduler
+
+    except Exception as e:
+        log_warn(f"Failed to initialize autonomy scheduler: {e}")
+        return None
 
 
 def _embed_artifact_sync(artifact_id: str) -> bool:
@@ -1048,6 +1255,90 @@ async def list_tools() -> list[Tool]:
                     }
                 },
                 "required": ["url"]
+            }
+        ),
+
+        # Autonomy Layer Tools
+        Tool(
+            name="duro_autonomy_insights",
+            description="Get queued autonomous insights (pending decisions, stale facts, health alerts). Use this to explicitly pull insights that weren't surfaced in load_context.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "max_items": {
+                        "type": "integer",
+                        "description": "Maximum items to return (default 3)",
+                        "default": 3
+                    },
+                    "types": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Filter by event types (pending_decision, stale_fact, maintenance_health_check, etc.)"
+                    },
+                    "include_debug": {
+                        "type": "boolean",
+                        "description": "Include debug info (buffer state, quiet mode factors)",
+                        "default": False
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="duro_quiet_mode",
+            description="Control quiet mode for surfacing. When enabled, only critical insights are surfaced. Use to reduce interruptions during focused work.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["status", "enable", "disable"],
+                        "description": "Action to perform",
+                        "default": "status"
+                    },
+                    "duration_minutes": {
+                        "type": "integer",
+                        "description": "How long to enable quiet mode (default 60)",
+                        "default": 60
+                    }
+                }
+            }
+        ),
+        Tool(
+            name="duro_surfacing_feedback",
+            description="Provide feedback on a surfaced insight. Helps tune what gets surfaced in the future.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "surfacing_id": {
+                        "type": "string",
+                        "description": "The ID of the surfaced insight"
+                    },
+                    "feedback": {
+                        "type": "string",
+                        "enum": ["helpful", "neutral", "distracting", "wrong"],
+                        "description": "Feedback on the surfacing"
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Optional notes explaining the feedback"
+                    }
+                },
+                "required": ["surfacing_id", "feedback"]
+            }
+        ),
+        Tool(
+            name="duro_run_maintenance",
+            description="Manually trigger a maintenance task. Use this to force immediate execution of decay, health check, or orphan cleanup.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "enum": ["decay", "health_check", "orphan_cleanup"],
+                        "description": "The maintenance task to run"
+                    }
+                },
+                "required": ["task"]
             }
         ),
 
@@ -2952,6 +3243,53 @@ Contact the system administrator or check duro-mcp installation.""")]
                     metrics["chars"] += len(summary)
             # minimal: no summaries
 
+            # === AUTONOMY SURFACING ===
+            # Surface queued insights (2 sections max, 3 items each)
+            if AUTONOMY_LAYER_AVAILABLE and autonomy_scheduler:
+                try:
+                    # First, ensure session started (populates buffer with pending decisions/stale facts)
+                    # This is idempotent with TTL caching
+                    autonomy_scheduler.ensure_session_started_sync(context=mode)
+
+                    # Get surfacing events (sync, respects quiet mode)
+                    surfacing = autonomy_scheduler.get_surfacing_events(
+                        max_items=6,  # Max 6 total (3 per section)
+                        context=mode,
+                    )
+
+                    events = surfacing.get("events", [])
+                    if events and surfacing.get("surfaced"):
+                        # Split into categories (max 3 each)
+                        pending = [e for e in events if e.get("type") == "pending_decision"][:3]
+                        stale = [e for e in events if e.get("type") == "stale_fact"][:3]
+
+                        # Add pending decisions section
+                        if pending:
+                            lines = ["## Decisions Awaiting Review"]
+                            for e in pending:
+                                p = e.get("payload", {})
+                                age = p.get("age_days", "?")
+                                decision = p.get("decision", "Untitled")[:60]
+                                lines.append(f"- [{age}d] {decision}...")
+                            pending_section = "\n".join(lines)
+                            result.append(pending_section)
+                            metrics["chars"] += len(pending_section)
+
+                        # Add stale facts section
+                        if stale:
+                            lines = ["## Stale Facts (need reinforcement)"]
+                            for e in stale:
+                                p = e.get("payload", {})
+                                claim = p.get("claim", "Unknown")[:60]
+                                conf = p.get("confidence", 0.5)
+                                lines.append(f"- {claim} ({conf:.0%})")
+                            stale_section = "\n".join(lines)
+                            result.append(stale_section)
+                            metrics["chars"] += len(stale_section)
+                except Exception as e:
+                    # Non-fatal, log and continue
+                    log_warn(f"Surfacing error in load_context: {e}")
+
             # === FOOTER ===
             # Context footer with metrics
             footer_parts = [f"Context: {mode}"]
@@ -3587,6 +3925,141 @@ Contact the system administrator or check duro-mcp installation.""")]
 **Sandbox Mode:** {config.mode}
 """
             return [TextContent(type="text", text=result)]
+
+        # Autonomy Layer Tools
+        elif name == "duro_autonomy_insights":
+            if not AUTONOMY_LAYER_AVAILABLE or autonomy_scheduler is None:
+                return [TextContent(type="text", text=f"❌ Autonomy layer not available: {AUTONOMY_LAYER_ERROR}")]
+
+            max_items = arguments.get("max_items", 3)
+            types_filter = arguments.get("types")
+            include_debug = arguments.get("include_debug", False)
+
+            # Get insights
+            surfacing = autonomy_scheduler.get_surfacing_events(
+                max_items=max_items,
+                type_filter=types_filter,
+            )
+
+            events = surfacing.get("events", [])
+            lines = ["## Autonomous Insights\n"]
+
+            if not events:
+                lines.append("No queued insights available.")
+            else:
+                for e in events:
+                    ev_type = e.get("type", "unknown")
+                    payload = e.get("payload", {})
+                    priority = e.get("priority", 0)
+
+                    if ev_type == "pending_decision":
+                        decision = payload.get("decision", "Unknown")[:80]
+                        age = payload.get("age_days", "?")
+                        lines.append(f"**[{priority}] Pending Decision** ({age}d ago)")
+                        lines.append(f"> {decision}...")
+                        lines.append("")
+                    elif ev_type == "stale_fact":
+                        claim = payload.get("claim", "Unknown")[:80]
+                        conf = payload.get("confidence", 0.5)
+                        lines.append(f"**[{priority}] Stale Fact** (conf: {conf:.0%})")
+                        lines.append(f"> {claim}...")
+                        lines.append("")
+                    else:
+                        lines.append(f"**[{priority}] {ev_type}**")
+                        lines.append(f"> {json.dumps(payload)[:100]}...")
+                        lines.append("")
+
+            if include_debug:
+                status = autonomy_scheduler.get_status()
+                lines.append("\n---\n### Debug Info\n")
+                lines.append(f"**Buffer Size:** {status['buffer']['size']}")
+                lines.append(f"**Quiet Mode:** {status['quiet_mode']['decision']} (score: {status['quiet_mode']['quiet_score']:.2f})")
+                lines.append(f"**Session Cache Valid:** {status['session']['cache_valid']}")
+                lines.append(f"\n**Factors:**")
+                for k, v in status['quiet_mode'].get('factors', {}).items():
+                    lines.append(f"- {k}: {v:.2f}")
+
+            return [TextContent(type="text", text="\n".join(lines))]
+
+        elif name == "duro_quiet_mode":
+            if not AUTONOMY_LAYER_AVAILABLE or autonomy_scheduler is None:
+                return [TextContent(type="text", text=f"❌ Autonomy layer not available: {AUTONOMY_LAYER_ERROR}")]
+
+            action = arguments.get("action", "status")
+            duration = arguments.get("duration_minutes", 60)
+
+            if action == "enable":
+                autonomy_scheduler.quiet_mode.set_override(True, duration)
+                return [TextContent(type="text", text=f"✅ Quiet mode enabled for {duration} minutes. Only critical insights will be surfaced.")]
+
+            elif action == "disable":
+                autonomy_scheduler.quiet_mode.set_override(False)
+                return [TextContent(type="text", text="✅ Quiet mode disabled. Normal surfacing resumed.")]
+
+            else:  # status
+                rep_score = 0.5
+                if AUTONOMY_AVAILABLE:
+                    store = get_reputation_store()
+                    rep_score = store.global_score
+
+                status = autonomy_scheduler.quiet_mode.get_status(reputation=rep_score)
+                override = status.get("override")
+
+                lines = ["## Quiet Mode Status\n"]
+                lines.append(f"**Decision:** {status['decision']}")
+                lines.append(f"**Quiet Score:** {status['quiet_score']:.2f}")
+
+                if override and override.get("enabled"):
+                    until = override.get("until_unix", 0)
+                    from datetime import datetime
+                    until_dt = datetime.fromtimestamp(until)
+                    lines.append(f"**Override:** Active until {until_dt.strftime('%H:%M')}")
+
+                lines.append("\n**Factors:**")
+                for k, v in status.get("factors", {}).items():
+                    lines.append(f"- {k}: {v:.2f}")
+
+                lines.append("\n**Feedback Stats:**")
+                fb = status.get("feedback_stats", {})
+                lines.append(f"- Total: {fb.get('total', 0)}")
+                lines.append(f"- Negative Rate: {fb.get('negative_rate', 0):.1%}")
+                counts = fb.get("counts", {})
+                for label, count in counts.items():
+                    lines.append(f"- {label}: {count}")
+
+                return [TextContent(type="text", text="\n".join(lines))]
+
+        elif name == "duro_surfacing_feedback":
+            if not AUTONOMY_LAYER_AVAILABLE or autonomy_scheduler is None:
+                return [TextContent(type="text", text=f"❌ Autonomy layer not available: {AUTONOMY_LAYER_ERROR}")]
+
+            surfacing_id = arguments["surfacing_id"]
+            feedback = arguments["feedback"]
+            notes = arguments.get("notes", "")
+
+            autonomy_scheduler.feedback.record_explicit_feedback(surfacing_id, feedback, notes)
+
+            return [TextContent(type="text", text=f"✅ Feedback recorded: {feedback}" + (f" ({notes})" if notes else ""))]
+
+        elif name == "duro_run_maintenance":
+            if not AUTONOMY_LAYER_AVAILABLE or autonomy_scheduler is None:
+                return [TextContent(type="text", text=f"❌ Autonomy layer not available: {AUTONOMY_LAYER_ERROR}")]
+
+            task_name = arguments["task"]
+
+            # Use sync version - we're in a thread pool executor, callables are sync
+            result = autonomy_scheduler.maintenance.run_now_sync(task_name)
+
+            lines = [f"## Maintenance: {task_name}\n"]
+
+            if "error" in result:
+                lines.append(f"❌ **Error:** {result['error']}")
+            else:
+                for k, v in result.items():
+                    if k not in ("notable", "priority"):
+                        lines.append(f"- **{k}:** {v}")
+
+            return [TextContent(type="text", text="\n".join(lines))]
 
         # Audit tools (Layer 5)
         elif name == "duro_audit_query":
@@ -4986,6 +5459,12 @@ When ready, call `duro_store_incident` with all fields."""
                 since=arguments.get("since"),
                 limit=arguments.get("limit", 50)
             )
+
+            # Track retrieval for auto-reinforcement (top 3 facts)
+            # Pass full result objects so track_retrieval can filter by type without extra lookup
+            if results and AUTONOMY_LAYER_AVAILABLE and autonomy_scheduler:
+                autonomy_scheduler.track_retrieval(results, source="query_memory")
+
             if results:
                 text = f"## Query Results ({len(results)} found)\n\n"
                 for r in results:
@@ -5020,6 +5499,11 @@ When ready, call `duro_store_incident` with all fields."""
 
             results = search_result["results"]
             mode = search_result["mode"]
+
+            # Track retrieval for auto-reinforcement (top 3 facts)
+            # Pass full result objects so track_retrieval can filter by type without extra lookup
+            if results and AUTONOMY_LAYER_AVAILABLE and autonomy_scheduler:
+                autonomy_scheduler.track_retrieval(results, source="semantic_search")
 
             text = f"## Semantic Search Results\n\n"
             text += f"**Mode:** {mode} | **Query:** \"{query}\"\n"
@@ -6358,6 +6842,12 @@ async def _run_deferred_startup():
 
 async def main():
     """Run the Duro MCP server."""
+    # Initialize autonomy scheduler
+    scheduler = _init_autonomy_scheduler()
+    if scheduler:
+        # Start maintenance loop in background
+        asyncio.create_task(scheduler.maintenance.maintenance_loop())
+
     # Start deferred startup in background
     asyncio.create_task(_run_deferred_startup())
 

@@ -224,6 +224,32 @@ class ArtifactIndex:
             print(f"Index delete error: {e}")
             return False
 
+    def increment_reinforcement(self, artifact_id: str) -> bool:
+        """
+        Increment reinforcement count and update timestamp.
+
+        Called by autonomy scheduler when a fact is retrieved and used.
+        Updates both:
+        - reinforcement_count: +1
+        - last_reinforced_at: current timestamp
+
+        Returns:
+            True if artifact was found and updated, False otherwise.
+        """
+        try:
+            with self._connect() as conn:
+                cursor = conn.execute("""
+                    UPDATE artifacts
+                    SET reinforcement_count = COALESCE(reinforcement_count, 0) + 1,
+                        last_reinforced_at = ?
+                    WHERE id = ?
+                """, (utc_now_iso(), artifact_id))
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            print(f"Increment reinforcement error: {e}")
+            return False
+
     def add_relation(
         self,
         source_id: str,
