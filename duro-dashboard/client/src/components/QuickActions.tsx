@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, X, Lightbulb, FileText, Play, Check, Loader2 } from 'lucide-react'
+import { Plus, X, Lightbulb, FileText, Play, Check, Loader2, Scale } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from './Toast'
 
@@ -45,17 +45,17 @@ function ActionButton({ icon, label, onClick, color = 'bg-accent' }: ActionButto
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 ${color} text-white rounded-lg shadow-lg hover:opacity-90 transition-all`}
+      className={`flex items-center gap-3 px-5 py-3 ${color} text-white rounded-xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all border border-white/20`}
     >
       {icon}
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
     </button>
   )
 }
 
 export default function QuickActions() {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeModal, setActiveModal] = useState<'learning' | 'fact' | 'episode' | null>(null)
+  const [activeModal, setActiveModal] = useState<'learning' | 'fact' | 'episode' | 'decision' | null>(null)
   const queryClient = useQueryClient()
   const { addToast } = useToast()
 
@@ -66,9 +66,16 @@ export default function QuickActions() {
   // Fact form state
   const [factClaim, setFactClaim] = useState('')
   const [factConfidence, setFactConfidence] = useState(0.7)
+  const [factTags, setFactTags] = useState('')
 
   // Episode form state
   const [episodeGoal, setEpisodeGoal] = useState('')
+
+  // Decision form state
+  const [decisionText, setDecisionText] = useState('')
+  const [decisionRationale, setDecisionRationale] = useState('')
+  const [decisionAlternatives, setDecisionAlternatives] = useState('')
+  const [decisionTags, setDecisionTags] = useState('')
 
   const saveLearning = useMutation({
     mutationFn: async () => {
@@ -93,10 +100,11 @@ export default function QuickActions() {
 
   const storeFact = useMutation({
     mutationFn: async () => {
+      const tags = factTags.trim() ? factTags.split(',').map(t => t.trim()).filter(Boolean) : undefined
       const res = await fetch('/api/actions/fact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ claim: factClaim, confidence: factConfidence }),
+        body: JSON.stringify({ claim: factClaim, confidence: factConfidence, tags }),
       })
       if (!res.ok) throw new Error('Failed to store fact')
       return res.json()
@@ -104,11 +112,44 @@ export default function QuickActions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['artifacts'] })
       setFactClaim('')
+      setFactTags('')
       setActiveModal(null)
       addToast({ type: 'success', title: 'Fact stored', message: `Confidence: ${Math.round(factConfidence * 100)}%` })
     },
     onError: () => {
       addToast({ type: 'error', title: 'Failed to store fact' })
+    },
+  })
+
+  const storeDecision = useMutation({
+    mutationFn: async () => {
+      const tags = decisionTags.trim() ? decisionTags.split(',').map(t => t.trim()).filter(Boolean) : undefined
+      const alternatives = decisionAlternatives.trim() ? decisionAlternatives.split('\n').map(a => a.trim()).filter(Boolean) : undefined
+      const res = await fetch('/api/actions/decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          decision: decisionText,
+          rationale: decisionRationale,
+          alternatives,
+          tags,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to store decision')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['artifacts'] })
+      queryClient.invalidateQueries({ queryKey: ['decisions'] })
+      setDecisionText('')
+      setDecisionRationale('')
+      setDecisionAlternatives('')
+      setDecisionTags('')
+      setActiveModal(null)
+      addToast({ type: 'success', title: 'Decision stored', message: 'Added to review queue' })
+    },
+    onError: () => {
+      addToast({ type: 'error', title: 'Failed to store decision' })
     },
   })
 
@@ -140,8 +181,8 @@ export default function QuickActions() {
   return (
     <>
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <div className={`flex flex-col-reverse gap-2 transition-all ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className="fixed bottom-8 right-8 z-40">
+        <div className={`flex flex-col-reverse gap-3 mb-4 transition-all duration-200 ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
           <ActionButton
             icon={<Lightbulb className="w-4 h-4" />}
             label="Log Learning"
@@ -152,21 +193,27 @@ export default function QuickActions() {
             icon={<FileText className="w-4 h-4" />}
             label="Store Fact"
             onClick={() => { setActiveModal('fact'); setIsOpen(false) }}
-            color="bg-accent"
+            color="bg-blue-500"
+          />
+          <ActionButton
+            icon={<Scale className="w-4 h-4" />}
+            label="Store Decision"
+            onClick={() => { setActiveModal('decision'); setIsOpen(false) }}
+            color="bg-purple-500"
           />
           <ActionButton
             icon={<Play className="w-4 h-4" />}
             label="Start Episode"
             onClick={() => { setActiveModal('episode'); setIsOpen(false) }}
-            color="bg-success"
+            color="bg-green-500"
           />
         </div>
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`mt-2 w-14 h-14 rounded-full bg-accent text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105 ${isOpen ? 'rotate-45' : ''}`}
+          className={`w-16 h-16 rounded-full bg-gradient-to-br from-accent to-purple-600 text-white shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 hover:shadow-accent/50 border-2 border-white/20 ${isOpen ? 'rotate-45 bg-red-500' : ''}`}
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-7 h-7" />
         </button>
       </div>
 
@@ -222,7 +269,7 @@ export default function QuickActions() {
       {activeModal === 'fact' && (
         <QuickActionModal
           title="Store Fact"
-          icon={<FileText className="w-5 h-5 text-accent" />}
+          icon={<FileText className="w-5 h-5 text-blue-400" />}
           onClose={closeModal}
         >
           <div className="space-y-4">
@@ -250,10 +297,20 @@ export default function QuickActions() {
                 className="w-full accent-accent"
               />
             </div>
+            <div>
+              <label className="block text-sm text-text-secondary mb-1">Tags (comma-separated)</label>
+              <input
+                type="text"
+                value={factTags}
+                onChange={(e) => setFactTags(e.target.value)}
+                placeholder="api, architecture, user-pref"
+                className="w-full px-3 py-2 bg-page border border-border rounded text-sm focus:outline-none focus:border-accent"
+              />
+            </div>
             <button
               onClick={() => storeFact.mutate()}
               disabled={!factClaim.trim() || storeFact.isPending}
-              className="w-full py-2 bg-accent text-white rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2 bg-blue-500 text-white rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {storeFact.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -261,6 +318,70 @@ export default function QuickActions() {
                 <Check className="w-4 h-4" />
               )}
               Store Fact
+            </button>
+          </div>
+        </QuickActionModal>
+      )}
+
+      {/* Decision Modal */}
+      {activeModal === 'decision' && (
+        <QuickActionModal
+          title="Store Decision"
+          icon={<Scale className="w-5 h-5 text-purple-400" />}
+          onClose={closeModal}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm text-text-secondary mb-1">Decision</label>
+              <textarea
+                value={decisionText}
+                onChange={(e) => setDecisionText(e.target.value)}
+                placeholder="What decision was made?"
+                rows={2}
+                className="w-full px-3 py-2 bg-page border border-border rounded text-sm focus:outline-none focus:border-accent resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-text-secondary mb-1">Rationale</label>
+              <textarea
+                value={decisionRationale}
+                onChange={(e) => setDecisionRationale(e.target.value)}
+                placeholder="Why was this decision made?"
+                rows={2}
+                className="w-full px-3 py-2 bg-page border border-border rounded text-sm focus:outline-none focus:border-accent resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-text-secondary mb-1">Alternatives (one per line)</label>
+              <textarea
+                value={decisionAlternatives}
+                onChange={(e) => setDecisionAlternatives(e.target.value)}
+                placeholder="Other options considered..."
+                rows={2}
+                className="w-full px-3 py-2 bg-page border border-border rounded text-sm focus:outline-none focus:border-accent resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-text-secondary mb-1">Tags (comma-separated)</label>
+              <input
+                type="text"
+                value={decisionTags}
+                onChange={(e) => setDecisionTags(e.target.value)}
+                placeholder="architecture, api, design"
+                className="w-full px-3 py-2 bg-page border border-border rounded text-sm focus:outline-none focus:border-accent"
+              />
+            </div>
+            <button
+              onClick={() => storeDecision.mutate()}
+              disabled={!decisionText.trim() || !decisionRationale.trim() || storeDecision.isPending}
+              className="w-full py-2 bg-purple-500 text-white rounded font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {storeDecision.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+              Store Decision
             </button>
           </div>
         </QuickActionModal>

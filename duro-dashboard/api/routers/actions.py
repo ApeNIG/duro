@@ -1,9 +1,9 @@
 """Quick action endpoints for creating artifacts from the dashboard."""
 
-import sys
 import sqlite3
 import json
 import uuid
+import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional
@@ -11,14 +11,15 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-# Add duro-mcp to path for importing
-DURO_MCP_PATH = Path.home() / "duro-mcp"
-if DURO_MCP_PATH.exists():
-    sys.path.insert(0, str(DURO_MCP_PATH))
-
 router = APIRouter()
 
 DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
+ARTIFACTS_DIR = Path.home() / ".agent" / "memory" / "artifacts"
+
+
+def compute_hash(content: str) -> str:
+    """Compute SHA-256 hash of content."""
+    return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
 class LearningRequest(BaseModel):
@@ -29,6 +30,16 @@ class LearningRequest(BaseModel):
 class FactRequest(BaseModel):
     claim: str
     confidence: float = 0.5
+    source_urls: Optional[list[str]] = None
+    tags: Optional[list[str]] = None
+
+
+class DecisionRequest(BaseModel):
+    decision: str
+    rationale: str
+    alternatives: Optional[list[str]] = None
+    context: Optional[str] = None
+    tags: Optional[list[str]] = None
 
 
 class EpisodeRequest(BaseModel):
@@ -43,13 +54,29 @@ class ActionResponse(BaseModel):
 
 
 def insert_artifact(artifact: dict) -> str:
-    """Insert an artifact into the database."""
-    conn = sqlite3.connect(str(DURO_DB_PATH))
+    """Insert an artifact into the database and save to file."""
+    # Ensure artifacts directory exists
+    type_dir = ARTIFACTS_DIR / artifact["type"]
+    type_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save artifact to JSON file
+    file_path = type_dir / f"{artifact['id']}.json"
+    content_str = json.dumps(artifact, sort_keys=True, default=str)
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content_str)
+
+    # Compute content hash
+    content_hash = compute_hash(content_str)
+
+    # Insert into database with WAL mode and timeout for concurrent access
+    conn = sqlite3.connect(str(DURO_DB_PATH), timeout=10.0)
+    conn.execute("PRAGMA busy_timeout = 10000")
+    conn.execute("PRAGMA journal_mode = WAL")
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO artifacts (id, type, created_at, title, sensitivity, tags, data)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO artifacts (id, type, created_at, title, sensitivity, tags, file_path, source_workflow, hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         artifact["id"],
         artifact["type"],
@@ -57,7 +84,9 @@ def insert_artifact(artifact: dict) -> str:
         artifact["title"],
         artifact.get("sensitivity", "internal"),
         json.dumps(artifact.get("tags", [])),
-        json.dumps(artifact)
+        str(file_path),
+        artifact.get("source_workflow", "dashboard"),
+        content_hash
     ))
 
     conn.commit()
@@ -69,43 +98,28 @@ def insert_artifact(artifact: dict) -> str:
 async def save_learning(request: LearningRequest):
     """Save a learning/insight to memory."""
     try:
-        # Try to use Duro MCP tools directly
-        try:
-            from src.tools.memory_tools import save_learning
-            result = await save_learning(
-                learning=request.learning,
-                category=request.category
-            )
-            return ActionResponse(
-                success=True,
-                artifact_id=result.get("id", "unknown"),
-                message="Learning saved via Duro MCP"
-            )
-        except ImportError:
-            # Fallback: Insert directly into database
-            artifact_id = f"learning_{uuid.uuid4().hex[:12]}"
-            now = datetime.now(timezone.utc).isoformat()
+        artifact_id = f"learning_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        now = datetime.now(timezone.utc).isoformat()
 
-            artifact = {
-                "id": artifact_id,
-                "type": "log",
-                "created_at": now,
-                "title": f"Learning: {request.learning[:50]}...",
-                "sensitivity": "internal",
-                "workflow": "dashboard",
-                "tags": ["learning", request.category.lower().replace(" ", "-")],
-                "content": request.learning,
-                "category": request.category,
-                "source": "dashboard-quick-action",
-            }
+        artifact = {
+            "id": artifact_id,
+            "type": "log",
+            "created_at": now,
+            "title": f"Learning: {request.learning[:50]}",
+            "sensitivity": "internal",
+            "source_workflow": "dashboard",
+            "tags": ["learning", "dashboard", request.category.lower().replace(" ", "-")],
+            "content": request.learning,
+            "category": request.category,
+        }
 
-            insert_artifact(artifact)
+        insert_artifact(artifact)
 
-            return ActionResponse(
-                success=True,
-                artifact_id=artifact_id,
-                message="Learning saved"
-            )
+        return ActionResponse(
+            success=True,
+            artifact_id=artifact_id,
+            message="Learning saved"
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -115,45 +129,35 @@ async def save_learning(request: LearningRequest):
 async def store_fact(request: FactRequest):
     """Store a fact with confidence level."""
     try:
-        # Try to use Duro MCP tools directly
-        try:
-            from src.tools.fact_tools import store_fact
-            result = await store_fact(
-                claim=request.claim,
-                confidence=request.confidence
-            )
-            return ActionResponse(
-                success=True,
-                artifact_id=result.get("id", "unknown"),
-                message="Fact stored via Duro MCP"
-            )
-        except ImportError:
-            # Fallback: Insert directly into database
-            artifact_id = f"fact_{uuid.uuid4().hex[:12]}"
-            now = datetime.now(timezone.utc).isoformat()
+        artifact_id = f"fact_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        now = datetime.now(timezone.utc).isoformat()
 
-            artifact = {
-                "id": artifact_id,
-                "type": "fact",
-                "created_at": now,
-                "title": request.claim[:100],
-                "sensitivity": "internal",
-                "workflow": "dashboard",
-                "tags": ["dashboard-fact"],
-                "claim": request.claim,
-                "confidence": request.confidence,
-                "provenance": "user",
-                "evidence_type": "none",
-                "source": "dashboard-quick-action",
-            }
+        tags = request.tags or []
+        if "dashboard" not in tags:
+            tags.append("dashboard")
 
-            insert_artifact(artifact)
+        artifact = {
+            "id": artifact_id,
+            "type": "fact",
+            "created_at": now,
+            "title": request.claim[:100],
+            "sensitivity": "internal",
+            "source_workflow": "dashboard",
+            "tags": tags,
+            "claim": request.claim,
+            "confidence": request.confidence,
+            "provenance": "user",
+            "evidence_type": "quote" if request.source_urls else "none",
+            "source_urls": request.source_urls or [],
+        }
 
-            return ActionResponse(
-                success=True,
-                artifact_id=artifact_id,
-                message="Fact stored"
-            )
+        insert_artifact(artifact)
+
+        return ActionResponse(
+            success=True,
+            artifact_id=artifact_id,
+            message="Fact stored"
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -163,46 +167,71 @@ async def store_fact(request: FactRequest):
 async def start_episode(request: EpisodeRequest):
     """Start a new episode for goal tracking."""
     try:
-        # Try to use Duro MCP tools directly
-        try:
-            from src.tools.episode_tools import create_episode
-            result = await create_episode(
-                goal=request.goal,
-                plan=request.plan
-            )
-            return ActionResponse(
-                success=True,
-                artifact_id=result.get("id", "unknown"),
-                message="Episode started via Duro MCP"
-            )
-        except ImportError:
-            # Fallback: Insert directly into database
-            artifact_id = f"episode_{uuid.uuid4().hex[:12]}"
-            now = datetime.now(timezone.utc).isoformat()
+        artifact_id = f"episode_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        now = datetime.now(timezone.utc).isoformat()
 
-            artifact = {
-                "id": artifact_id,
-                "type": "episode",
-                "created_at": now,
-                "title": f"Episode: {request.goal[:50]}",
-                "sensitivity": "internal",
-                "workflow": "dashboard",
-                "tags": ["active-episode"],
-                "goal": request.goal,
-                "plan": request.plan or [],
-                "status": "open",
-                "started_at": now,
-                "actions": [],
-                "source": "dashboard-quick-action",
-            }
+        artifact = {
+            "id": artifact_id,
+            "type": "episode",
+            "created_at": now,
+            "title": f"Episode: {request.goal[:50]}",
+            "sensitivity": "internal",
+            "source_workflow": "dashboard",
+            "tags": ["dashboard"],
+            "goal": request.goal,
+            "plan": request.plan or [],
+            "status": "open",
+            "started_at": now,
+            "actions": [],
+        }
 
-            insert_artifact(artifact)
+        insert_artifact(artifact)
 
-            return ActionResponse(
-                success=True,
-                artifact_id=artifact_id,
-                message="Episode started"
-            )
+        return ActionResponse(
+            success=True,
+            artifact_id=artifact_id,
+            message="Episode started"
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/decision", response_model=ActionResponse)
+async def store_decision(request: DecisionRequest):
+    """Store a decision with rationale."""
+    try:
+        artifact_id = f"decision_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        now = datetime.now(timezone.utc).isoformat()
+
+        tags = request.tags or []
+        if "dashboard" not in tags:
+            tags.append("dashboard")
+
+        artifact = {
+            "id": artifact_id,
+            "type": "decision",
+            "created_at": now,
+            "title": request.decision[:100],
+            "sensitivity": "internal",
+            "source_workflow": "dashboard",
+            "tags": tags,
+            "decision": request.decision,
+            "rationale": request.rationale,
+            "alternatives": request.alternatives or [],
+            "context": request.context or "",
+            "outcome_status": "pending",
+            "confidence": 0.5,
+            "reversible": True,
+        }
+
+        insert_artifact(artifact)
+
+        return ActionResponse(
+            success=True,
+            artifact_id=artifact_id,
+            message="Decision stored"
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

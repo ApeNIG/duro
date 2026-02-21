@@ -1,17 +1,9 @@
 """Duro Dashboard API - FastAPI backend for real-time memory monitoring."""
 
-import os
-import sys
-from pathlib import Path
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# Add duro-mcp to path for importing
-DURO_MCP_PATH = Path.home() / "duro-mcp"
-if DURO_MCP_PATH.exists():
-    sys.path.insert(0, str(DURO_MCP_PATH))
 
 from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents
 

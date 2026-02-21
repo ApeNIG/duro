@@ -159,9 +159,6 @@ export default function Settings() {
             <div className="p-3 bg-page rounded font-mono text-xs text-text-secondary">
               ~/.agent/
             </div>
-            <div className="p-3 bg-page rounded font-mono text-xs text-text-secondary">
-              ~/duro-mcp/
-            </div>
             <p className="text-xs text-text-secondary mt-2">
               Workspace paths are configured in Duro MCP settings
             </p>
