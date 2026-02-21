@@ -227,13 +227,22 @@ Duro exposes 50+ MCP tools. Key ones:
 
 ## Roadmap
 
+### Current (Phase 1: Claude Code)
 - [x] Core memory system (facts, decisions, episodes)
 - [x] Decision validation loops
 - [x] Semantic search with embeddings
 - [x] MCP server integration
 - [ ] Memory inspector UI
 - [ ] Provenance visualization
+
+### Planned (Phase 2: Universal Access)
+- [ ] REST API (use with any LLM)
+- [ ] OpenAI function calling adapter
+- [ ] LangChain/LlamaIndex integration
+
+### Future (Phase 3: Teams)
 - [ ] Team namespaces
+- [ ] Shared memory pools
 - [ ] GitHub integration
 
 ---
