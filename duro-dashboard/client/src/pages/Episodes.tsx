@@ -523,7 +523,7 @@ export default function Episodes() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-text-secondary uppercase">Total</div>
           <div className="text-2xl font-mono text-text-primary">{stats?.total || episodes.length}</div>

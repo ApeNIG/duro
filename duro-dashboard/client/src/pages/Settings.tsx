@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Settings as SettingsIcon, Database, FolderOpen, Shield, Palette } from 'lucide-react'
 import { useHealth } from '@/hooks/useStats'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface SettingCardProps {
   icon: React.ReactNode
@@ -28,8 +29,8 @@ function SettingCard({ icon, title, description, children }: SettingCardProps) {
 
 export default function Settings() {
   const { data: health } = useHealth()
+  const { theme, setTheme } = useTheme()
   const [hideLogs, setHideLogs] = useState(true)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [pollInterval, setPollInterval] = useState(5)
 
   return (
@@ -98,7 +99,6 @@ export default function Settings() {
             <div className="p-3 bg-page rounded">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm text-text-primary">Theme</div>
-                <span className="text-xs text-text-secondary">(coming soon)</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -106,15 +106,18 @@ export default function Settings() {
                   className={`flex-1 py-2 px-3 rounded text-sm transition-colors ${
                     theme === 'dark'
                       ? 'bg-accent text-page'
-                      : 'bg-card border border-border text-text-secondary'
+                      : 'bg-card border border-border text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   Dark
                 </button>
                 <button
                   onClick={() => setTheme('light')}
-                  disabled
-                  className="flex-1 py-2 px-3 rounded text-sm bg-card border border-border text-text-secondary/50 cursor-not-allowed"
+                  className={`flex-1 py-2 px-3 rounded text-sm transition-colors ${
+                    theme === 'light'
+                      ? 'bg-accent text-page'
+                      : 'bg-card border border-border text-text-secondary hover:text-text-primary'
+                  }`}
                 >
                   Light
                 </button>
