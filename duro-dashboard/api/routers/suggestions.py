@@ -7,12 +7,117 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 from fastapi import APIRouter, Query
+import hashlib
+import uuid
+import sqlite3
 
 from .stats import get_db_connection
 
+MEMORY_DIR = Path.home() / ".agent" / "memory"
+DURO_DB_PATH = MEMORY_DIR / "index.db"
+LOGS_DIR = MEMORY_DIR / "logs"
+
+
+def log_link_action(source_id: str, target_id: str, link_type: str, action: str) -> str:
+    """Log a link action (apply/dismiss) to the activity feed."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now()
+    artifact_id = f"log_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+
+    artifact = {
+        "id": artifact_id,
+        "type": "log",
+        "created_at": now.isoformat() + "Z",
+        "title": f"Link {action}: {link_type} ({source_id[:20]}... → {target_id[:20]}...)",
+        "sensitivity": "internal",
+        "source_workflow": "dashboard",
+        "tags": ["link", action, "dashboard", "suggestions"],
+        "data": {
+            "action": action,
+            "link_type": link_type,
+            "source_id": source_id,
+            "target_id": target_id,
+        }
+    }
+
+    # Save to file
+    file_path = LOGS_DIR / f"{artifact_id}.json"
+    content_str = json.dumps(artifact, sort_keys=True, default=str)
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content_str)
+
+    # Insert into database
+    content_hash = hashlib.sha256(content_str.encode()).hexdigest()[:16]
+    conn = sqlite3.connect(str(DURO_DB_PATH), timeout=10.0)
+    conn.execute("PRAGMA busy_timeout = 10000")
+    conn.execute("PRAGMA journal_mode = WAL")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO artifacts (id, type, created_at, title, sensitivity, tags, file_path, source_workflow, hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        artifact["id"],
+        artifact["type"],
+        artifact["created_at"],
+        artifact["title"],
+        artifact["sensitivity"],
+        json.dumps(artifact["tags"]),
+        str(file_path),
+        artifact["source_workflow"],
+        content_hash
+    ))
+
+    conn.commit()
+    conn.close()
+    return artifact_id
+
 router = APIRouter()
 
-MEMORY_DIR = Path.home() / ".agent" / "memory"
+DISMISSALS_FILE = MEMORY_DIR / "suggestion_dismissals.json"
+
+
+def load_dismissals() -> set[tuple[str, str]]:
+    """Load dismissed suggestion pairs."""
+    if not DISMISSALS_FILE.exists():
+        return set()
+    try:
+        with open(DISMISSALS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return {(d["source_id"], d["target_id"]) for d in data.get("dismissals", [])}
+    except (json.JSONDecodeError, OSError):
+        return set()
+
+
+def save_dismissal(source_id: str, target_id: str) -> bool:
+    """Save a dismissed suggestion pair."""
+    dismissals = []
+    if DISMISSALS_FILE.exists():
+        try:
+            with open(DISMISSALS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                dismissals = data.get("dismissals", [])
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    # Check if already dismissed
+    for d in dismissals:
+        if d["source_id"] == source_id and d["target_id"] == target_id:
+            return True  # Already exists
+
+    dismissals.append({
+        "source_id": source_id,
+        "target_id": target_id,
+        "dismissed_at": datetime.now().isoformat() + "Z"
+    })
+
+    try:
+        with open(DISMISSALS_FILE, "w", encoding="utf-8") as f:
+            json.dump({"dismissals": dismissals}, f, indent=2)
+        return True
+    except OSError:
+        return False
 
 
 def load_artifact_file(file_path: str) -> dict | None:
@@ -169,12 +274,17 @@ async def get_link_suggestions(
             }
 
     suggestions = []
+    dismissed = load_dismissals()
 
     # Find decision-episode suggestions
     for dec_id, dec in decision_data.items():
         for ep_id, ep in episode_data.items():
             # Skip if already linked
             if ep_id in dec["linked_episodes"] or dec_id in ep["decisions_used"]:
+                continue
+
+            # Skip if dismissed
+            if (dec_id, ep_id) in dismissed:
                 continue
 
             # Calculate similarity
@@ -223,6 +333,10 @@ async def get_link_suggestions(
     # Find fact-decision suggestions
     for fact_id, fact in fact_data.items():
         for dec_id, dec in decision_data.items():
+            # Skip if dismissed
+            if (fact_id, dec_id) in dismissed:
+                continue
+
             # Calculate similarity
             score = calculate_similarity(fact["tags"], dec["tags"], fact["keywords"], dec["keywords"])
 
@@ -329,19 +443,49 @@ async def apply_suggestion(request: ApplyLinkRequest) -> dict[str, Any]:
             data["links"] = links
             updated = True
 
+    elif source["type"] == "fact" and link_type == "supports":
+        # Add to supporting_decisions
+        supporting = data.get("supporting_decisions", [])
+        if target_id not in supporting:
+            supporting.append(target_id)
+            data["supporting_decisions"] = supporting
+            updated = True
+
+    elif source["type"] == "decision" and link_type == "supported_by":
+        # Add to supporting_facts
+        supporting = data.get("supporting_facts", [])
+        if target_id not in supporting:
+            supporting.append(target_id)
+            data["supporting_facts"] = supporting
+            updated = True
+
+    # Handle generic link types by storing in a general links array
     if not updated:
-        return {"success": False, "error": "Link type not applicable or already exists"}
+        general_links = data.get("related_artifacts", [])
+        link_entry = {"id": target_id, "type": link_type}
+        if link_entry not in general_links:
+            general_links.append(link_entry)
+            data["related_artifacts"] = general_links
+            updated = True
+
+    if not updated:
+        return {"success": False, "error": "Link already exists"}
 
     # Save the artifact
     content["data"] = data
     try:
         with open(source["file_path"], "w", encoding="utf-8") as f:
             json.dump(content, f, indent=2)
+
+        # Log the action to activity feed
+        log_id = log_link_action(source_id, target_id, link_type, "applied")
+
         return {
             "success": True,
             "source_id": source_id,
             "target_id": target_id,
             "link_type": link_type,
+            "log_id": log_id,
         }
     except OSError as e:
         return {"success": False, "error": str(e)}
@@ -360,13 +504,19 @@ async def dismiss_suggestion(request: DismissRequest) -> dict[str, Any]:
     """
     source_id = request.source_id
     target_id = request.target_id
-    # For now, just return success - we could store dismissals in SQLite
-    # in a future iteration
+
+    success = save_dismissal(source_id, target_id)
+
+    # Log the dismissal to activity feed
+    log_id = None
+    if success:
+        log_id = log_link_action(source_id, target_id, "suggestion", "dismissed")
+
     return {
-        "success": True,
+        "success": success,
         "dismissed": {
             "source_id": source_id,
             "target_id": target_id,
         },
-        "note": "Dismissals are not persisted in this version"
+        "log_id": log_id,
     }

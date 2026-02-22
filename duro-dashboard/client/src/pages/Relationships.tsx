@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Loader2, ZoomIn, ZoomOut, RotateCcw, Search, ExternalLink, Play, Pause } from 'lucide-react'
 import ArtifactModal from '@/components/ArtifactModal'
@@ -70,107 +70,159 @@ function useForceSimulation(
   isRunning: boolean
 ) {
   const [nodes, setNodes] = useState<Node[]>([])
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | null>(null)
   const nodesRef = useRef<Node[]>([])
-  const isActiveRef = useRef(false) // Track if simulation should be running
+  const isActiveRef = useRef(false)
+  const frameCountRef = useRef(0)
 
-  // Initialize nodes with random positions
+  // Initialize nodes with random positions in a circular distribution
   useEffect(() => {
-    const initialized: Node[] = rawNodes.map((n) => ({
-      ...n,
-      x: width / 2 + (Math.random() - 0.5) * 300,
-      y: height / 2 + (Math.random() - 0.5) * 300,
-      vx: 0,
-      vy: 0,
-    }))
+    const initialized: Node[] = rawNodes.map((n, i) => {
+      // Distribute in a spiral/circular pattern
+      const angle = (i / rawNodes.length) * Math.PI * 2 + Math.random() * 0.5
+      const radius = 100 + Math.random() * 150
+      return {
+        ...n,
+        x: width / 2 + Math.cos(angle) * radius,
+        y: height / 2 + Math.sin(angle) * radius,
+        vx: 0,
+        vy: 0,
+      }
+    })
     nodesRef.current = initialized
     setNodes(initialized)
   }, [rawNodes, width, height])
 
+  // CRITICAL: Use useLayoutEffect for synchronous cleanup before DOM updates
+  useLayoutEffect(() => {
+    return () => {
+      // This runs synchronously before React unmounts - stops animation immediately
+      isActiveRef.current = false
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current)
+        animationRef.current = null
+      }
+    }
+  }, [])
+
   // Run simulation
   useEffect(() => {
+    // Cancel any existing animation frame first
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = null
+    }
+
     if (!isRunning || nodes.length === 0) {
       isActiveRef.current = false
-      if (animationRef.current) cancelAnimationFrame(animationRef.current)
       return
     }
 
     isActiveRef.current = true
+    frameCountRef.current = 0
     const nodeMap = new Map(nodesRef.current.map(n => [n.id, n]))
     const centerX = width / 2
     const centerY = height / 2
 
     const simulate = () => {
-      // Check if we should stop before doing ANY work
-      if (!isActiveRef.current) return
-
-      const currentNodes = nodesRef.current
-
-      // Apply forces
-      for (const node of currentNodes) {
-        // Reset forces
-        let fx = 0
-        let fy = 0
-
-        // Repulsion from other nodes
-        for (const other of currentNodes) {
-          if (other.id === node.id) continue
-
-          const dx = node.x - other.x
-          const dy = node.y - other.y
-          const dist = Math.max(Math.sqrt(dx * dx + dy * dy), MIN_DISTANCE)
-          const force = REPULSION_STRENGTH / (dist * dist)
-
-          fx += (dx / dist) * force
-          fy += (dy / dist) * force
-        }
-
-        // Attraction along edges
-        for (const edge of edges) {
-          let other: Node | undefined
-          if (edge.source === node.id) {
-            other = nodeMap.get(edge.target)
-          } else if (edge.target === node.id) {
-            other = nodeMap.get(edge.source)
-          }
-
-          if (other) {
-            const dx = other.x - node.x
-            const dy = other.y - node.y
-            fx += dx * ATTRACTION_STRENGTH
-            fy += dy * ATTRACTION_STRENGTH
-          }
-        }
-
-        // Center gravity
-        fx += (centerX - node.x) * CENTER_STRENGTH
-        fy += (centerY - node.y) * CENTER_STRENGTH
-
-        // Update velocity with damping
-        node.vx = (node.vx + fx) * DAMPING
-        node.vy = (node.vy + fy) * DAMPING
-
-        // Update position
-        node.x += node.vx
-        node.y += node.vy
-
-        // Bounds
-        node.x = Math.max(50, Math.min(width - 50, node.x))
-        node.y = Math.max(50, Math.min(height - 50, node.y))
+      // CRITICAL: Check active state before ANY work
+      if (!isActiveRef.current) {
+        animationRef.current = null
+        return
       }
 
-      // CRITICAL: Check again before state update to prevent updates on unmounted component
-      if (!isActiveRef.current) return
+      frameCountRef.current++
 
-      setNodes([...currentNodes])
-      animationRef.current = requestAnimationFrame(simulate)
+      // Throttle: only do physics every 2nd frame to reduce CPU load
+      const doPhysics = frameCountRef.current % 2 === 0
+
+      if (doPhysics) {
+        const currentNodes = nodesRef.current
+
+        // Apply forces
+        for (const node of currentNodes) {
+          let fx = 0
+          let fy = 0
+
+          // Repulsion from other nodes
+          for (const other of currentNodes) {
+            if (other.id === node.id) continue
+
+            const dx = node.x - other.x
+            const dy = node.y - other.y
+            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), MIN_DISTANCE)
+            const force = REPULSION_STRENGTH / (dist * dist)
+
+            fx += (dx / dist) * force
+            fy += (dy / dist) * force
+          }
+
+          // Attraction along edges
+          for (const edge of edges) {
+            let other: Node | undefined
+            if (edge.source === node.id) {
+              other = nodeMap.get(edge.target)
+            } else if (edge.target === node.id) {
+              other = nodeMap.get(edge.source)
+            }
+
+            if (other) {
+              const dx = other.x - node.x
+              const dy = other.y - node.y
+              fx += dx * ATTRACTION_STRENGTH
+              fy += dy * ATTRACTION_STRENGTH
+            }
+          }
+
+          // Center gravity
+          fx += (centerX - node.x) * CENTER_STRENGTH
+          fy += (centerY - node.y) * CENTER_STRENGTH
+
+          // Update velocity with damping
+          node.vx = (node.vx + fx) * DAMPING
+          node.vy = (node.vy + fy) * DAMPING
+
+          // Update position
+          node.x += node.vx
+          node.y += node.vy
+
+          // Circular bounds - keep nodes within a circular area
+          const nodeDx = node.x - centerX
+          const nodeDy = node.y - centerY
+          const nodeDist = Math.sqrt(nodeDx * nodeDx + nodeDy * nodeDy)
+          const maxRadius = Math.min(width, height) / 2 - 60
+          if (nodeDist > maxRadius) {
+            const scale = maxRadius / nodeDist
+            node.x = centerX + nodeDx * scale
+            node.y = centerY + nodeDy * scale
+          }
+        }
+
+        // Check again before state update
+        if (!isActiveRef.current) {
+          animationRef.current = null
+          return
+        }
+
+        setNodes([...currentNodes])
+      }
+
+      // Schedule next frame only if still active
+      if (isActiveRef.current) {
+        animationRef.current = requestAnimationFrame(simulate)
+      } else {
+        animationRef.current = null
+      }
     }
 
     animationRef.current = requestAnimationFrame(simulate)
 
     return () => {
       isActiveRef.current = false
-      if (animationRef.current) cancelAnimationFrame(animationRef.current)
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current)
+        animationRef.current = null
+      }
     }
   }, [isRunning, nodes.length, edges, width, height])
 

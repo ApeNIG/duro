@@ -1,6 +1,9 @@
 """Promotion Pipeline endpoints - Surface validated decisions ready for promotion."""
 
 import json
+import hashlib
+import uuid
+import sqlite3
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -9,6 +12,66 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from .stats import get_db_connection
+
+DURO_DB_PATH = Path.home() / ".agent" / "memory" / "index.db"
+LOGS_DIR = Path.home() / ".agent" / "memory" / "logs"
+
+
+def log_promotion_action(decision_id: str, target_type: str, law_id: str, project_id: str) -> str:
+    """Log a promotion action to the activity feed."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+    now = datetime.now(timezone.utc)
+    artifact_id = f"log_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+
+    artifact = {
+        "id": artifact_id,
+        "type": "log",
+        "created_at": now.isoformat(),
+        "title": f"Promoted decision to {target_type}: {law_id}",
+        "sensitivity": "internal",
+        "source_workflow": "dashboard",
+        "tags": ["promotion", target_type, "dashboard"],
+        "data": {
+            "action": "promoted",
+            "decision_id": decision_id,
+            "target_type": target_type,
+            "law_id": law_id,
+            "project_id": project_id,
+        }
+    }
+
+    # Save to file
+    file_path = LOGS_DIR / f"{artifact_id}.json"
+    content_str = json.dumps(artifact, sort_keys=True, default=str)
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content_str)
+
+    # Insert into database
+    content_hash = hashlib.sha256(content_str.encode()).hexdigest()[:16]
+    conn = sqlite3.connect(str(DURO_DB_PATH), timeout=10.0)
+    conn.execute("PRAGMA busy_timeout = 10000")
+    conn.execute("PRAGMA journal_mode = WAL")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO artifacts (id, type, created_at, title, sensitivity, tags, file_path, source_workflow, hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        artifact["id"],
+        artifact["type"],
+        artifact["created_at"],
+        artifact["title"],
+        artifact["sensitivity"],
+        json.dumps(artifact["tags"]),
+        str(file_path),
+        artifact["source_workflow"],
+        content_hash
+    ))
+
+    conn.commit()
+    conn.close()
+    return artifact_id
 
 router = APIRouter()
 
@@ -95,6 +158,10 @@ async def get_promotion_candidates(
 
         # Skip if not validated or low confidence
         if status != "validated" or confidence < min_confidence:
+            continue
+
+        # Skip if already promoted
+        if data.get("promoted_to"):
             continue
 
         # Count validations for this decision
@@ -274,9 +341,13 @@ async def promote_decision(request: PromoteRequest) -> Dict[str, Any]:
     with open(decision_file, "w", encoding="utf-8") as f:
         json.dump(decision_data, f, indent=2)
 
+    # Log the promotion to activity feed
+    log_id = log_promotion_action(request.decision_id, request.target_type, request.law_id, request.project_id)
+
     return {
         "success": True,
         "message": f"Promoted to {request.target_type} in {request.project_id}",
+        "log_id": log_id,
         **result
     }
 
