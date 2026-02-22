@@ -5,6 +5,67 @@ JSON Schema definitions for all artifact types.
 
 from typing import Any
 
+# =============================================================================
+# Provenance Schema (Phase 1: Tamper Detection)
+# =============================================================================
+
+# Signature block schema (HMAC-SHA256)
+PROVENANCE_SIGNATURE_SCHEMA = {
+    "type": "object",
+    "required": ["key_id", "alg", "mac_hex"],
+    "properties": {
+        "key_id": {
+            "type": "string",
+            "description": "Key identifier (for rotation support)"
+        },
+        "alg": {
+            "type": "string",
+            "enum": ["hmac-sha256"],
+            "description": "Signature algorithm"
+        },
+        "mac_hex": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "HMAC-SHA256 hex digest"
+        }
+    }
+}
+
+# Provenance block schema (added to all artifacts)
+PROVENANCE_BLOCK_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "trust_tier": {
+            "type": "string",
+            "enum": ["human_verified", "system_internal", "auto_captured", "external"],
+            "default": "external",
+            "description": "Trust tier: human_verified > system_internal > auto_captured > external"
+        },
+        "workflow": {
+            "type": "string",
+            "description": "Source workflow name (Phase 2 will enforce)"
+        },
+        "created_by": {
+            "type": "string",
+            "description": "Actor identity (Phase 1: 'mcp', Phase 2: actual identity)"
+        },
+        "created_via": {
+            "type": "string",
+            "description": "Tool or channel used to create artifact"
+        },
+        "signature": PROVENANCE_SIGNATURE_SCHEMA,
+        "validators": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "List of validation event IDs (Phase 4)"
+        }
+    }
+}
+
+# Computed signature status (not stored, set on load)
+SIGNATURE_STATUS_ENUM = ["unsigned", "valid", "invalid", "unknown_key"]
+
+# =============================================================================
 # Base artifact envelope schema
 ARTIFACT_ENVELOPE_SCHEMA = {
     "type": "object",
@@ -57,6 +118,15 @@ ARTIFACT_ENVELOPE_SCHEMA = {
         "data": {
             "type": "object",
             "description": "Type-specific payload"
+        },
+        "provenance": {
+            **PROVENANCE_BLOCK_SCHEMA,
+            "description": "Cryptographic provenance block (Phase 1: tamper detection)"
+        },
+        "signature_status": {
+            "type": "string",
+            "enum": SIGNATURE_STATUS_ENUM,
+            "description": "Computed on load, not stored. Indicates signature verification result."
         }
     }
 }

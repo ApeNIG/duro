@@ -31,6 +31,14 @@ jobs:
         run: python test_security_immutability.py
         shell: bash
 
+      - name: Run provenance signing tests
+        env:
+          # Test key for CI - the test manages its own keys but needs a default
+          DURO_PROVENANCE_HMAC_KEYS: "ci_v1:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        working-directory: src
+        run: python test_provenance_signing.py
+        shell: bash
+
   # Ensure this workflow is a required check for branch protection
   security-gate:
     needs: security-tests

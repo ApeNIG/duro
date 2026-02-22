@@ -21,6 +21,20 @@ from schemas import validate_artifact, TYPE_DIRECTORIES, apply_backward_compat_d
 from index import ArtifactIndex
 from embedding_worker import EmbeddingQueue
 
+# Provenance signing - optional until env var is set
+try:
+    from provenance_signing import (
+        sign_artifact,
+        verify_artifact,
+        is_signing_available,
+        TrustTier,
+    )
+    PROVENANCE_SIGNING_AVAILABLE = True
+except ImportError:
+    PROVENANCE_SIGNING_AVAILABLE = False
+    def is_signing_available() -> bool:
+        return False
+
 # Module-level lock for audit chain atomicity
 # Prevents concurrent prev_hash read + append races within a single process.
 #
@@ -2374,6 +2388,30 @@ class ArtifactStore:
 
         file_path = artifact_dir / f"{artifact['id']}.json"
 
+        # Ensure provenance block exists (Phase 1: adds structure for signing)
+        if "provenance" not in artifact:
+            # Get workflow from source block (legacy location)
+            workflow = artifact.get("source", {}).get("workflow", "unknown")
+            artifact["provenance"] = {
+                "trust_tier": "external",  # Phase 1: default to external, Phase 2 will compute
+                "workflow": workflow,
+                "created_by": "mcp",       # Phase 2: actual caller identity
+                "created_via": "duro_mcp_server",
+                "validators": [],
+            }
+
+        # Sign artifact if provenance signing is available
+        if PROVENANCE_SIGNING_AVAILABLE and is_signing_available():
+            try:
+                artifact = sign_artifact(artifact)
+            except Exception as e:
+                # Signing failure should not block storage in Phase 1
+                # Phase 2 may make this a hard failure
+                print(f"[WARN] Provenance signing failed: {e}", file=sys.stderr)
+
+        # Remove signature_status before storing (computed on load, not stored)
+        artifact.pop("signature_status", None)
+
         # Serialize and hash
         content = json.dumps(artifact, indent=2, ensure_ascii=False)
         file_hash = compute_hash(content)
@@ -2436,7 +2474,28 @@ class ArtifactStore:
 
         try:
             content = file_path.read_text(encoding='utf-8')
-            return json.loads(content)
+            artifact = json.loads(content)
+
+            # Verify provenance signature if signing is available
+            if PROVENANCE_SIGNING_AVAILABLE and is_signing_available():
+                try:
+                    status = verify_artifact(artifact)
+                    artifact["signature_status"] = status
+
+                    # Log warning for invalid signatures (TAMPERED!)
+                    if status == "invalid":
+                        print(
+                            f"[SECURITY] Artifact {artifact_id} has INVALID signature! "
+                            f"File may have been tampered with: {file_path}",
+                            file=sys.stderr
+                        )
+                except Exception as e:
+                    artifact["signature_status"] = "error"
+                    print(f"[WARN] Provenance verification failed: {e}", file=sys.stderr)
+            else:
+                artifact["signature_status"] = "unsigned"
+
+            return artifact
         except Exception as e:
             print(f"Error reading artifact: {e}")
             return None
