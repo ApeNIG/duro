@@ -714,61 +714,28 @@ def policy_gate(
                     has_approval = True
 
         # Determine final decision
-        # IMPORTANT: If allowed via token, we must CONSUME IT NOW (one-shot)
+        # IMPORTANT: Do NOT consume token yet - wait until ALL checks pass
         # We called check_action with consume_token=False, so token is still valid
+        # Token will be consumed at the very end, right before returning ALLOW
+
+        pending_token_consume = False  # Track if we need to consume token later
 
         if permission.allowed:
-            # Check if this was allowed via a token that we need to consume
+            # Check if this was allowed via a token that we need to consume LATER
             if hasattr(permission, 'allowed_via_token') and permission.allowed_via_token:
-                # CONSUME THE ONE-SHOT TOKEN NOW (fail-closed if it errors)
-                try:
-                    if get_enforcer_fn:
-                        enforcer = get_enforcer_fn()
-                        consumed = enforcer.use_approval(action_id, used_by=f"gate_{tool_name}")
-                        if not consumed:
-                            # Token vanished between check and consume (race condition)
-                            decision = GateDecision(
-                                allowed=False,
-                                action_needed="approve",
-                                reason="Approval token expired or already consumed",
-                                tool_name=tool_name,
-                                risk_level=risk_level,
-                                domain=domain,
-                                args_hash=args_hash,
-                                safe_summary=safe_summary,
-                                logged_at=timestamp,
-                                error="token_consumed_race",
-                            )
-                            _log_gate_decision(decision, arguments)
-                            return decision
-                    # Token consumed successfully - allow the action
-                    decision = GateDecision(
-                        allowed=True,
-                        action_needed="none",
-                        reason=f"Allowed via one-shot approval (token consumed)",
-                        tool_name=tool_name,
-                        risk_level=risk_level,
-                        domain=domain,
-                        args_hash=args_hash,
-                        safe_summary=safe_summary,
-                        logged_at=timestamp,
-                    )
-                except Exception as e:
-                    # Token consumption error = DENY (fail-closed)
-                    decision = GateDecision(
-                        allowed=False,
-                        action_needed="approve",
-                        reason=f"FAIL-CLOSED: Token consumption error: {e}",
-                        tool_name=tool_name,
-                        risk_level=risk_level,
-                        domain=domain,
-                        args_hash=args_hash,
-                        safe_summary=safe_summary,
-                        logged_at=timestamp,
-                        error=f"token_consume_error: {e}",
-                    )
-                    _log_gate_decision(decision, arguments)
-                    return decision
+                # DON'T consume yet - mark for later consumption after all checks pass
+                pending_token_consume = True
+                decision = GateDecision(
+                    allowed=True,
+                    action_needed="none",
+                    reason=f"Allowed via one-shot approval (pending token consumption)",
+                    tool_name=tool_name,
+                    risk_level=risk_level,
+                    domain=domain,
+                    args_hash=args_hash,
+                    safe_summary=safe_summary,
+                    logged_at=timestamp,
+                )
             else:
                 # Allowed without needing approval token
                 decision = GateDecision(
@@ -1044,6 +1011,57 @@ def policy_gate(
                     safe_summary=safe_summary,
                     logged_at=timestamp,
                     error=f"intent_error: {e}",
+                )
+
+        # === CONSUME APPROVAL TOKEN (only after ALL checks pass) ===
+        # This is the fix for the bug where token was consumed before subsequent
+        # checks (workspace/secrets/browser/intent) could block the operation.
+        # Now we only consume the token if the final decision is ALLOW.
+        if decision.allowed and pending_token_consume:
+            try:
+                if get_enforcer_fn:
+                    enforcer = get_enforcer_fn()
+                    consumed = enforcer.use_approval(action_id, used_by=f"gate_{tool_name}")
+                    if not consumed:
+                        # Token vanished between check and consume (race condition)
+                        decision = GateDecision(
+                            allowed=False,
+                            action_needed="approve",
+                            reason="Approval token expired or already consumed",
+                            tool_name=tool_name,
+                            risk_level=risk_level,
+                            domain=domain,
+                            args_hash=args_hash,
+                            safe_summary=safe_summary,
+                            logged_at=timestamp,
+                            error="token_consumed_race",
+                        )
+                    else:
+                        # Token consumed successfully - update reason
+                        decision = GateDecision(
+                            allowed=True,
+                            action_needed="none",
+                            reason=f"Allowed via one-shot approval (token consumed)",
+                            tool_name=tool_name,
+                            risk_level=risk_level,
+                            domain=domain,
+                            args_hash=args_hash,
+                            safe_summary=safe_summary,
+                            logged_at=timestamp,
+                        )
+            except Exception as e:
+                # Token consumption error = DENY (fail-closed)
+                decision = GateDecision(
+                    allowed=False,
+                    action_needed="approve",
+                    reason=f"FAIL-CLOSED: Token consumption error: {e}",
+                    tool_name=tool_name,
+                    risk_level=risk_level,
+                    domain=domain,
+                    args_hash=args_hash,
+                    safe_summary=safe_summary,
+                    logged_at=timestamp,
+                    error=f"token_consume_error: {e}",
                 )
 
         _log_gate_decision(decision, arguments)

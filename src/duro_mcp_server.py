@@ -5698,35 +5698,10 @@ When ready, call `duro_store_incident` with all fields."""
             reason = arguments["reason"]
             force = arguments.get("force", False)
 
-            # === Autonomy gate for destructive MCP tool ===
-            if AUTONOMY_AVAILABLE:
-                tool_name = "duro_delete_artifact"
-                domain = classify_action_domain(tool_name)
-                action_id = f"{tool_name}_{domain}"
-                context = {"is_destructive": True}
-
-                # Precheck without consuming token
-                perm = check_action(tool_name, context, action_id=action_id, consume_token=False)
-
-                if not perm.allowed:
-                    text = f"## Autonomy Blocked\n\n"
-                    text += f"**Action:** `{tool_name}`\n"
-                    text += f"**Domain:** `{domain}`\n"
-                    text += f"**Reason:** {perm.reason}\n\n"
-                    if perm.requires_approval:
-                        text += f"**To approve:** `duro_grant_approval(action_id=\"{action_id}\")`"
-                    return [TextContent(type="text", text=text)]
-
-                # If allowed via token, consume it NOW
-                if perm.allowed_via_token:
-                    enforcer = get_autonomy_enforcer()
-                    consumed = enforcer.use_approval(action_id, used_by=f"mcp_{artifact_id}")
-                    if not consumed:
-                        text = f"## Autonomy Blocked\n\n"
-                        text += f"**Action:** `{tool_name}`\n"
-                        text += f"**Reason:** Approval token expired or already used\n\n"
-                        text += f"**To approve:** `duro_grant_approval(action_id=\"{action_id}\")`"
-                        return [TextContent(type="text", text=text)]
+            # NOTE: Autonomy check removed from here - policy_gate (lines 3121-3135)
+            # already handles autonomy checking with consistent tool_name:args_hash format.
+            # The redundant check here used tool_name_domain format which caused
+            # approval tokens to be mismatched (bug: required double approval).
 
             success, message = artifact_store.delete_artifact(
                 artifact_id=artifact_id,
@@ -5748,49 +5723,12 @@ When ready, call `duro_store_incident` with all fields."""
             if not artifact_ids:
                 return [TextContent(type="text", text="No artifact IDs provided.")]
 
-            # === Single autonomy gate for entire batch ===
-            # CRITICAL: action_id includes hash of exact batch args
-            # This prevents "approve once, delete anything" attacks
-            if AUTONOMY_AVAILABLE:
-                tool_name = "duro_batch_delete"
-                domain = classify_action_domain("duro_delete_artifact")  # Same domain as single delete
-
-                # Compute hash of exact batch args (binds approval to THIS batch)
-                if POLICY_GATE_AVAILABLE:
-                    batch_hash = compute_args_hash(arguments)
-                else:
-                    # Fallback: simple hash
-                    import hashlib
-                    canonical = json.dumps({"ids": sorted(artifact_ids), "reason": reason, "force": force}, sort_keys=True)
-                    batch_hash = hashlib.sha256(canonical.encode()).hexdigest()[:16]
-
-                action_id = f"duro_batch_delete_{domain}_{batch_hash}"
-                context = {"is_destructive": True}
-
-                # Precheck without consuming token
-                perm = check_action(tool_name, context, action_id=action_id, consume_token=False)
-
-                if not perm.allowed:
-                    text = f"## Autonomy Blocked\n\n"
-                    text += f"**Action:** `{tool_name}`\n"
-                    text += f"**Domain:** `{domain}`\n"
-                    text += f"**Batch size:** {len(artifact_ids)} artifacts\n"
-                    text += f"**Batch hash:** `{batch_hash}`\n"
-                    text += f"**Reason:** {perm.reason}\n\n"
-                    if perm.requires_approval:
-                        text += f"**To approve:** `duro_grant_approval(action_id=\"{action_id}\")`"
-                    return [TextContent(type="text", text=text)]
-
-                # Consume token once for entire batch
-                if perm.allowed_via_token:
-                    enforcer = get_autonomy_enforcer()
-                    consumed = enforcer.use_approval(action_id, used_by=f"mcp_batch_{batch_hash}")
-                    if not consumed:
-                        text = f"## Autonomy Blocked\n\n"
-                        text += f"**Action:** `{tool_name}`\n"
-                        text += f"**Reason:** Approval token expired or already used\n\n"
-                        text += f"**To approve:** `duro_grant_approval(action_id=\"{action_id}\")`"
-                        return [TextContent(type="text", text=text)]
+            # NOTE: Autonomy check removed from here - policy_gate (lines 3121-3135)
+            # already handles autonomy checking with consistent tool_name:args_hash format.
+            # The redundant check here used tool_name_domain_hash format which caused
+            # approval tokens to be mismatched (bug: required double approval).
+            # The policy gate uses compute_args_hash(arguments) for scoped approvals,
+            # ensuring "approve once, delete anything" attacks are still prevented.
 
             # Process batch deletion
             deleted = []
