@@ -293,6 +293,49 @@ def test_audit_logging_not_blocked():
     return True
 
 
+def test_external_tool_cannot_read_memory():
+    """Test that external tool calls cannot access internal memory paths.
+
+    This is the actual attacker story: can a tool call trigger an internal read?
+    """
+    wg = _reload_workspace_guard()
+    agent_home = wg.AGENT_HOME
+
+    # Paths an attacker might try to read via external tools
+    attack_paths = [
+        agent_home / "memory" / "artifacts" / "fact_secret.json",
+        agent_home / "memory" / "audit" / "security_audit.jsonl",
+        agent_home / "memory" / "decisions" / "decision_sensitive.json",
+        agent_home / "soul.md",
+        agent_home / "core.md",
+    ]
+
+    for path in attack_paths:
+        # Simulate external tool validation (default purpose = USER_FILE_IO)
+        validation = wg.validate_path(str(path))
+
+        assert not validation.valid, (
+            f"External access to {path} should be DENIED, "
+            f"but validate_path returned valid=True"
+        )
+        assert validation.risk_level in ("sensitive", "blocked"), (
+            f"External access to {path} should have risk_level 'sensitive' or 'blocked', "
+            f"got '{validation.risk_level}'"
+        )
+
+    # Also test via check_workspace_constraints (the policy gate integration point)
+    fake_tool_args = {"path": str(agent_home / "memory" / "artifacts" / "stolen.json")}
+    allowed, reason, _ = wg.check_workspace_constraints("file_read", fake_tool_args)
+
+    assert not allowed, (
+        f"check_workspace_constraints should deny access to memory/artifacts, "
+        f"but returned allowed=True. Reason: {reason}"
+    )
+
+    print("[PASS] external tool cannot read memory tests")
+    return True
+
+
 def test_symlink_traversal():
     """Test that symlinks can't be used to escape sensitive path blocking."""
     wg = _reload_workspace_guard()
@@ -353,6 +396,7 @@ def main():
         test_purpose_parameter_bypass,
         test_fail_closed_on_exception,
         test_audit_logging_not_blocked,
+        test_external_tool_cannot_read_memory,
         test_symlink_traversal,
     ]
 
