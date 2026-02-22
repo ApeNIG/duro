@@ -25,10 +25,21 @@ import re
 import sys
 import unicodedata
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from time_utils import utc_now_iso
+
+
+# === PATH PURPOSE ===
+# SECURITY: Different operations have different security requirements
+# This prevents internal Duro operations from being blocked by user-facing rules
+class PathPurpose(Enum):
+    """Purpose of path access - determines security behavior."""
+    USER_FILE_IO = "user_file_io"           # External file ops - block hard, fail closed
+    INTERNAL_MEMORY = "internal_memory"      # Duro memory backend - allow access
+    INTERNAL_AUDIT = "internal_audit"        # Audit logging - allow writes only
 
 
 # === CONFIGURATION ===
@@ -160,15 +171,30 @@ def is_in_deny_list(path: Path) -> Tuple[bool, str]:
     return False, ""
 
 
-def is_internal_sensitive_path(path: Path) -> Tuple[bool, str]:
+def is_internal_sensitive_path(
+    path: Path,
+    purpose: PathPurpose = PathPurpose.USER_FILE_IO,
+) -> Tuple[bool, str]:
     """
     Check if a path is in the internal sensitive paths list.
 
     These are paths within .agent that should only be accessed via
     Duro MCP tools, not via direct file operations.
 
+    Args:
+        path: Path to check
+        purpose: Why this path is being accessed
+            - USER_FILE_IO: External file ops - block and fail closed
+            - INTERNAL_MEMORY: Duro memory backend - allow access
+            - INTERNAL_AUDIT: Audit logging - allow access
+
     Returns (is_sensitive, reason)
     """
+    # SECURITY: Internal Duro operations bypass sensitive path blocking
+    # This prevents the guard from blocking its own audit logging
+    if purpose in (PathPurpose.INTERNAL_MEMORY, PathPurpose.INTERNAL_AUDIT):
+        return False, ""
+
     try:
         resolved = path.resolve()
 
@@ -189,9 +215,10 @@ def is_internal_sensitive_path(path: Path) -> Tuple[bool, str]:
                 if str(resolved).lower().startswith(str(sensitive_resolved).lower() + "\\"):
                     return True, f"Internal sensitive path (use Duro MCP tools): {sensitive_path.name}"
 
-    except Exception:
-        # Don't block on errors - this is for internal paths
-        pass
+    except Exception as e:
+        # SECURITY: Fail closed for user operations - if we can't check, block
+        # This prevents "make it error to make it allow" attacks
+        return True, f"Path validation error (fail closed): {e}"
 
     return False, ""
 
@@ -594,6 +621,7 @@ def validate_path(
     path_str: str,
     tool_name: str = None,
     config: WorkspaceConfig = None,
+    purpose: PathPurpose = PathPurpose.USER_FILE_IO,
 ) -> PathValidation:
     """
     Validate a path against workspace constraints.
@@ -604,6 +632,10 @@ def validate_path(
         path_str: The path to validate
         tool_name: The tool requesting access (for logging)
         config: Workspace configuration (uses global if not provided)
+        purpose: Why this path is being accessed
+            - USER_FILE_IO: External file ops - block sensitive paths, fail closed
+            - INTERNAL_MEMORY: Duro memory backend - allow sensitive paths
+            - INTERNAL_AUDIT: Audit logging - allow sensitive paths
 
     Returns:
         PathValidation with result details
@@ -633,7 +665,8 @@ def validate_path(
 
     # Step 1.6: Check internal sensitive paths (must use Duro MCP tools)
     # SECURITY: This prevents direct file access from bypassing sensitivity controls
-    is_sensitive, sensitive_reason = is_internal_sensitive_path(resolved)
+    # Note: purpose parameter allows internal Duro operations to bypass this check
+    is_sensitive, sensitive_reason = is_internal_sensitive_path(resolved, purpose)
     if is_sensitive:
         return PathValidation(
             valid=False,
