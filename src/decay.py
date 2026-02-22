@@ -336,6 +336,49 @@ def apply_batch_decay(
 
 
 # =============================================================================
+# Store Integration
+# =============================================================================
+
+def apply_decay_to_store(artifact_store, dry_run: bool = True) -> dict:
+    """
+    Apply decay to all facts in the artifact store.
+
+    Args:
+        artifact_store: The artifact store instance
+        dry_run: If True, calculate but don't save changes
+
+    Returns:
+        Dict with decayed count and details
+    """
+    # Get all facts from store
+    fact_entries = artifact_store.index.query(artifact_type="fact", limit=1000)
+    facts = []
+    for entry in fact_entries:
+        artifact = artifact_store.get_artifact(entry.get("id"))
+        if artifact:
+            facts.append(artifact)
+
+    if not facts:
+        return {"decayed": 0, "total": 0, "dry_run": dry_run}
+
+    # Apply batch decay
+    result = apply_batch_decay(facts, DEFAULT_DECAY_CONFIG, dry_run=dry_run)
+
+    # If not dry run, save updated facts
+    if not dry_run:
+        for i, fact in enumerate(facts):
+            if result.results[i].get("decayed"):
+                artifact_store.update_artifact(fact["id"], fact)
+
+    return {
+        "decayed": result.decayed_count,
+        "total": result.total_facts,
+        "stale": result.stale_count,
+        "dry_run": dry_run
+    }
+
+
+# =============================================================================
 # Maintenance Report
 # =============================================================================
 
