@@ -163,7 +163,24 @@ FACT_DATA_SCHEMA = {
         "verified": {
             "type": "boolean",
             "default": False,
-            "description": "Whether fact has been verified"
+            "description": "[DEPRECATED - use verification_state] Whether fact has been verified"
+        },
+        "verification_state": {
+            "type": "string",
+            "enum": ["unverified", "verified", "disputed", "stale"],
+            "default": "unverified",
+            "description": "Trust state: unverified (default), verified (confirmed with evidence), disputed (conflicting evidence), stale (not refreshed recently)"
+        },
+        "last_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When this fact was last verified/confirmed (ISO datetime)"
+        },
+        "blast_radius": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "default": "low",
+            "description": "How damaging if this fact is wrong: low (minor), medium (causes rework), high (breaks systems), critical (security/data loss)"
         },
         "evidence_type": {
             "type": "string",
@@ -1091,6 +1108,17 @@ def apply_backward_compat_defaults(artifact: dict[str, Any]) -> dict[str, Any]:
             data["reinforcement_count"] = 0
         if "last_reinforced_at" not in data:
             data["last_reinforced_at"] = None  # Never reinforced yet
+        # Verification state (Phase 5 - trust management)
+        if "verification_state" not in data:
+            # Migrate from boolean verified to verification_state
+            if data.get("verified", False):
+                data["verification_state"] = "verified"
+            else:
+                data["verification_state"] = "unverified"
+        if "last_verified_at" not in data:
+            data["last_verified_at"] = None
+        if "blast_radius" not in data:
+            data["blast_radius"] = "low"  # Conservative default
 
     elif artifact_type == "decision":
         # Outcome defaults

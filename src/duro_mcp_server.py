@@ -1540,6 +1540,25 @@ async def list_tools() -> list[Tool]:
 
         # Decay & Maintenance tools (Phase 4)
         Tool(
+            name="duro_decay_queue",
+            description="Get the daily decay queue - top N facts most needing attention based on age × importance × low reinforcement. Use this daily to Pin/Reinforce/Delete facts. This is the core habit for keeping memory trustworthy.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "description": "Number of facts to return (default 5)",
+                        "default": 5
+                    },
+                    "include_claim": {
+                        "type": "boolean",
+                        "description": "Include the fact claim text (default True)",
+                        "default": True
+                    }
+                }
+            }
+        ),
+        Tool(
             name="duro_apply_decay",
             description="Apply time-based confidence decay to unreinforced facts. Pinned facts are never decayed. Run with dry_run=true first to preview changes.",
             inputSchema={
@@ -1652,6 +1671,29 @@ async def list_tools() -> list[Tool]:
                 "required": ["fact_id"]
             }
         ),
+        Tool(
+            name="duro_verify_fact",
+            description="Explicitly verify a fact - set verification_state='verified' with timestamp. Requires evidence (source_urls). Use this for human/workflow verification, NOT auto-verification.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "fact_id": {
+                        "type": "string",
+                        "description": "The fact ID to verify"
+                    },
+                    "evidence_note": {
+                        "type": "string",
+                        "description": "Optional note about how this was verified (appended to snippet)"
+                    },
+                    "source_urls": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "URLs that verify this fact (required if fact has no existing sources)"
+                    }
+                },
+                "required": ["fact_id"]
+            }
+        ),
 
         # Artifact tools (structured memory)
         Tool(
@@ -1704,6 +1746,18 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "enum": ["public", "internal", "sensitive"],
                         "default": "public"
+                    },
+                    "verification_state": {
+                        "type": "string",
+                        "enum": ["unverified", "verified", "disputed", "stale"],
+                        "description": "Trust state: unverified (default), verified (confirmed), disputed (conflicting evidence), stale (needs refresh)",
+                        "default": "unverified"
+                    },
+                    "blast_radius": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high", "critical"],
+                        "description": "How damaging if wrong: low (minor), medium (rework), high (breaks systems), critical (security/data loss)",
+                        "default": "low"
                     }
                 },
                 "required": ["claim"]
@@ -2251,7 +2305,7 @@ Use override=true with override_reason to bypass gate (creates waiver trail)."""
                 "properties": {
                     "artifact_type": {
                         "type": "string",
-                        "enum": ["fact", "decision", "skill", "rule", "log", "episode", "evaluation", "skill_stats"],
+                        "enum": ["fact", "decision", "skill", "rule", "log", "episode", "evaluation", "skill_stats", "incident_rca", "recent_change", "design_reference", "checklist_template", "decision_validation"],
                         "description": "Filter by artifact type"
                     },
                     "tags": {
@@ -2296,7 +2350,7 @@ Use override=true with override_reason to bypass gate (creates waiver trail)."""
                     },
                     "artifact_type": {
                         "type": "string",
-                        "enum": ["fact", "decision", "episode", "evaluation", "skill_stats", "log"],
+                        "enum": ["fact", "decision", "skill", "rule", "log", "episode", "evaluation", "skill_stats", "incident_rca", "recent_change", "design_reference", "checklist_template", "decision_validation"],
                         "description": "Filter by artifact type"
                     },
                     "tags": {
@@ -2340,7 +2394,7 @@ Use override=true with override_reason to bypass gate (creates waiver trail)."""
                 "properties": {
                     "artifact_type": {
                         "type": "string",
-                        "enum": ["fact", "decision", "skill", "rule", "log", "episode", "evaluation", "skill_stats"],
+                        "enum": ["fact", "decision", "skill", "rule", "log", "episode", "evaluation", "skill_stats", "incident_rca", "recent_change", "design_reference", "checklist_template", "decision_validation"],
                         "description": "Filter by type"
                     },
                     "limit": {
@@ -4412,6 +4466,104 @@ Contact the system administrator or check duro-mcp installation.""")]
             return [TextContent(type="text", text=text)]
 
         # Decay & Maintenance tools (Phase 4)
+        elif name == "duro_decay_queue":
+            from time_utils import days_since
+
+            limit = arguments.get("limit", 5)
+            include_claim = arguments.get("include_claim", True)
+
+            # Load all non-pinned facts
+            facts = artifact_store.query(artifact_type="fact", limit=10000)
+            full_facts = [artifact_store.get_artifact(f["id"]) for f in facts]
+            full_facts = [f for f in full_facts if f is not None]
+
+            # Calculate decay priority score for each fact
+            # Score = days_inactive * importance * (1 / (1 + reinforcement_count))
+            # Higher score = more urgent to review
+            scored_facts = []
+            for fact in full_facts:
+                data = fact.get("data", {})
+
+                # Skip pinned facts
+                if data.get("pinned", False):
+                    continue
+
+                importance = data.get("importance", 0.5)
+                reinforcement_count = data.get("reinforcement_count", 0)
+                confidence = data.get("confidence", 0.5)
+                blast_radius = data.get("blast_radius", "low")
+
+                # Blast radius floors importance - dangerous facts are important
+                # even if you forgot to mark them
+                importance_floor = {"critical": 0.9, "high": 0.75, "medium": 0.6, "low": 0.0}
+                importance = max(importance, importance_floor.get(blast_radius, 0.0))
+
+                # Calculate days since last activity
+                last_reinforced = data.get("last_reinforced_at")
+                created_at = fact.get("created_at")
+                last_activity = last_reinforced or created_at
+
+                try:
+                    days_inactive = days_since(last_activity) if last_activity else 0
+                except Exception:
+                    days_inactive = 0
+
+                # Decay priority score
+                # High importance + old + low reinforcement = high priority
+                # Trust multiplier boosts unverified/risky facts
+                reinforcement_factor = 1 / (1 + reinforcement_count)
+
+                verification_state = data.get("verification_state", "unverified")
+
+                trust_mult = 1.0
+                if verification_state in ("unverified", "stale"):
+                    trust_mult *= 1.15
+                if blast_radius in ("high", "critical"):
+                    trust_mult *= 1.25
+
+                score = days_inactive * importance * reinforcement_factor * trust_mult
+
+                scored_facts.append({
+                    "id": fact.get("id"),
+                    "claim": data.get("claim", "")[:200] if include_claim else None,
+                    "confidence": confidence,
+                    "importance": importance,
+                    "reinforcement_count": reinforcement_count,
+                    "days_inactive": days_inactive,
+                    "verification_state": verification_state,
+                    "blast_radius": blast_radius,
+                    "priority_score": round(score, 2)
+                })
+
+            # Sort by priority score (highest first)
+            scored_facts.sort(key=lambda x: -x["priority_score"])
+            top_facts = scored_facts[:limit]
+
+            lines = ["## Daily Decay Queue\n"]
+            lines.append(f"**Facts needing attention:** {len(scored_facts)} total, showing top {limit}")
+            lines.append("")
+            lines.append("For each fact, choose one action:")
+            lines.append("- **Pin**: Mark as critical, never decay (`duro_store_fact` with pinned=true, or update)")
+            lines.append("- **Reinforce**: Confirm still valid (`duro_reinforce_fact`)")
+            lines.append("- **Delete**: Remove if outdated/wrong (`duro_delete_artifact`)")
+            lines.append("")
+
+            for i, f in enumerate(top_facts, 1):
+                lines.append(f"### {i}. `{f['id']}`")
+                lines.append(f"- **Priority Score:** {f['priority_score']} (age×importance÷reinforcement×trust)")
+                lines.append(f"- **Days Inactive:** {f['days_inactive']} | **Verification:** {f.get('verification_state', 'unverified')}")
+                lines.append(f"- **Importance:** {f['importance']} | **Blast Radius:** {f.get('blast_radius', 'low')}")
+                lines.append(f"- **Confidence:** {f['confidence']:.2f} | **Reinforced:** {f['reinforcement_count']} times")
+                if include_claim and f.get("claim"):
+                    lines.append(f"- **Claim:** {f['claim']}")
+                lines.append("")
+
+            if not top_facts:
+                lines.append("*No facts needing attention. Memory is healthy!*")
+
+            text = "\n".join(lines)
+            return [TextContent(type="text", text=text)]
+
         elif name == "duro_apply_decay":
             from decay import apply_batch_decay, DecayConfig, DEFAULT_DECAY_CONFIG
 
@@ -4767,6 +4919,57 @@ Contact the system administrator or check duro-mcp installation.""")]
             text = f"## Fact Reinforced\n\n- **ID:** `{fact_id}`\n- **Reinforcement count:** {data.get('reinforcement_count', 0)}\n- **Last reinforced:** {data.get('last_reinforced_at')}"
             return [TextContent(type="text", text=text)]
 
+        elif name == "duro_verify_fact":
+            # utc_now_iso already imported at module level
+            fact_id = arguments["fact_id"]
+            evidence_note = arguments.get("evidence_note")
+            new_source_urls = arguments.get("source_urls", [])
+
+            fact = artifact_store.get_artifact(fact_id)
+
+            if not fact:
+                return [TextContent(type="text", text=f"Fact not found: {fact_id}")]
+
+            if fact.get("type") != "fact":
+                return [TextContent(type="text", text=f"Artifact {fact_id} is not a fact (type: {fact.get('type')})")]
+
+            data = fact.get("data", {})
+            existing_sources = data.get("source_urls", [])
+
+            # Merge sources
+            all_sources = list(set(existing_sources + new_source_urls))
+
+            # Can't verify without evidence
+            if not all_sources:
+                return [TextContent(type="text", text=f"Cannot verify fact without evidence. Provide source_urls or add evidence first.")]
+
+            # Set verification state
+            data["verification_state"] = "verified"
+            data["verified"] = True  # Keep deprecated field in sync
+            data["last_verified_at"] = utc_now_iso()
+            data["source_urls"] = all_sources
+
+            # Append evidence note to snippet if provided
+            if evidence_note:
+                existing_snippet = data.get("snippet") or ""
+                if existing_snippet:
+                    data["snippet"] = f"{existing_snippet}\n\n[Verified: {evidence_note}]"
+                else:
+                    data["snippet"] = f"[Verified: {evidence_note}]"
+
+            # Update evidence_type if it was "none"
+            if data.get("evidence_type") == "none":
+                data["evidence_type"] = "paraphrase"  # Conservative default
+
+            fact["data"] = data
+            fact["updated_at"] = utc_now_iso()
+            artifact_store._update_artifact_file(fact)
+
+            text = f"## Fact Verified\n\n- **ID:** `{fact_id}`\n- **Verification state:** verified\n- **Last verified:** {data['last_verified_at']}\n- **Sources:** {len(all_sources)}"
+            if evidence_note:
+                text += f"\n- **Note:** {evidence_note}"
+            return [TextContent(type="text", text=text)]
+
         # Artifact tools
         elif name == "duro_store_fact":
             success, artifact_id, path = artifact_store.store_fact(
@@ -4778,7 +4981,9 @@ Contact the system administrator or check duro-mcp installation.""")]
                 workflow=arguments.get("workflow", "manual"),
                 sensitivity=arguments.get("sensitivity", "public"),
                 evidence_type=arguments.get("evidence_type", "none"),
-                provenance=arguments.get("provenance", "unknown")
+                provenance=arguments.get("provenance", "unknown"),
+                verification_state=arguments.get("verification_state", "unverified"),
+                blast_radius=arguments.get("blast_radius", "low")
             )
             if success:
                 # Embed synchronously for immediate vector search

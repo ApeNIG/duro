@@ -379,7 +379,9 @@ class ArtifactStore:
         workflow: str = "manual",
         sensitivity: str = "public",
         evidence_type: str = "none",
-        provenance: str = "unknown"
+        provenance: str = "unknown",
+        verification_state: str = "unverified",
+        blast_radius: str = "low"
     ) -> tuple[bool, str, str]:
         """
         Store a fact artifact.
@@ -395,8 +397,11 @@ class ArtifactStore:
             sensitivity: Data sensitivity level
             evidence_type: How evidence supports claim (quote, paraphrase, inference, none)
             provenance: Where fact came from (web, local_file, user, tool_output, unknown)
+            verification_state: Trust state (unverified, verified, disputed, stale)
+            blast_radius: How damaging if wrong (low, medium, high, critical)
 
         Note: High confidence (>=0.8) facts should have source_urls and evidence_type != 'none'.
+              High blast_radius + high confidence requires source_urls (enforced).
               See rule_005 (Fact Verification Requirements) for enforcement details.
         """
         # Validate evidence_type
@@ -409,11 +414,32 @@ class ArtifactStore:
         if provenance not in valid_provenances:
             provenance = "unknown"
 
+        # Validate verification_state
+        valid_verification_states = ["unverified", "verified", "disputed", "stale"]
+        if verification_state not in valid_verification_states:
+            verification_state = "unverified"
+
+        # Validate blast_radius
+        valid_blast_radii = ["low", "medium", "high", "critical"]
+        if blast_radius not in valid_blast_radii:
+            blast_radius = "low"
+
         # Auto-downgrade: High confidence without sources gets capped
         if confidence >= 0.8 and not source_urls:
             # Log this downgrade for awareness
             print(f"[WARN] Fact confidence downgraded from {confidence} to 0.5 (no source_urls)")
             confidence = 0.5
+
+        # Enforce: high blast_radius + high confidence requires evidence
+        if blast_radius in ["high", "critical"] and confidence >= 0.8 and not source_urls:
+            print(f"[WARN] High blast_radius fact confidence downgraded (no source_urls)")
+            confidence = 0.5
+
+        # Guard: Can't claim "verified" without evidence
+        # Evidence present does NOT mean verified - only human/workflow verification counts
+        if verification_state == "verified" and (not source_urls or evidence_type == "none"):
+            print(f"[WARN] verification_state downgraded to 'unverified' (no evidence)")
+            verification_state = "unverified"
 
         artifact_id = generate_id("fact")
 
@@ -435,7 +461,10 @@ class ArtifactStore:
                 "source_urls": source_urls or [],
                 "snippet": snippet,
                 "confidence": confidence,
-                "verified": bool(source_urls and evidence_type != "none"),
+                "verified": (verification_state == "verified"),  # Deprecated - derived from verification_state
+                "verification_state": verification_state,
+                "last_verified_at": utc_now_iso() if verification_state == "verified" else None,
+                "blast_radius": blast_radius,
                 "evidence_type": evidence_type,
                 "provenance": provenance
             }
