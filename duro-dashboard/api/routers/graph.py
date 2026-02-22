@@ -141,33 +141,57 @@ async def get_relationships(
     """
     conn = get_db_connection()
 
-    # Build type filter
+    # Linking types that create edges - always load ALL of these first
+    linking_types = ('decision_validation', 'episode', 'evaluation', 'incident_rca')
+
+    # Build type filter for user-specified types
     type_filter = ""
     if types:
         type_list = [t.strip() for t in types.split(",")]
         placeholders = ",".join(["?" for _ in type_list])
         type_filter = f"AND type IN ({placeholders})"
 
-    # Get artifacts
+    # First, load ALL linking artifacts (they create edges)
+    linking_query = """
+        SELECT id, type, title, created_at, file_path
+        FROM artifacts
+        WHERE file_path IS NOT NULL
+        AND type IN (?, ?, ?, ?)
+        ORDER BY created_at DESC
+    """
+    linking_cursor = conn.execute(linking_query, linking_types)
+    linking_rows = linking_cursor.fetchall()
+
+    # Then load additional artifacts up to limit
+    remaining_limit = max(0, limit - len(linking_rows))
     query = f"""
         SELECT id, type, title, created_at, file_path
         FROM artifacts
         WHERE file_path IS NOT NULL
+        AND type NOT IN (?, ?, ?, ?)
         {type_filter}
         ORDER BY created_at DESC
         LIMIT ?
     """
 
-    params = [t.strip() for t in types.split(",")] if types else []
-    params.append(limit)
+    params = list(linking_types)
+    if types:
+        params.extend([t.strip() for t in types.split(",")])
+    params.append(remaining_limit)
 
     cursor = conn.execute(query, params)
+    other_rows = cursor.fetchall()
 
     nodes = []
     all_edges = []
     node_ids = set()
+    node_map = {}  # id -> node dict for deduplication
 
-    for row in cursor.fetchall():
+    # Process all rows (linking artifacts + other artifacts)
+    all_rows = list(linking_rows) + list(other_rows)
+    for row in all_rows:
+        if row["id"] in node_map:
+            continue  # Skip duplicates
         node = {
             "id": row["id"],
             "type": row["type"],
@@ -176,6 +200,7 @@ async def get_relationships(
         }
         nodes.append(node)
         node_ids.add(row["id"])
+        node_map[row["id"]] = node
 
         # Load file and extract relationships
         if row["file_path"]:
@@ -184,7 +209,36 @@ async def get_relationships(
                 edges = extract_relationships(row["id"], content)
                 all_edges.extend(edges)
 
-    # Filter edges to only include nodes we have
+    # Collect all referenced IDs that we don't have yet
+    missing_ids = set()
+    for edge in all_edges:
+        if edge["source"] not in node_ids:
+            missing_ids.add(edge["source"])
+        if edge["target"] not in node_ids:
+            missing_ids.add(edge["target"])
+
+    # Load missing referenced artifacts
+    if missing_ids:
+        placeholders = ",".join(["?" for _ in missing_ids])
+        missing_query = f"""
+            SELECT id, type, title, created_at, file_path
+            FROM artifacts
+            WHERE id IN ({placeholders})
+        """
+        cursor = conn.execute(missing_query, list(missing_ids))
+        for row in cursor.fetchall():
+            if row["id"] not in node_map:
+                node = {
+                    "id": row["id"],
+                    "type": row["type"],
+                    "title": row["title"] or row["id"][:30],
+                    "created_at": row["created_at"],
+                }
+                nodes.append(node)
+                node_ids.add(row["id"])
+                node_map[row["id"]] = node
+
+    # Filter edges to only include nodes we have (should be all now)
     valid_edges = [
         e for e in all_edges
         if e["source"] in node_ids and e["target"] in node_ids
