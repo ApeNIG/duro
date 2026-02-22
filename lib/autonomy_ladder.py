@@ -60,7 +60,7 @@ class ActionRisk(Enum):
         This is the canonical entry point for action risk classification.
         Uses exact matches first, then pattern matching, then context hints.
         """
-        context = context or {}
+        context = context if isinstance(context, dict) else {}
 
         # === EXACT MATCH SETS ===
         # Ordered by specificity - check destructive first
