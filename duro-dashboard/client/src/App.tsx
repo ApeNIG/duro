@@ -5,6 +5,7 @@ import Memory from './pages/Memory'
 import Activity from './pages/Activity'
 import Settings from './pages/Settings'
 import Reviews from './pages/Reviews'
+import Promotions from './pages/Promotions'
 import Relationships from './pages/Relationships'
 import Episodes from './pages/Episodes'
 import Skills from './pages/Skills'
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="search" element={<Search />} />
         <Route path="activity" element={<Activity />} />
         <Route path="reviews" element={<Reviews />} />
+        <Route path="promotions" element={<Promotions />} />
         <Route path="episodes" element={<Episodes />} />
         <Route path="skills" element={<Skills />} />
         <Route path="incidents" element={<Incidents />} />
