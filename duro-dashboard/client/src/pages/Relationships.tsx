@@ -101,7 +101,7 @@ function useForceSimulation(
     const centerY = height / 2
 
     const simulate = () => {
-      // Check if we should stop before scheduling next frame
+      // Check if we should stop before doing ANY work
       if (!isActiveRef.current) return
 
       const currentNodes = nodesRef.current
@@ -159,12 +159,11 @@ function useForceSimulation(
         node.y = Math.max(50, Math.min(height - 50, node.y))
       }
 
-      setNodes([...currentNodes])
+      // CRITICAL: Check again before state update to prevent updates on unmounted component
+      if (!isActiveRef.current) return
 
-      // Only schedule next frame if still active
-      if (isActiveRef.current) {
-        animationRef.current = requestAnimationFrame(simulate)
-      }
+      setNodes([...currentNodes])
+      animationRef.current = requestAnimationFrame(simulate)
     }
 
     animationRef.current = requestAnimationFrame(simulate)
