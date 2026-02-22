@@ -164,6 +164,93 @@ Here's what Duro actually does:
 
 ---
 
+## Cartridge Memory Architecture
+
+Duro uses a **Cartridge Memory Architecture**—a novel approach to context management that solves the "infinite memory, finite context window" problem.
+
+### The Problem with Traditional RAG
+
+Standard RAG retrieves documents at query time, but treats all context equally. There's no concept of:
+- What's essential vs. optional
+- Project-specific laws vs. general knowledge
+- Skills that match the current task
+
+### The Cartridge Solution
+
+Think of it like game cartridges: swap in the right memory module for the job.
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Context Window                     │
+├─────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────────┐  ┌───────────────┐  │
+│  │   Soul   │  │ Constitution │  │ Matched Skills│  │
+│  │  ~200    │  │   ~800 tok   │  │   ~2000 tok   │  │
+│  │  tokens  │  │  (project)   │  │  (task-based) │  │
+│  └──────────┘  └──────────────┘  └───────────────┘  │
+├─────────────────────────────────────────────────────┤
+│        Remaining: Available for conversation         │
+└─────────────────────────────────────────────────────┘
+                         │
+                         │ Semantic Search
+                         ▼
+┌─────────────────────────────────────────────────────┐
+│              Full Memory (2400+ artifacts)           │
+│   Facts │ Decisions │ Episodes │ Skills │ Rules     │
+│         Searchable but NOT loaded into context       │
+└─────────────────────────────────────────────────────┘
+```
+
+### Tiered Loading Modes
+
+| Mode | Tokens | Contents | Use Case |
+|------|--------|----------|----------|
+| `minimal` | ~200 | Soul only | Quick questions |
+| `lean` | ~800 | Soul + core + recent decisions | Default startup |
+| `full` | ~2000 | Everything including session history | Deep review |
+
+### Key Components
+
+**1. Soul** - Core personality and values (always loaded)
+
+**2. Constitutions** - Project-specific laws and patterns
+```
+duro_load_constitution(project_id="msj", mode="compact")
+```
+Each project can have its own "laws" that override defaults.
+
+**3. Skill Cartridges** - Task-matched capabilities
+```
+duro_assemble_context(
+  task_description="debug rate limiting issue",
+  budget_skills=30000  # Token budget for skills
+)
+```
+Skills are matched semantically to the current task.
+
+**4. Artifact Store** - Full memory, searchable on demand
+- 2400+ artifacts indexed with embeddings
+- Semantic + keyword hybrid search
+- Only pulled into context when needed
+
+### Why It's Different
+
+| Approach | Loads Everything | Task-Aware | Token Budget | Project Laws |
+|----------|-----------------|------------|--------------|--------------|
+| RAG | ❌ | ❌ | ❌ | ❌ |
+| MemGPT | Paging model | ❌ | ❌ | ❌ |
+| LangChain | ❌ | ❌ | ❌ | ❌ |
+| **Duro Cartridge** | ❌ | ✅ | ✅ | ✅ |
+
+### The Result
+
+- **Session start**: Load ~800 tokens (lean mode)
+- **Full memory available**: 2400+ artifacts searchable
+- **Context preserved**: More room for actual conversation
+- **Project switching**: Swap constitutions, get new laws instantly
+
+---
+
 ## Who It's For
 
 **Builders who care about correctness.** Teams that want learning to compound. Those who don't want to ship nonsense.
