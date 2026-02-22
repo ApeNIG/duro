@@ -1,7 +1,7 @@
 project_id: design-gym
 name: Design Gym
-version: "0.6.0"
-updated_at: "2026-02-22T08:00:00Z"
+version: "0.7.0"
+updated_at: "2026-02-22T09:00:00Z"
 
 north_star:
   statement: "Develop design maturity through structural thinking, not material imitation."
@@ -95,6 +95,14 @@ laws:
     applies_to: [design, calibration]
     rationale: "V8 shifted power from concept to calibration. P04 Perfect Grid (9.2) proved boring-looking grids with irrational ratios create unease without revealing why."
     provenance: [session_20260222_v8]
+    last_verified: "2026-02-22"
+
+  - id: law.perceptual.architecture
+    rule: "At the highest level, remove all text. Let spacing be narrative, alignment be rhetoric, color temperature be mood argument. The viewer should feel 'something is slightly wrong' without knowing where to look."
+    strength: soft
+    applies_to: [design, philosophy]
+    rationale: "V9 achieved perceptual architecture - design that destabilizes certainty without argument, explanation, or contradiction. P05 Displaced Center (9.2) proves concentric forms with subtle gravitational offset induce unease before articulation."
+    provenance: [session_20260222_v9]
     last_verified: "2026-02-22"
 
 constraints:
@@ -241,6 +249,21 @@ patterns_top:
     when: "Creating almost-balance"
     value: "98% visible, 100% inert, 99% perfect. See P02v8 (8.8/10)."
 
+  - id: pattern.displaced.gravity
+    pattern: "Concentric forms (rings, squares) with center element offset ~10px from geometric center. Forms should be subtle (low contrast) so displacement becomes atmospheric."
+    when: "Creating gravitational unease without text"
+    value: "Felt before articulated. See P05v9 (9.2/10)."
+
+  - id: pattern.rhythm.break
+    pattern: "Series of identical elements (lines, dots) at regular intervals. One interval shortened by 3-5px. Human eye extremely sensitive to horizontal rhythm."
+    when: "Creating micro-stutter without explanation"
+    value: "Breaks cadence, produces delayed unease. See P04v9 (9.1/10)."
+
+  - id: pattern.textless.composition
+    pattern: "No typography. Spacing as narrative, alignment as rhetoric, color temperature as mood argument. Let geometry carry 100% of psychological weight."
+    when: "Pursuing perceptual architecture"
+    value: "Design stops arguing and starts affecting. See V9 series (9.0/10 avg)."
+
 workflows:
   - id: workflow.tournament
     name: "Design Tournament"
@@ -320,12 +343,9 @@ evolution_notes:
   v7_risk: "Perceptual philosophy becomes formulaic. If every poster is 'word means X, design shows opposite', viewer expects the trick."
   v8: "Silent deception - calibration maturity (8.9/10). Shifted from concept to tolerance design. V7 destabilized meaning, V8 destabilizes trust. Top: P04 Perfect Grid (9.2) - 'V8 distilled', P01 False Center (9). Techniques: 1.8px off-center, 99% scale asymmetry, 4° hue shift, √2 irrational ratios, prime-number spacing. Key insight: designing tolerances, not ideas."
   v8_risk: "Labels still frame interpretation. CENTER, BALANCE, HARMONY, PERFECT, EVEN hint at theme even when not joking. True silent deception removes scaffolding entirely."
-  v9_questions:
-    - "Can doubt exist without a declared subject?"
-    - "Can systems create instability without any text?"
-    - "Can design affect without arguing?"
-    - "What happens when thesis disappears entirely?"
-  v9_thesis: "Unlabeled instability - no words, no claims, just systems. The viewer feels doubt without being told what to doubt. Design stops arguing and starts affecting. Disappearance of thesis entirely."
+  v9: "Invisibility - perceptual architecture (9.0/10). Zero text, pure compositional unease. Design stops arguing and simply destabilizes certainty. Top: P05 Displaced Center (9.2) - concentric rings with off-center dot, felt before articulated. P04 Broken Rhythm (9.1) - horizontal rhythm sensitivity. Techniques: 1.5px grid offset, asymmetric negative space, temperature drift, rhythm breaks, gravitational displacement. Key insight: 'I can't tell what's wrong, but something is slightly wrong.' That's the whisper."
+  v9_risk: "Margin between 'subtle tension' and 'alignment error' is razor thin. Success depends on production precision, not philosophy. Color temperature deviation (P03 8.3) most fragile - screen-dependent."
+  v9_milestone: "Transition from graphic design to perceptual architecture. Evolution complete: discipline → intention → restraint → paradox → precision → invisibility."
 
 conflict_policy:
   order:
