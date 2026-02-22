@@ -27,15 +27,15 @@ jobs:
       - name: Run security regression tests
         env:
           DURO_AGENT_HOME: ${{ runner.temp }}/duro-agent-home
+          # Disable provenance requirement for immutability tests (they test other security aspects)
+          DURO_PROVENANCE_REQUIRED: "0"
         working-directory: src
         run: python test_security_immutability.py
         shell: bash
 
       - name: Run provenance signing tests
-        env:
-          # Test key for CI - the test manages its own keys but needs a default
-          DURO_PROVENANCE_HMAC_KEYS: "ci_v1:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
         working-directory: src
+        # Test is self-contained: sets DURO_PROVENANCE_HMAC_KEYS dynamically in setup
         run: python test_provenance_signing.py
         shell: bash
 

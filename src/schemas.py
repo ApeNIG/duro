@@ -63,7 +63,12 @@ PROVENANCE_BLOCK_SCHEMA = {
 }
 
 # Computed signature status (not stored, set on load)
-SIGNATURE_STATUS_ENUM = ["unsigned", "valid", "invalid", "unknown_key"]
+# - unsigned: no signature present (legacy artifact or keys not configured)
+# - valid: signature verified successfully
+# - invalid: signature mismatch (TAMPERED!)
+# - unknown_key: key_id not in current key set (rotated out?)
+# - error: verification couldn't run (exception during verify)
+SIGNATURE_STATUS_ENUM = ["unsigned", "valid", "invalid", "unknown_key", "error"]
 
 # =============================================================================
 # Base artifact envelope schema

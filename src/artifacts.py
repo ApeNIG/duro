@@ -21,19 +21,17 @@ from schemas import validate_artifact, TYPE_DIRECTORIES, apply_backward_compat_d
 from index import ArtifactIndex
 from embedding_worker import EmbeddingQueue
 
-# Provenance signing - optional until env var is set
-try:
-    from provenance_signing import (
-        sign_artifact,
-        verify_artifact,
-        is_signing_available,
-        TrustTier,
-    )
-    PROVENANCE_SIGNING_AVAILABLE = True
-except ImportError:
-    PROVENANCE_SIGNING_AVAILABLE = False
-    def is_signing_available() -> bool:
-        return False
+# Provenance signing
+from provenance_signing import (
+    sign_artifact,
+    verify_artifact,
+    is_signing_available,
+    TrustTier,
+)
+
+# DURO_PROVENANCE_REQUIRED: When set to "1", signing failures block artifact storage.
+# Default to "1" for security - explicitly set to "0" only for migration/testing.
+PROVENANCE_REQUIRED = os.environ.get("DURO_PROVENANCE_REQUIRED", "1") == "1"
 
 # Module-level lock for audit chain atomicity
 # Prevents concurrent prev_hash read + append races within a single process.
@@ -2400,14 +2398,19 @@ class ArtifactStore:
                 "validators": [],
             }
 
-        # Sign artifact if provenance signing is available
-        if PROVENANCE_SIGNING_AVAILABLE and is_signing_available():
+        # Sign artifact
+        if is_signing_available():
             try:
                 artifact = sign_artifact(artifact)
             except Exception as e:
-                # Signing failure should not block storage in Phase 1
-                # Phase 2 may make this a hard failure
-                print(f"[WARN] Provenance signing failed: {e}", file=sys.stderr)
+                if PROVENANCE_REQUIRED:
+                    # Fail hard: signing is required but failed
+                    return False, "", f"Provenance signing failed (DURO_PROVENANCE_REQUIRED=1): {e}"
+                else:
+                    print(f"[WARN] Provenance signing failed: {e}", file=sys.stderr)
+        elif PROVENANCE_REQUIRED:
+            # Signing keys not configured but signing is required
+            return False, "", "Provenance signing required but DURO_PROVENANCE_HMAC_KEYS not set"
 
         # Remove signature_status before storing (computed on load, not stored)
         artifact.pop("signature_status", None)
@@ -2476,8 +2479,8 @@ class ArtifactStore:
             content = file_path.read_text(encoding='utf-8')
             artifact = json.loads(content)
 
-            # Verify provenance signature if signing is available
-            if PROVENANCE_SIGNING_AVAILABLE and is_signing_available():
+            # Verify provenance signature
+            if is_signing_available():
                 try:
                     status = verify_artifact(artifact)
                     artifact["signature_status"] = status
@@ -2490,9 +2493,11 @@ class ArtifactStore:
                             file=sys.stderr
                         )
                 except Exception as e:
+                    # Verification couldn't run - treat as error state
                     artifact["signature_status"] = "error"
-                    print(f"[WARN] Provenance verification failed: {e}", file=sys.stderr)
+                    print(f"[WARN] Provenance verification error: {e}", file=sys.stderr)
             else:
+                # Keys not configured - can't verify
                 artifact["signature_status"] = "unsigned"
 
             return artifact
