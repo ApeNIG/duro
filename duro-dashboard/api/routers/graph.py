@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 from typing import Any
+from collections import defaultdict
+from itertools import combinations
 
 from fastapi import APIRouter, Query
 
@@ -11,6 +13,29 @@ from .stats import get_db_connection
 router = APIRouter()
 
 MEMORY_DIR = Path.home() / ".agent" / "memory"
+
+
+def extract_keywords(text: str) -> set[str]:
+    """Extract meaningful keywords from text."""
+    if not text:
+        return set()
+
+    # Clean punctuation and normalize
+    import re
+    text = re.sub(r'[^\w\s]', ' ', text.lower())
+    words = text.split()
+
+    stopwords = {
+        "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
+        "of", "with", "by", "from", "as", "is", "was", "are", "were", "been",
+        "be", "have", "has", "had", "do", "does", "did", "will", "would", "could",
+        "should", "may", "might", "must", "shall", "can", "this", "that", "these",
+        "those", "it", "its", "i", "we", "you", "they", "he", "she", "what", "which",
+        "who", "when", "where", "why", "how", "not", "no", "yes", "if", "then",
+        "than", "so", "just", "only", "also", "more", "most", "some", "any", "all",
+        "using", "used", "use", "make", "made", "get", "set", "new", "one", "two"
+    }
+    return {w for w in words if len(w) > 3 and w not in stopwords and w.isalpha()}
 
 
 def load_artifact_file(file_path: str) -> dict | None:
@@ -123,10 +148,74 @@ def extract_relationships(artifact_id: str, content: dict) -> list[dict]:
     return relationships
 
 
+def calculate_similarity_edges(
+    artifacts_data: dict[str, dict],
+    min_similarity: float = 0.3,
+    max_edges: int = 50,
+) -> list[dict]:
+    """Calculate similarity edges between artifacts based on tag and keyword overlap."""
+    similarity_edges = []
+    existing_pairs = set()
+
+    # Only consider fact and decision types for similarity
+    similarity_types = {"fact", "decision"}
+    candidates = [
+        (aid, data) for aid, data in artifacts_data.items()
+        if data.get("type") in similarity_types
+    ]
+
+    # Calculate pairwise similarity
+    for (id1, data1), (id2, data2) in combinations(candidates, 2):
+        pair_key = tuple(sorted([id1, id2]))
+        if pair_key in existing_pairs:
+            continue
+
+        tags1 = set(t.lower() for t in data1.get("tags", []))
+        tags2 = set(t.lower() for t in data2.get("tags", []))
+        keywords1 = data1.get("keywords", set())
+        keywords2 = data2.get("keywords", set())
+
+        # Calculate similarity using Jaccard-like score
+        score = 0.0
+
+        # Tag similarity (high weight)
+        if tags1 or tags2:
+            tag_union = tags1 | tags2
+            tag_overlap = tags1 & tags2
+            if tag_union:
+                score += (len(tag_overlap) / len(tag_union)) * 0.5
+
+        # Keyword similarity - use minimum overlap count for relevance
+        if keywords1 and keywords2:
+            keyword_overlap = keywords1 & keywords2
+            overlap_count = len(keyword_overlap)
+            # Score based on absolute overlap (at least 3 shared meaningful words)
+            if overlap_count >= 3:
+                # Normalize by the smaller set size
+                min_size = min(len(keywords1), len(keywords2))
+                score += min(overlap_count / min_size, 0.5) * 1.0
+
+        if score >= min_similarity:
+            existing_pairs.add(pair_key)
+            similarity_edges.append({
+                "source": id1,
+                "target": id2,
+                "type": "similar",
+                "similarity": round(score, 2),
+            })
+
+    # Sort by similarity and limit
+    similarity_edges.sort(key=lambda x: -x["similarity"])
+    return similarity_edges[:max_edges]
+
+
 @router.get("/relationships")
 async def get_relationships(
     limit: int = Query(200, ge=1, le=500),
     types: str = Query(None, description="Comma-separated types to include"),
+    include_similarity: bool = Query(False, description="Include semantic similarity edges"),
+    min_similarity: float = Query(0.3, ge=0.1, le=0.9),
+    max_similarity_edges: int = Query(50, ge=10, le=200),
 ) -> dict[str, Any]:
     """
     Get artifact nodes and their relationships for graph visualization.
@@ -138,6 +227,9 @@ async def get_relationships(
     - Evaluations → episodes
     - Incidents → recent changes
     - Facts → superseded_by
+
+    With include_similarity=true, also adds:
+    - Similar facts and decisions based on tag/keyword overlap
     """
     conn = get_db_connection()
 
@@ -186,6 +278,7 @@ async def get_relationships(
     all_edges = []
     node_ids = set()
     node_map = {}  # id -> node dict for deduplication
+    artifacts_data = {}  # id -> data dict for similarity calculation
 
     # Process all rows (linking artifacts + other artifacts)
     all_rows = list(linking_rows) + list(other_rows)
@@ -208,6 +301,21 @@ async def get_relationships(
             if content:
                 edges = extract_relationships(row["id"], content)
                 all_edges.extend(edges)
+
+                # Store data for similarity calculation
+                if include_similarity:
+                    data = content.get("data", {})
+                    text_content = ""
+                    if row["type"] == "fact":
+                        text_content = data.get("claim", "")
+                    elif row["type"] == "decision":
+                        text_content = (data.get("decision") or "") + " " + (data.get("rationale") or "")
+
+                    artifacts_data[row["id"]] = {
+                        "type": row["type"],
+                        "tags": data.get("tags", []),
+                        "keywords": extract_keywords(text_content),
+                    }
 
     # Collect all referenced IDs that we don't have yet
     missing_ids = set()
@@ -238,16 +346,52 @@ async def get_relationships(
                 node_ids.add(row["id"])
                 node_map[row["id"]] = node
 
+                # Also add to artifacts_data for similarity calculation
+                if include_similarity and row["file_path"]:
+                    content = load_artifact_file(row["file_path"])
+                    if content:
+                        data = content.get("data", {})
+                        text_content = ""
+                        if row["type"] == "fact":
+                            text_content = data.get("claim", "")
+                        elif row["type"] == "decision":
+                            text_content = (data.get("decision") or "") + " " + (data.get("rationale") or "")
+
+                        if text_content:  # Only add if we have content to compare
+                            artifacts_data[row["id"]] = {
+                                "type": row["type"],
+                                "tags": data.get("tags", []),
+                                "keywords": extract_keywords(text_content),
+                            }
+
     # Filter edges to only include nodes we have (should be all now)
     valid_edges = [
         e for e in all_edges
         if e["source"] in node_ids and e["target"] in node_ids
     ]
 
+    # Calculate similarity edges if requested
+    similarity_edges = []
+    if include_similarity and artifacts_data:
+        similarity_edges = calculate_similarity_edges(
+            artifacts_data,
+            min_similarity=min_similarity,
+            max_edges=max_similarity_edges,
+        )
+        # Filter to only include nodes we have
+        similarity_edges = [
+            e for e in similarity_edges
+            if e["source"] in node_ids and e["target"] in node_ids
+        ]
+        valid_edges.extend(similarity_edges)
+
     # Get edge type counts
     edge_type_counts = {}
     for e in valid_edges:
         edge_type_counts[e["type"]] = edge_type_counts.get(e["type"], 0) + 1
+
+    # Count artifacts eligible for similarity
+    similarity_candidate_count = sum(1 for aid, adata in artifacts_data.items() if adata.get("type") in {"fact", "decision"})
 
     return {
         "nodes": nodes,
@@ -255,6 +399,9 @@ async def get_relationships(
         "stats": {
             "total_nodes": len(nodes),
             "total_edges": len(valid_edges),
+            "explicit_edges": len(valid_edges) - len(similarity_edges),
+            "similarity_edges": len(similarity_edges),
+            "similarity_candidates": similarity_candidate_count,
             "edge_types": edge_type_counts,
         }
     }

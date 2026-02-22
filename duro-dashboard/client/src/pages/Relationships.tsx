@@ -18,6 +18,7 @@ interface Edge {
   source: string
   target: string
   type: string
+  similarity?: number
 }
 
 interface GraphData {
@@ -49,6 +50,7 @@ const edgeTypeColors: Record<string, string> = {
   evaluates: '#FF44FF',
   caused_by: '#FF4444',
   superseded_by: '#666666',
+  similar: '#FF66CC', // Semantic similarity edges
 }
 
 const defaultColor = '#888888'
@@ -200,13 +202,20 @@ export default function Relationships() {
   const [dragNode, setDragNode] = useState<string | null>(null)
   const [isPanning, setIsPanning] = useState(false)
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 })
+  const [showSimilarity, setShowSimilarity] = useState(false)
 
   const svgRef = useRef<SVGSVGElement>(null)
 
   const { data, isLoading, error } = useQuery<GraphData>({
-    queryKey: ['relationships'],
+    queryKey: ['relationships', showSimilarity],
     queryFn: async () => {
-      const res = await fetch('/api/relationships?limit=200')
+      const params = new URLSearchParams({
+        limit: '200',
+        include_similarity: showSimilarity ? 'true' : 'false',
+        min_similarity: '0.3',
+        max_similarity_edges: '50',
+      })
+      const res = await fetch(`/api/relationships?${params}`)
       if (!res.ok) throw new Error('Failed to fetch relationships')
       return res.json()
     },
@@ -360,6 +369,20 @@ export default function Relationships() {
               className="bg-card border border-border rounded pl-9 pr-4 py-1.5 text-sm w-48 focus:outline-none focus:border-accent/50"
             />
           </div>
+
+          {/* Similarity toggle */}
+          <button
+            onClick={() => setShowSimilarity(!showSimilarity)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs transition-colors ${
+              showSimilarity
+                ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                : 'bg-white/5 text-text-secondary hover:text-text-primary border border-border'
+            }`}
+            title={showSimilarity ? 'Hide similarity edges' : 'Show similarity edges'}
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FF66CC' }} />
+            Similar
+          </button>
 
           {/* Simulation control */}
           <button
