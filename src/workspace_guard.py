@@ -54,6 +54,18 @@ DEFAULT_STRICT = True
 # These are system-critical paths that could compromise the machine
 # On Windows, these are case-insensitive
 
+# === INTERNAL SENSITIVE PATHS ===
+# SECURITY: Paths within .agent that contain sensitive data
+# Direct file access to these bypasses Duro's sensitivity controls
+# These are blocked even from within the allowed workspace
+INTERNAL_SENSITIVE_PATHS: tuple = (
+    Path.home() / ".agent" / "memory",  # Contains sensitive artifacts
+    Path.home() / ".agent" / "memory" / "artifacts",
+    Path.home() / ".agent" / "memory" / "audit",
+    Path.home() / ".agent" / "soul.md",  # Personality config
+    Path.home() / ".agent" / "core.md",  # Core memory
+)
+
 def _get_deny_list() -> List[Path]:
     """
     Get platform-appropriate deny list.
@@ -146,6 +158,43 @@ def is_in_deny_list(path: Path) -> Tuple[bool, str]:
         return True, f"Path validation error: {e}"
 
     return False, ""
+
+
+def is_internal_sensitive_path(path: Path) -> Tuple[bool, str]:
+    """
+    Check if a path is in the internal sensitive paths list.
+
+    These are paths within .agent that should only be accessed via
+    Duro MCP tools, not via direct file operations.
+
+    Returns (is_sensitive, reason)
+    """
+    try:
+        resolved = path.resolve()
+
+        for sensitive_path in INTERNAL_SENSITIVE_PATHS:
+            sensitive_resolved = sensitive_path.resolve() if sensitive_path.exists() else sensitive_path
+
+            # Check if path is exactly the sensitive path or under it
+            try:
+                resolved.relative_to(sensitive_resolved)
+                return True, f"Internal sensitive path (use Duro MCP tools): {sensitive_path.name}"
+            except ValueError:
+                pass
+
+            # On Windows, case-insensitive comparison
+            if sys.platform == "win32":
+                if str(resolved).lower() == str(sensitive_resolved).lower():
+                    return True, f"Internal sensitive path (use Duro MCP tools): {sensitive_path.name}"
+                if str(resolved).lower().startswith(str(sensitive_resolved).lower() + "\\"):
+                    return True, f"Internal sensitive path (use Duro MCP tools): {sensitive_path.name}"
+
+    except Exception:
+        # Don't block on errors - this is for internal paths
+        pass
+
+    return False, ""
+
 
 # Audit log for workspace violations
 AUDIT_DIR = Path.home() / ".agent" / "memory" / "audit"
@@ -580,6 +629,17 @@ def validate_path(
             normalized_path=resolved,
             reason=f"DENIED: {deny_reason}",
             risk_level="critical",
+        )
+
+    # Step 1.6: Check internal sensitive paths (must use Duro MCP tools)
+    # SECURITY: This prevents direct file access from bypassing sensitivity controls
+    is_sensitive, sensitive_reason = is_internal_sensitive_path(resolved)
+    if is_sensitive:
+        return PathValidation(
+            valid=False,
+            normalized_path=resolved,
+            reason=f"BLOCKED: {sensitive_reason}",
+            risk_level="sensitive",
         )
 
     # Step 2: Check if in workspace
