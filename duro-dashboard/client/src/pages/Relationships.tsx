@@ -70,6 +70,7 @@ function useForceSimulation(
   const [nodes, setNodes] = useState<Node[]>([])
   const animationRef = useRef<number>()
   const nodesRef = useRef<Node[]>([])
+  const isActiveRef = useRef(false) // Track if simulation should be running
 
   // Initialize nodes with random positions
   useEffect(() => {
@@ -87,15 +88,20 @@ function useForceSimulation(
   // Run simulation
   useEffect(() => {
     if (!isRunning || nodes.length === 0) {
+      isActiveRef.current = false
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       return
     }
 
+    isActiveRef.current = true
     const nodeMap = new Map(nodesRef.current.map(n => [n.id, n]))
     const centerX = width / 2
     const centerY = height / 2
 
     const simulate = () => {
+      // Check if we should stop before scheduling next frame
+      if (!isActiveRef.current) return
+
       const currentNodes = nodesRef.current
 
       // Apply forces
@@ -152,12 +158,17 @@ function useForceSimulation(
       }
 
       setNodes([...currentNodes])
-      animationRef.current = requestAnimationFrame(simulate)
+
+      // Only schedule next frame if still active
+      if (isActiveRef.current) {
+        animationRef.current = requestAnimationFrame(simulate)
+      }
     }
 
     animationRef.current = requestAnimationFrame(simulate)
 
     return () => {
+      isActiveRef.current = false
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
     }
   }, [isRunning, nodes.length, edges, width, height])
