@@ -10,6 +10,7 @@ export default {
         card: '#0A0A0A',
         accent: '#00FF88',
         'accent-dim': 'rgba(0, 255, 136, 0.125)',
+        violet: '#8B5CF6',
         border: '#2f2f2f',
         error: '#FF4444',
         warning: '#FF8800',

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Database, Activity, Brain, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb, X } from 'lucide-react'
+import { Database, Activity, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb, X } from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
@@ -48,9 +48,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
     <aside className="w-64 lg:w-56 h-full bg-sidebar border-r border-border flex flex-col">
       {/* Logo */}
       <div className="h-14 px-4 flex items-center justify-between border-b border-border">
-        <div className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-accent" />
-          <span className="font-display font-semibold tracking-tight">duro</span>
+        <div className="flex items-baseline gap-0.5">
+          <span className="font-display font-bold text-lg tracking-tight">duro</span>
+          <span className="w-2 h-2 rounded-full bg-violet -translate-y-2"></span>
         </div>
         {/* Close button - mobile only */}
         <button
