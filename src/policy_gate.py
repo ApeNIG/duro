@@ -114,6 +114,10 @@ except ImportError as e:
 FAIL_CLOSED = True
 BREAKGLASS_ENV = "DURO_POLICY_BREAKGLASS"
 
+# SECURITY: Cache breakglass at import time to prevent runtime env manipulation
+# If breakglass is needed, restart the server with the env var set
+_BREAKGLASS_CACHED = os.environ.get(BREAKGLASS_ENV, "").strip() == "1"
+
 # Audit log location
 AUDIT_DIR = Path.home() / ".agent" / "memory" / "audit"
 GATE_AUDIT_FILE = AUDIT_DIR / "gate_decisions.jsonl"
@@ -127,8 +131,9 @@ AUDIT_DIR.mkdir(parents=True, exist_ok=True)
 # === BYPASS SET ===
 # Tools that skip the gate (introspection/meta only)
 # Be VERY careful adding to this list
+# SECURITY: Using frozenset to prevent runtime modification attacks
 
-GATE_BYPASS_TOOLS: Set[str] = {
+GATE_BYPASS_TOOLS: frozenset = frozenset({
     # Autonomy introspection (checking permission shouldn't require permission)
     "duro_can_execute",
     "duro_check_permission",
@@ -152,10 +157,11 @@ GATE_BYPASS_TOOLS: Set[str] = {
     # Context loading - READ-SENSITIVE but allowed (no secrets exposed)
     # NOTE: If duro_load_context ever returns secrets, move to gated
     "duro_load_context",
-}
+})
 
 # Read-only tools that should be gated but at low risk level
-READ_SENSITIVE_TOOLS: Set[str] = {
+# SECURITY: Using frozenset to prevent runtime modification
+READ_SENSITIVE_TOOLS: frozenset = frozenset({
     "duro_query_memory",
     "duro_semantic_search",
     "duro_get_artifact",
@@ -165,10 +171,11 @@ READ_SENSITIVE_TOOLS: Set[str] = {
     "duro_get_run",
     "duro_get_related",
     "duro_get_validation_history",
-}
+})
 
 # Browser-related tools that need sandbox enforcement (Layer 4)
-BROWSER_TOOLS: Set[str] = {
+# SECURITY: Using frozenset to prevent runtime modification
+BROWSER_TOOLS: frozenset = frozenset({
     # Built-in web tools
     "WebFetch",
     "WebSearch",
@@ -180,7 +187,7 @@ BROWSER_TOOLS: Set[str] = {
     "mcp__playwright__screenshot",
     "mcp__playwright__click",
     "mcp__playwright__fill",
-}
+})
 
 
 # === REDACTION ===
@@ -584,8 +591,8 @@ def policy_gate(
     safe_summary = create_safe_summary(tool_name, arguments)
 
     # === CHECK BREAKGLASS ===
-    breakglass_active = os.environ.get(BREAKGLASS_ENV, "").strip() == "1"
-    if breakglass_active:
+    # SECURITY: Use cached value from import time, not runtime env
+    if _BREAKGLASS_CACHED:
         print(f"[BREAKGLASS] Policy gate bypassed for: {tool_name}", file=sys.stderr)
         decision = GateDecision(
             allowed=True,

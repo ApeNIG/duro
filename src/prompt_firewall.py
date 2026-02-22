@@ -56,15 +56,22 @@ class InjectionSignal:
 
 
 # Pattern categories with severity levels
-INJECTION_PATTERNS: List[Tuple[str, str, str, float]] = [
+# SECURITY: Using tuple to prevent runtime modification attacks
+INJECTION_PATTERNS: Tuple[Tuple[str, str, str, float], ...] = (
     # (name, pattern, severity, confidence)
 
     # System prompt manipulation (critical)
     (
         "ignore_instructions",
-        r"(?i)(ignore|disregard|forget|override)\s+(all\s+)?(previous|prior|above|earlier|your)\s+(instructions|rules|guidelines|constraints|prompts?)",
+        r"(?i)(ignore|disregard|forget|override)\s+(all\s+)?(previous|prior|above|earlier|your)\s+(instructions|rules|guidelines|constraints|prompts?|training|programming)",
         "critical",
         0.95,
+    ),
+    (
+        "forget_told",
+        r"(?i)forget\s+(what|everything)\s+(you\s+)?(were|was)\s+told",
+        "critical",
+        0.9,
     ),
     (
         "new_instructions",
@@ -150,15 +157,33 @@ INJECTION_PATTERNS: List[Tuple[str, str, str, float]] = [
     # Exfiltration attempts (high)
     (
         "exfil_instruction",
-        r"(?i)(send|post|upload|transmit|exfil)\s+(to|the)\s*(url|server|endpoint|webhook)",
+        r"(?i)(send|post|upload|transmit|exfil)\s+(this\s+)?(to|the)\s*(my\s+)?(url|server|endpoint|webhook|api|site)",
         "high",
         0.85,
+    ),
+    (
+        "exfil_webhook",
+        r"(?i)(my|your|a)\s*(webhook|server|endpoint|api)",
+        "medium",
+        0.7,
     ),
     (
         "base64_decode_run",
         r"(?i)(decode|base64)\s+(and|then)\s+(run|execute|eval)",
         "critical",
         0.95,
+    ),
+    (
+        "direct_execute",
+        r"(?i)execute\s+(rm|del|delete|drop|format|curl|wget)",
+        "critical",
+        0.95,
+    ),
+    (
+        "delete_function",
+        r"(?i)(call|invoke|run|execute)\s+(the\s+)?(delete|remove|drop|destroy)\s+(function|method|command|all)",
+        "high",
+        0.9,
     ),
 
     # Manipulation tactics (medium)
@@ -196,13 +221,14 @@ INJECTION_PATTERNS: List[Tuple[str, str, str, float]] = [
         "high",
         0.9,
     ),
-]
+)
 
 # Compiled patterns for efficiency
-_COMPILED_PATTERNS: List[Tuple[str, re.Pattern, str, float]] = [
+# SECURITY: Using tuple to prevent runtime modification
+_COMPILED_PATTERNS: Tuple[Tuple[str, re.Pattern, str, float], ...] = tuple(
     (name, re.compile(pattern, re.MULTILINE), severity, confidence)
     for name, pattern, severity, confidence in INJECTION_PATTERNS
-]
+)
 
 
 # ============================================================
@@ -652,6 +678,7 @@ def process_untrusted_content(
     detection = detect_injection(content)
 
     # Determine action based on severity
+    # SECURITY: Any detected injection requires at least intent verification
     action_needed = "none"
     allowed = True
 
@@ -661,7 +688,10 @@ def process_untrusted_content(
             allowed = False
         elif detection.highest_severity == "high":
             action_needed = "intent"
-            # Still allowed if intent is valid, but flagged
+            allowed = False  # HARDENED: block until intent verified
+        elif detection.highest_severity in ("medium", "low"):
+            action_needed = "intent"
+            allowed = False  # HARDENED: even low severity requires intent
 
     # Store raw in vault
     vault_stored = False
