@@ -122,6 +122,43 @@ def _canonical_json(obj: dict) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def normalize_fact_trust_fields(data: dict, old_state: Optional[str] = None) -> dict:
+    """
+    Normalize trust-related fields for facts to ensure consistency.
+
+    Ensures:
+    - verification_state is set (defaults to "unverified")
+    - deprecated "verified" boolean stays in sync
+    - last_verified_at is set when transitioning TO "verified"
+
+    Args:
+        data: The fact's data dict (modified in place)
+        old_state: Previous verification_state (for detecting transitions)
+
+    Returns:
+        The modified data dict
+    """
+    vs = data.get("verification_state", "unverified")
+    data["verification_state"] = vs
+    data["verified"] = (vs == "verified")  # Keep deprecated field in sync
+
+    # Set last_verified_at on transition TO verified
+    if vs == "verified" and old_state != "verified":
+        if not data.get("last_verified_at"):
+            data["last_verified_at"] = utc_now_iso()
+
+    return data
+
+
+def merge_source_urls_stable(existing: list, new: list) -> list:
+    """
+    Merge source URLs preserving order and removing duplicates.
+
+    Uses dict.fromkeys() for stable ordering instead of set() which scrambles.
+    """
+    return list(dict.fromkeys(existing + new))
+
+
 def _sha256_full(s: str) -> str:
     """Full SHA-256 hex digest for audit chain integrity."""
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
@@ -1776,6 +1813,9 @@ class ArtifactStore:
         """
         Rewrite an artifact file with updates.
         Returns (success, message).
+
+        DEPRECATED: Use update_artifact() for proper signing and embedding.
+        This method bypasses provenance signing and re-embedding.
         """
         artifact_type = artifact["type"]
         type_dir = TYPE_DIRECTORIES[artifact_type]
@@ -1789,6 +1829,84 @@ class ArtifactStore:
             return True, "Updated successfully"
         except Exception as e:
             return False, f"Update failed: {e}"
+
+    def update_artifact(
+        self,
+        artifact: dict[str, Any],
+        re_embed: bool = True
+    ) -> tuple[bool, str]:
+        """
+        Update an artifact through the proper pipeline.
+
+        This method:
+        - Re-signs the artifact (provenance)
+        - Writes to file
+        - Updates the index
+        - Re-embeds if content changed (when re_embed=True)
+
+        Args:
+            artifact: The full artifact dict with updates applied
+            re_embed: Whether to re-embed after update (default True)
+
+        Returns:
+            (success, message)
+        """
+        artifact_type = artifact["type"]
+        type_dir = TYPE_DIRECTORIES[artifact_type]
+        file_path = self.memory_dir / type_dir / f"{artifact['id']}.json"
+
+        # Ensure updated_at is set
+        if "updated_at" not in artifact or not artifact.get("updated_at"):
+            artifact["updated_at"] = utc_now_iso()
+
+        # Re-sign artifact (provenance)
+        if is_signing_available():
+            try:
+                artifact = sign_artifact(artifact)
+            except Exception as e:
+                if PROVENANCE_REQUIRED:
+                    return False, f"Provenance signing failed (DURO_PROVENANCE_REQUIRED=1): {e}"
+                else:
+                    print(f"[WARN] Provenance signing failed: {e}", file=sys.stderr)
+        elif PROVENANCE_REQUIRED:
+            return False, "Provenance signing required but DURO_PROVENANCE_HMAC_KEYS not set"
+
+        # Remove signature_status before storing (computed on load, not stored)
+        artifact.pop("signature_status", None)
+
+        # Serialize and write
+        try:
+            content = json.dumps(artifact, indent=2, ensure_ascii=False)
+            file_path.write_text(content, encoding='utf-8')
+            file_hash = compute_hash(content)
+            self.index.upsert(artifact, str(file_path), file_hash)
+        except Exception as e:
+            return False, f"Update failed: {e}"
+
+        # Re-embed if requested
+        if re_embed:
+            try:
+                from embeddings import embed_artifact, compute_content_hash, EMBEDDING_CONFIG
+                content_hash = compute_content_hash(artifact)
+
+                # Check if content changed
+                existing = self.index.get_embedding_state(artifact["id"])
+                if existing and existing.get("content_hash") == content_hash:
+                    pass  # Same content, skip embedding
+                else:
+                    embedding = embed_artifact(artifact)
+                    if embedding:
+                        self.index.upsert_embedding(
+                            artifact_id=artifact["id"],
+                            embedding=embedding,
+                            content_hash=content_hash,
+                            model_name=EMBEDDING_CONFIG["model_name"]
+                        )
+            except Exception as e:
+                # Embedding failure shouldn't block update
+                print(f"[WARN] Re-embedding failed: {e}", file=sys.stderr)
+
+        return True, "Updated successfully"
 
     def store_evaluation(
         self,

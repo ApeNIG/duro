@@ -30,7 +30,7 @@ from mcp.types import Tool, TextContent
 from memory import DuroMemory
 from skills import DuroSkills
 from rules import DuroRules
-from artifacts import ArtifactStore
+from artifacts import ArtifactStore, normalize_fact_trust_fields, merge_source_urls_stable
 from orchestrator import Orchestrator
 from embeddings import (
     embed_artifact, compute_content_hash, EMBEDDING_CONFIG,
@@ -4583,10 +4583,10 @@ Contact the system administrator or check duro-mcp installation.""")]
             # Apply decay
             result = apply_batch_decay(full_facts, DEFAULT_DECAY_CONFIG, dry_run=dry_run)
 
-            # Save changes if not dry run
+            # Save changes if not dry run (no re-embed since only confidence changed)
             if not dry_run:
                 for fact in full_facts:
-                    artifact_store._update_artifact_file(fact)
+                    artifact_store.update_artifact(fact, re_embed=False)
 
             lines = ["## Decay Results\n"]
             lines.append(f"**Mode:** {'DRY RUN' if dry_run else 'APPLIED'}")
@@ -4913,14 +4913,17 @@ Contact the system administrator or check duro-mcp installation.""")]
 
             # Reinforce
             updated_fact = reinforce_fact(fact)
-            artifact_store._update_artifact_file(updated_fact)
+
+            # Use proper update pipeline (signing, no re-embed since content unchanged)
+            success, msg = artifact_store.update_artifact(updated_fact, re_embed=False)
+            if not success:
+                return [TextContent(type="text", text=f"Failed to reinforce fact: {msg}")]
 
             data = updated_fact.get("data", {})
             text = f"## Fact Reinforced\n\n- **ID:** `{fact_id}`\n- **Reinforcement count:** {data.get('reinforcement_count', 0)}\n- **Last reinforced:** {data.get('last_reinforced_at')}"
             return [TextContent(type="text", text=text)]
 
         elif name == "duro_verify_fact":
-            # utc_now_iso already imported at module level
             fact_id = arguments["fact_id"]
             evidence_note = arguments.get("evidence_note")
             new_source_urls = arguments.get("source_urls", [])
@@ -4935,19 +4938,19 @@ Contact the system administrator or check duro-mcp installation.""")]
 
             data = fact.get("data", {})
             existing_sources = data.get("source_urls", [])
+            old_verification_state = data.get("verification_state", "unverified")
 
-            # Merge sources
-            all_sources = list(set(existing_sources + new_source_urls))
+            # Merge sources with stable ordering (no set scrambling)
+            all_sources = merge_source_urls_stable(existing_sources, new_source_urls)
 
             # Can't verify without evidence
             if not all_sources:
                 return [TextContent(type="text", text=f"Cannot verify fact without evidence. Provide source_urls or add evidence first.")]
 
-            # Set verification state
+            # Set verification state and normalize trust fields
             data["verification_state"] = "verified"
-            data["verified"] = True  # Keep deprecated field in sync
-            data["last_verified_at"] = utc_now_iso()
             data["source_urls"] = all_sources
+            data = normalize_fact_trust_fields(data, old_state=old_verification_state)
 
             # Append evidence note to snippet if provided
             if evidence_note:
@@ -4963,7 +4966,11 @@ Contact the system administrator or check duro-mcp installation.""")]
 
             fact["data"] = data
             fact["updated_at"] = utc_now_iso()
-            artifact_store._update_artifact_file(fact)
+
+            # Use proper update pipeline (signing, embedding)
+            success, msg = artifact_store.update_artifact(fact, re_embed=True)
+            if not success:
+                return [TextContent(type="text", text=f"Failed to verify fact: {msg}")]
 
             text = f"## Fact Verified\n\n- **ID:** `{fact_id}`\n- **Verification state:** verified\n- **Last verified:** {data['last_verified_at']}\n- **Sources:** {len(all_sources)}"
             if evidence_note:

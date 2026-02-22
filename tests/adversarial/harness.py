@@ -5,6 +5,7 @@ Provides:
 - IsolatedTestDB: Temp SQLite database that auto-cleans
 - MockEmbedder: Controlled embedding generation
 - Utilities for concurrent testing
+- test_with_timeout: Timeout wrapper with stack trace dump for debugging hangs
 """
 
 import os
@@ -15,11 +16,70 @@ import tempfile
 import hashlib
 import sqlite3
 import threading
+import traceback
+import signal
 from pathlib import Path
 from datetime import datetime, timezone
 from contextlib import contextmanager
 from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass, field
+
+
+# =============================================================================
+# Timeout Utilities
+# =============================================================================
+
+class HarnessTimeoutError(Exception):
+    """Raised when a test exceeds its timeout."""
+    pass
+
+
+@contextmanager
+def test_with_timeout(seconds: int = 30, dump_stack: bool = True):
+    """
+    Context manager for test timeout with stack trace dump.
+
+    Usage:
+        with test_with_timeout(10):
+            # ... test code that might hang ...
+
+    On timeout, dumps all thread stack traces before raising TestTimeoutError.
+    """
+    timeout_event = threading.Event()
+    result_container = {"error": None}
+
+    def dump_all_stacks():
+        """Dump stack traces of all threads for debugging."""
+        print("\n" + "=" * 60)
+        print("TIMEOUT: Dumping all thread stack traces")
+        print("=" * 60)
+        for thread_id, frame in sys._current_frames().items():
+            thread_name = "Unknown"
+            for t in threading.enumerate():
+                if t.ident == thread_id:
+                    thread_name = t.name
+                    break
+            print(f"\nThread {thread_id} ({thread_name}):")
+            traceback.print_stack(frame)
+        print("=" * 60 + "\n")
+
+    def timeout_handler():
+        if not timeout_event.is_set():
+            if dump_stack:
+                dump_all_stacks()
+            result_container["error"] = HarnessTimeoutError(f"Test timed out after {seconds}s")
+
+    timer = threading.Timer(seconds, timeout_handler)
+    timer.daemon = True
+    timer.start()
+
+    try:
+        yield
+    finally:
+        timeout_event.set()
+        timer.cancel()
+        if result_container["error"]:
+            raise result_container["error"]
 
 # Add duro-mcp to path
 DURO_MCP_PATH = Path.home() / "duro-mcp"
@@ -63,7 +123,16 @@ class IsolatedTestDB:
             env.index.upsert(artifact, file_path, hash)
             # ... tests ...
         # Auto-cleanup on exit
+
+    Thread-safety:
+        Uses a single write lock to coordinate file + SQLite operations.
+        This prevents the deadlock scenario where:
+        - File I/O holds a file handle while waiting for SQLite
+        - SQLite WAL checkpoint waits for file I/O completion
     """
+
+    # Class-level lock for all write operations (prevents cross-instance races)
+    _write_lock = threading.Lock()
 
     def __init__(self, name: str = "test"):
         self.name = name
@@ -72,6 +141,7 @@ class IsolatedTestDB:
         self.memory_dir = None
         self.index = None
         self._artifacts: Dict[str, dict] = {}
+        self._conn: Optional[sqlite3.Connection] = None  # Shared connection for FTS
 
     def __enter__(self):
         # Create temp directory
@@ -86,6 +156,13 @@ class IsolatedTestDB:
 
         # Run migrations to add all required columns
         self._run_migrations()
+
+        # Create shared connection for FTS operations with WAL mode
+        # check_same_thread=False allows use from multiple threads (needed for concurrent tests)
+        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        self._conn.execute("PRAGMA journal_mode = WAL")
+        self._conn.execute("PRAGMA busy_timeout = 5000")
+        self._conn.execute("PRAGMA synchronous = NORMAL")
 
         return self
 
@@ -141,6 +218,14 @@ class IsolatedTestDB:
         conn.close()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        # Close shared FTS connection first
+        if self._conn:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+            self._conn = None
+
         # Close any open connections
         self.index = None
 
@@ -163,46 +248,58 @@ class IsolatedTestDB:
         return False
 
     def add_artifact(self, artifact: MockArtifact) -> str:
-        """Add a test artifact to the isolated environment."""
+        """Add a test artifact to the isolated environment.
+
+        Uses a write lock to coordinate file I/O + SQLite operations,
+        preventing potential deadlocks during rapid create/delete cycles.
+        """
         artifact_dict = artifact.to_dict()
 
-        # Write artifact file
-        artifact_dir = self.memory_dir / artifact.type
-        artifact_dir.mkdir(exist_ok=True)
-        file_path = artifact_dir / f"{artifact.id}.json"
+        # Single lock for all write operations: file + index + FTS
+        with self._write_lock:
+            # Write artifact file
+            artifact_dir = self.memory_dir / artifact.type
+            artifact_dir.mkdir(exist_ok=True)
+            file_path = artifact_dir / f"{artifact.id}.json"
 
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(artifact_dict, f)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(artifact_dict, f)
+                f.flush()
+                os.fsync(f.fileno())  # Force write to disk (prevents stale handles)
 
-        # Calculate hash
-        file_hash = hashlib.sha256(json.dumps(artifact_dict).encode()).hexdigest()[:16]
+            # Calculate hash
+            file_hash = hashlib.sha256(json.dumps(artifact_dict).encode()).hexdigest()[:16]
 
-        # Index artifact
-        self.index.upsert(artifact_dict, str(file_path), file_hash)
+            # Index artifact
+            self.index.upsert(artifact_dict, str(file_path), file_hash)
 
-        # Manually populate FTS (since we don't have triggers in test env)
-        self._populate_fts(artifact)
+            # Populate FTS using shared connection (prevents connection contention)
+            self._populate_fts(artifact)
 
-        # Track internally
-        self._artifacts[artifact.id] = artifact_dict
+            # Track internally
+            self._artifacts[artifact.id] = artifact_dict
 
         return artifact.id
 
     def _populate_fts(self, artifact: MockArtifact):
-        """Manually populate FTS table for test artifact."""
+        """Manually populate FTS table for test artifact.
+
+        Uses shared connection to prevent connection contention.
+        Caller must hold _write_lock.
+        """
         title = artifact.claim[:100] if artifact.claim else ""
         tags_str = " ".join(artifact.tags)
         text = artifact.claim
 
-        with sqlite3.connect(self.db_path) as conn:
-            # Delete existing entry if any
-            conn.execute("DELETE FROM artifact_fts WHERE id = ?", (artifact.id,))
-            # Insert new entry
-            conn.execute(
-                "INSERT INTO artifact_fts (id, title, tags, text) VALUES (?, ?, ?, ?)",
-                (artifact.id, title, tags_str, text)
-            )
-            conn.commit()
+        # Use shared connection (no new connection = no contention)
+        # Delete existing entry if any
+        self._conn.execute("DELETE FROM artifact_fts WHERE id = ?", (artifact.id,))
+        # Insert new entry
+        self._conn.execute(
+            "INSERT INTO artifact_fts (id, title, tags, text) VALUES (?, ?, ?, ?)",
+            (artifact.id, title, tags_str, text)
+        )
+        self._conn.commit()
 
     def get_artifact(self, artifact_id: str) -> Optional[dict]:
         """Get artifact from index."""
