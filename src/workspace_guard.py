@@ -48,13 +48,18 @@ class PathPurpose(Enum):
 WORKSPACE_ENV = "DURO_WORKSPACE"
 WORKSPACE_STRICT_ENV = "DURO_WORKSPACE_STRICT"
 
-# Config file path
-CONFIG_DIR = Path.home() / ".agent" / "config"
+# AGENT_HOME: Base directory for all Duro files
+# Override via DURO_AGENT_HOME env var for testing/CI
+AGENT_HOME = Path(os.environ.get("DURO_AGENT_HOME", str(Path.home() / ".agent")))
+
+# Derived paths
+CONFIG_DIR = AGENT_HOME / "config"
+MEMORY_DIR = AGENT_HOME / "memory"
 WORKSPACE_CONFIG_FILE = CONFIG_DIR / "workspace.json"
 
 # Default workspaces (always allowed)
 DEFAULT_WORKSPACES = [
-    Path.home() / ".agent",  # Duro memory/config
+    AGENT_HOME,  # Duro memory/config
 ]
 
 # Strict mode by default (block all paths outside workspace)
@@ -70,11 +75,11 @@ DEFAULT_STRICT = True
 # Direct file access to these bypasses Duro's sensitivity controls
 # These are blocked even from within the allowed workspace
 INTERNAL_SENSITIVE_PATHS: tuple = (
-    Path.home() / ".agent" / "memory",  # Contains sensitive artifacts
-    Path.home() / ".agent" / "memory" / "artifacts",
-    Path.home() / ".agent" / "memory" / "audit",
-    Path.home() / ".agent" / "soul.md",  # Personality config
-    Path.home() / ".agent" / "core.md",  # Core memory
+    MEMORY_DIR,  # Contains sensitive artifacts
+    MEMORY_DIR / "artifacts",
+    MEMORY_DIR / "audit",
+    AGENT_HOME / "soul.md",  # Personality config
+    AGENT_HOME / "core.md",  # Core memory
 )
 
 def _get_deny_list() -> List[Path]:
@@ -224,7 +229,7 @@ def is_internal_sensitive_path(
 
 
 # Audit log for workspace violations
-AUDIT_DIR = Path.home() / ".agent" / "memory" / "audit"
+AUDIT_DIR = MEMORY_DIR / "audit"
 WORKSPACE_AUDIT_FILE = AUDIT_DIR / "workspace_violations.jsonl"
 
 # Ensure directories exist

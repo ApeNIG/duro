@@ -6,10 +6,69 @@ Tests that security-critical data structures are immutable to prevent
 runtime modification attacks.
 
 Run: python test_security_immutability.py
+
+For CI: Set DURO_AGENT_HOME to a temp directory before running.
 """
 
+import importlib
+import os
 import sys
+import tempfile
 from pathlib import Path
+
+# === HERMETIC TEST SETUP ===
+# Use temp directory for DURO_AGENT_HOME to avoid writing to real home
+# and to ensure tests work on CI runners where ~/.agent doesn't exist
+
+_TEMP_DIR = None
+_ORIGINAL_AGENT_HOME = os.environ.get("DURO_AGENT_HOME")
+
+
+def _setup_hermetic_environment():
+    """Set up temp directory for hermetic testing."""
+    global _TEMP_DIR
+
+    # If DURO_AGENT_HOME is already set (e.g., by CI), use that
+    if os.environ.get("DURO_AGENT_HOME"):
+        agent_home = Path(os.environ["DURO_AGENT_HOME"])
+        agent_home.mkdir(parents=True, exist_ok=True)
+        (agent_home / "memory" / "audit").mkdir(parents=True, exist_ok=True)
+        (agent_home / "config").mkdir(parents=True, exist_ok=True)
+        return
+
+    # Otherwise create temp directory
+    _TEMP_DIR = tempfile.TemporaryDirectory()
+    os.environ["DURO_AGENT_HOME"] = _TEMP_DIR.name
+
+    # Create required directories
+    agent_home = Path(_TEMP_DIR.name)
+    (agent_home / "memory" / "audit").mkdir(parents=True, exist_ok=True)
+    (agent_home / "memory" / "artifacts").mkdir(parents=True, exist_ok=True)
+    (agent_home / "config").mkdir(parents=True, exist_ok=True)
+    (agent_home / "src").mkdir(parents=True, exist_ok=True)
+    (agent_home / "api").mkdir(parents=True, exist_ok=True)
+
+
+def _teardown_hermetic_environment():
+    """Clean up temp directory."""
+    global _TEMP_DIR, _ORIGINAL_AGENT_HOME
+
+    if _TEMP_DIR:
+        _TEMP_DIR.cleanup()
+        _TEMP_DIR = None
+
+    # Restore original env
+    if _ORIGINAL_AGENT_HOME:
+        os.environ["DURO_AGENT_HOME"] = _ORIGINAL_AGENT_HOME
+    elif "DURO_AGENT_HOME" in os.environ:
+        del os.environ["DURO_AGENT_HOME"]
+
+
+def _reload_workspace_guard():
+    """Reload workspace_guard to pick up new DURO_AGENT_HOME."""
+    import workspace_guard
+    importlib.reload(workspace_guard)
+    return workspace_guard
 
 
 def test_policy_gate_immutability():
@@ -97,17 +156,17 @@ def test_prompt_firewall_immutability():
 
 def test_workspace_guard_immutability():
     """Test that workspace_guard.py uses immutable internal sensitive paths."""
-    from workspace_guard import INTERNAL_SENSITIVE_PATHS
+    wg = _reload_workspace_guard()
 
     # Test 1: INTERNAL_SENSITIVE_PATHS is tuple
-    assert isinstance(INTERNAL_SENSITIVE_PATHS, tuple), (
-        f"INTERNAL_SENSITIVE_PATHS is {type(INTERNAL_SENSITIVE_PATHS).__name__}, "
+    assert isinstance(wg.INTERNAL_SENSITIVE_PATHS, tuple), (
+        f"INTERNAL_SENSITIVE_PATHS is {type(wg.INTERNAL_SENSITIVE_PATHS).__name__}, "
         "expected tuple (SECURITY: prevents runtime modification)"
     )
 
     # Test 2: Cannot modify tuple
     try:
-        INTERNAL_SENSITIVE_PATHS.append(Path("/tmp"))
+        wg.INTERNAL_SENSITIVE_PATHS.append(Path("/tmp"))
         assert False, "INTERNAL_SENSITIVE_PATHS should not be appendable"
     except AttributeError:
         pass  # Expected - tuple has no append()
@@ -118,20 +177,23 @@ def test_workspace_guard_immutability():
 
 def test_internal_sensitive_paths_protected():
     """Test that internal sensitive paths are properly blocked for USER_FILE_IO."""
-    from workspace_guard import is_internal_sensitive_path, PathPurpose
+    wg = _reload_workspace_guard()
+
+    # Use AGENT_HOME from the reloaded module (hermetic)
+    agent_home = wg.AGENT_HOME
 
     # Test paths that should be blocked (default purpose = USER_FILE_IO)
     sensitive_paths = [
-        Path.home() / ".agent" / "memory",
-        Path.home() / ".agent" / "memory" / "artifacts",
-        Path.home() / ".agent" / "memory" / "artifacts" / "fact_test123.json",
-        Path.home() / ".agent" / "memory" / "audit" / "security_audit.jsonl",
-        Path.home() / ".agent" / "soul.md",
-        Path.home() / ".agent" / "core.md",
+        agent_home / "memory",
+        agent_home / "memory" / "artifacts",
+        agent_home / "memory" / "artifacts" / "fact_test123.json",
+        agent_home / "memory" / "audit" / "security_audit.jsonl",
+        agent_home / "soul.md",
+        agent_home / "core.md",
     ]
 
     for path in sensitive_paths:
-        is_sensitive, reason = is_internal_sensitive_path(path)
+        is_sensitive, reason = wg.is_internal_sensitive_path(path)
         assert is_sensitive, (
             f"Path {path} should be marked as internal sensitive, "
             f"but is_internal_sensitive_path returned False"
@@ -139,13 +201,13 @@ def test_internal_sensitive_paths_protected():
 
     # Test paths that should NOT be blocked
     safe_paths = [
-        Path.home() / ".agent" / "src" / "policy_gate.py",
-        Path.home() / ".agent" / "config" / "workspace.json",
-        Path.home() / ".agent" / "api" / "main.py",
+        agent_home / "src" / "policy_gate.py",
+        agent_home / "config" / "workspace.json",
+        agent_home / "api" / "main.py",
     ]
 
     for path in safe_paths:
-        is_sensitive, reason = is_internal_sensitive_path(path)
+        is_sensitive, reason = wg.is_internal_sensitive_path(path)
         assert not is_sensitive, (
             f"Path {path} should NOT be marked as internal sensitive, "
             f"but is_internal_sensitive_path returned True: {reason}"
@@ -157,21 +219,22 @@ def test_internal_sensitive_paths_protected():
 
 def test_purpose_parameter_bypass():
     """Test that internal Duro operations can bypass sensitive path blocking."""
-    from workspace_guard import is_internal_sensitive_path, PathPurpose
+    wg = _reload_workspace_guard()
+    agent_home = wg.AGENT_HOME
 
-    memory_path = Path.home() / ".agent" / "memory" / "artifacts" / "test.json"
-    audit_path = Path.home() / ".agent" / "memory" / "audit" / "test.jsonl"
+    memory_path = agent_home / "memory" / "artifacts" / "test.json"
+    audit_path = agent_home / "memory" / "audit" / "test.jsonl"
 
     # USER_FILE_IO should block (default)
-    is_sensitive, _ = is_internal_sensitive_path(memory_path, PathPurpose.USER_FILE_IO)
+    is_sensitive, _ = wg.is_internal_sensitive_path(memory_path, wg.PathPurpose.USER_FILE_IO)
     assert is_sensitive, "USER_FILE_IO should block sensitive paths"
 
     # INTERNAL_MEMORY should allow (for Duro memory backend)
-    is_sensitive, _ = is_internal_sensitive_path(memory_path, PathPurpose.INTERNAL_MEMORY)
+    is_sensitive, _ = wg.is_internal_sensitive_path(memory_path, wg.PathPurpose.INTERNAL_MEMORY)
     assert not is_sensitive, "INTERNAL_MEMORY should allow sensitive paths"
 
     # INTERNAL_AUDIT should allow (for audit logging)
-    is_sensitive, _ = is_internal_sensitive_path(audit_path, PathPurpose.INTERNAL_AUDIT)
+    is_sensitive, _ = wg.is_internal_sensitive_path(audit_path, wg.PathPurpose.INTERNAL_AUDIT)
     assert not is_sensitive, "INTERNAL_AUDIT should allow audit paths"
 
     print("[PASS] purpose parameter bypass tests")
@@ -180,26 +243,16 @@ def test_purpose_parameter_bypass():
 
 def test_fail_closed_on_exception():
     """Test that USER_FILE_IO fails closed when path validation errors occur."""
-    from workspace_guard import is_internal_sensitive_path, PathPurpose
-
-    # Create a path that will cause an exception during resolution
-    # Using a mock/invalid path that triggers an error
-    class BadPath:
-        """Mock path that raises on resolve()."""
-        def resolve(self):
-            raise PermissionError("Simulated permission error")
-
-    # For USER_FILE_IO, errors should fail closed (return is_sensitive=True)
-    # Note: This test verifies the fail-closed logic exists
-    # The actual implementation catches exceptions and blocks
+    wg = _reload_workspace_guard()
+    agent_home = wg.AGENT_HOME
 
     # Test with a normal sensitive path to verify basic blocking works
-    sensitive_path = Path.home() / ".agent" / "memory"
-    is_sensitive, reason = is_internal_sensitive_path(sensitive_path, PathPurpose.USER_FILE_IO)
+    sensitive_path = agent_home / "memory"
+    is_sensitive, reason = wg.is_internal_sensitive_path(sensitive_path, wg.PathPurpose.USER_FILE_IO)
     assert is_sensitive, "USER_FILE_IO should block sensitive paths"
 
     # Test that INTERNAL purposes bypass even for sensitive paths
-    is_sensitive, _ = is_internal_sensitive_path(sensitive_path, PathPurpose.INTERNAL_MEMORY)
+    is_sensitive, _ = wg.is_internal_sensitive_path(sensitive_path, wg.PathPurpose.INTERNAL_MEMORY)
     assert not is_sensitive, "INTERNAL_MEMORY should bypass blocking"
 
     print("[PASS] fail-closed behavior tests")
@@ -208,14 +261,14 @@ def test_fail_closed_on_exception():
 
 def test_audit_logging_not_blocked():
     """Test that workspace guard's own audit logging path is accessible."""
-    from workspace_guard import WORKSPACE_AUDIT_FILE, PathPurpose, is_internal_sensitive_path
+    wg = _reload_workspace_guard()
 
     # The audit file path should be blocked for USER_FILE_IO
-    is_sensitive, _ = is_internal_sensitive_path(WORKSPACE_AUDIT_FILE, PathPurpose.USER_FILE_IO)
+    is_sensitive, _ = wg.is_internal_sensitive_path(wg.WORKSPACE_AUDIT_FILE, wg.PathPurpose.USER_FILE_IO)
     assert is_sensitive, "Audit file should be blocked for USER_FILE_IO"
 
     # But should be allowed for INTERNAL_AUDIT (Duro's own logging)
-    is_sensitive, _ = is_internal_sensitive_path(WORKSPACE_AUDIT_FILE, PathPurpose.INTERNAL_AUDIT)
+    is_sensitive, _ = wg.is_internal_sensitive_path(wg.WORKSPACE_AUDIT_FILE, wg.PathPurpose.INTERNAL_AUDIT)
     assert not is_sensitive, "Audit file should be allowed for INTERNAL_AUDIT"
 
     # Verify the audit file is writable by internal operations
@@ -229,11 +282,50 @@ def test_audit_logging_not_blocked():
         "purpose": "regression_test",
     }
 
+    # Ensure audit directory exists (hermetic setup should have done this)
+    wg.AUDIT_DIR.mkdir(parents=True, exist_ok=True)
+
     # This should succeed (internal write, not going through validate_path)
-    with open(WORKSPACE_AUDIT_FILE, "a", encoding="utf-8") as f:
+    with open(wg.WORKSPACE_AUDIT_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(test_record) + "\n")
 
     print("[PASS] audit logging not blocked tests")
+    return True
+
+
+def test_symlink_traversal():
+    """Test that symlinks can't be used to escape sensitive path blocking."""
+    wg = _reload_workspace_guard()
+    agent_home = wg.AGENT_HOME
+
+    # Create a symlink from safe location pointing to sensitive location
+    safe_dir = agent_home / "src"
+    safe_dir.mkdir(parents=True, exist_ok=True)
+
+    symlink_path = safe_dir / "sneaky_link"
+    target_path = agent_home / "memory" / "artifacts"
+
+    # Create the symlink (if possible - may fail on Windows without admin)
+    try:
+        if symlink_path.exists():
+            symlink_path.unlink()
+        symlink_path.symlink_to(target_path)
+
+        # The symlink should resolve to the sensitive path and be blocked
+        is_sensitive, reason = wg.is_internal_sensitive_path(symlink_path)
+        assert is_sensitive, (
+            f"Symlink {symlink_path} -> {target_path} should be blocked, "
+            f"but is_internal_sensitive_path returned False"
+        )
+
+        # Clean up
+        symlink_path.unlink()
+        print("[PASS] symlink traversal test")
+
+    except OSError as e:
+        # Symlink creation may fail on Windows without admin privileges
+        print(f"[SKIP] symlink traversal test (OS restriction: {e})")
+
     return True
 
 
@@ -244,8 +336,14 @@ def main():
     print("=" * 60)
     print()
 
+    # Set up hermetic test environment
+    _setup_hermetic_environment()
+    print(f"DURO_AGENT_HOME: {os.environ.get('DURO_AGENT_HOME', 'not set')}")
+    print()
+
     passed = 0
     failed = 0
+    skipped = 0
 
     tests = [
         test_policy_gate_immutability,
@@ -255,18 +353,23 @@ def main():
         test_purpose_parameter_bypass,
         test_fail_closed_on_exception,
         test_audit_logging_not_blocked,
+        test_symlink_traversal,
     ]
 
-    for test_fn in tests:
-        try:
-            test_fn()
-            passed += 1
-        except AssertionError as e:
-            print(f"[FAIL] {test_fn.__name__}: {e}")
-            failed += 1
-        except Exception as e:
-            print(f"[ERROR] {test_fn.__name__}: {e}")
-            failed += 1
+    try:
+        for test_fn in tests:
+            try:
+                test_fn()
+                passed += 1
+            except AssertionError as e:
+                print(f"[FAIL] {test_fn.__name__}: {e}")
+                failed += 1
+            except Exception as e:
+                print(f"[ERROR] {test_fn.__name__}: {e}")
+                failed += 1
+    finally:
+        # Clean up hermetic environment
+        _teardown_hermetic_environment()
 
     print()
     print("=" * 60)
