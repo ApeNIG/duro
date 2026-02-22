@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Database, Activity, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb, ArrowUpCircle, X } from 'lucide-react'
+import { Database, Activity, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb, ArrowUpCircle, Link2, X } from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
@@ -73,6 +73,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
         <NavItem to="/skills" icon={<Layers className="w-4 h-4" />} label="Skills" onClick={onClose} />
         <NavItem to="/incidents" icon={<AlertTriangle className="w-4 h-4" />} label="Incidents" onClick={onClose} />
         <NavItem to="/insights" icon={<Lightbulb className="w-4 h-4" />} label="Insights" onClick={onClose} />
+        <NavItem to="/suggestions" icon={<Link2 className="w-4 h-4" />} label="Suggestions" onClick={onClose} />
         <NavItem to="/relationships" icon={<GitBranch className="w-4 h-4" />} label="Graph" onClick={onClose} />
         <NavItem to="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={onClose} />
       </nav>
