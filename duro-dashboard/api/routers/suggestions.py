@@ -274,18 +274,24 @@ async def get_link_suggestions(
     }
 
 
+from pydantic import BaseModel
+
+class ApplyLinkRequest(BaseModel):
+    source_id: str
+    target_id: str
+    link_type: str
+
 @router.post("/suggestions/apply")
-async def apply_suggestion(
-    source_id: str,
-    target_id: str,
-    link_type: str,
-) -> dict[str, Any]:
+async def apply_suggestion(request: ApplyLinkRequest) -> dict[str, Any]:
     """
     Apply a suggested link by updating the source artifact.
 
     For decisions: adds episode to linked_episodes
     For episodes: adds decision to decisions_used
     """
+    source_id = request.source_id
+    target_id = request.target_id
+    link_type = request.link_type
     conn = get_db_connection()
 
     # Get source artifact
@@ -341,16 +347,19 @@ async def apply_suggestion(
         return {"success": False, "error": str(e)}
 
 
+class DismissRequest(BaseModel):
+    source_id: str
+    target_id: str
+
 @router.post("/suggestions/dismiss")
-async def dismiss_suggestion(
-    source_id: str,
-    target_id: str,
-) -> dict[str, Any]:
+async def dismiss_suggestion(request: DismissRequest) -> dict[str, Any]:
     """
     Dismiss a suggestion (mark as not relevant).
 
     This stores the dismissal so it won't be suggested again.
     """
+    source_id = request.source_id
+    target_id = request.target_id
     # For now, just return success - we could store dismissals in SQLite
     # in a future iteration
     return {
