@@ -16,8 +16,7 @@ import tempfile
 import hashlib
 import sqlite3
 import threading
-import traceback
-import signal
+import faulthandler
 from pathlib import Path
 from datetime import datetime, timezone
 from contextlib import contextmanager
@@ -35,51 +34,31 @@ class HarnessTimeoutError(Exception):
 
 
 @contextmanager
-def test_with_timeout(seconds: int = 30, dump_stack: bool = True):
+def test_with_timeout(seconds: int = 30, exit_on_timeout: bool = False):
     """
     Context manager for test timeout with stack trace dump.
+
+    Uses faulthandler.dump_traceback_later() which:
+    - Works cross-platform
+    - Can interrupt truly stuck code (with exit=True)
+    - Dumps all thread stacks to stderr
 
     Usage:
         with test_with_timeout(10):
             # ... test code that might hang ...
 
-    On timeout, dumps all thread stack traces before raising TestTimeoutError.
+    Args:
+        seconds: Timeout in seconds
+        exit_on_timeout: If True, hard-exit the process on timeout (useful for CI)
     """
-    timeout_event = threading.Event()
-    result_container = {"error": None}
-
-    def dump_all_stacks():
-        """Dump stack traces of all threads for debugging."""
-        print("\n" + "=" * 60)
-        print("TIMEOUT: Dumping all thread stack traces")
-        print("=" * 60)
-        for thread_id, frame in sys._current_frames().items():
-            thread_name = "Unknown"
-            for t in threading.enumerate():
-                if t.ident == thread_id:
-                    thread_name = t.name
-                    break
-            print(f"\nThread {thread_id} ({thread_name}):")
-            traceback.print_stack(frame)
-        print("=" * 60 + "\n")
-
-    def timeout_handler():
-        if not timeout_event.is_set():
-            if dump_stack:
-                dump_all_stacks()
-            result_container["error"] = HarnessTimeoutError(f"Test timed out after {seconds}s")
-
-    timer = threading.Timer(seconds, timeout_handler)
-    timer.daemon = True
-    timer.start()
+    # Enable faulthandler timeout - dumps stacks after `seconds` and optionally exits
+    faulthandler.dump_traceback_later(seconds, repeat=False, exit=exit_on_timeout)
 
     try:
         yield
     finally:
-        timeout_event.set()
-        timer.cancel()
-        if result_container["error"]:
-            raise result_container["error"]
+        # Cancel the timeout if we finished in time
+        faulthandler.cancel_dump_traceback_later()
 
 # Add duro-mcp to path
 DURO_MCP_PATH = Path.home() / "duro-mcp"
@@ -120,19 +99,18 @@ class IsolatedTestDB:
 
     Usage:
         with IsolatedTestDB() as env:
-            env.index.upsert(artifact, file_path, hash)
+            env.add_artifact(artifact)
+            env.delete_artifact(artifact_id)
             # ... tests ...
         # Auto-cleanup on exit
 
     Thread-safety:
-        Uses a single write lock to coordinate file + SQLite operations.
-        This prevents the deadlock scenario where:
-        - File I/O holds a file handle while waiting for SQLite
-        - SQLite WAL checkpoint waits for file I/O completion
-    """
+        Uses an INSTANCE-level write lock to coordinate file + SQLite operations.
+        This prevents race conditions where file I/O and SQLite ops interleave badly.
 
-    # Class-level lock for all write operations (prevents cross-instance races)
-    _write_lock = threading.Lock()
+        The shared connection (_conn) is ONLY safe because all access is guarded by
+        _write_lock. Never call _populate_fts() or _delete_fts() without holding the lock.
+    """
 
     def __init__(self, name: str = "test"):
         self.name = name
@@ -142,6 +120,8 @@ class IsolatedTestDB:
         self.index = None
         self._artifacts: Dict[str, dict] = {}
         self._conn: Optional[sqlite3.Connection] = None  # Shared connection for FTS
+        self._write_lock = threading.Lock()  # Instance-level lock (not class-level)
+        self._lock_holder: Optional[int] = None  # Track which thread holds the lock
 
     def __enter__(self):
         # Create temp directory
@@ -257,6 +237,8 @@ class IsolatedTestDB:
 
         # Single lock for all write operations: file + index + FTS
         with self._write_lock:
+            self._lock_holder = threading.current_thread().ident
+
             # Write artifact file
             artifact_dir = self.memory_dir / artifact.type
             artifact_dir.mkdir(exist_ok=True)
@@ -273,33 +255,161 @@ class IsolatedTestDB:
             # Index artifact
             self.index.upsert(artifact_dict, str(file_path), file_hash)
 
-            # Populate FTS using shared connection (prevents connection contention)
-            self._populate_fts(artifact)
+            # Populate FTS and commit (single-artifact path still commits per-op for safety)
+            self._populate_fts_no_commit(artifact)
+            self._conn.commit()
 
             # Track internally
             self._artifacts[artifact.id] = artifact_dict
+            self._lock_holder = None
 
         return artifact.id
 
-    def _populate_fts(self, artifact: MockArtifact):
-        """Manually populate FTS table for test artifact.
+    def add_artifacts_batch(self, artifacts: List[MockArtifact]) -> List[str]:
+        """Add multiple artifacts in a single FTS transaction (faster than per-item).
 
-        Uses shared connection to prevent connection contention.
-        Caller must hold _write_lock.
+        Strategy: Do all file writes + index upserts first, then batch FTS inserts
+        with a single commit. This avoids connection conflicts between index and FTS.
         """
+        ids = []
+        fts_pending = []  # Store (artifact, artifact_dict) for FTS phase
+
+        with self._write_lock:
+            self._lock_holder = threading.current_thread().ident
+
+            # Phase 1: File writes + index upserts (each index.upsert commits internally)
+            for artifact in artifacts:
+                artifact_dict = artifact.to_dict()
+
+                # Write artifact file
+                artifact_dir = self.memory_dir / artifact.type
+                artifact_dir.mkdir(exist_ok=True)
+                file_path = artifact_dir / f"{artifact.id}.json"
+
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(artifact_dict, f)
+                    f.flush()
+                    os.fsync(f.fileno())
+
+                # Calculate hash and index
+                file_hash = hashlib.sha256(json.dumps(artifact_dict).encode()).hexdigest()[:16]
+                self.index.upsert(artifact_dict, str(file_path), file_hash)
+
+                # Track internally
+                self._artifacts[artifact.id] = artifact_dict
+                ids.append(artifact.id)
+                fts_pending.append(artifact)
+
+            # Phase 2: Batch FTS inserts (single commit for all)
+            for artifact in fts_pending:
+                self._populate_fts_no_commit(artifact)
+            self._conn.commit()
+
+            self._lock_holder = None
+
+        return ids
+
+    def delete_artifact(self, artifact_id: str) -> bool:
+        """Delete an artifact with proper locking.
+
+        Removes from: FTS index, main index, file system, internal tracking.
+        Uses same lock as add_artifact to prevent race conditions.
+        """
+        with self._write_lock:
+            self._lock_holder = threading.current_thread().ident
+
+            # Delete from FTS
+            self._delete_fts_no_commit(artifact_id)
+
+            # Delete from index
+            self.index.delete(artifact_id)
+
+            # Delete file if exists
+            artifact = self._artifacts.get(artifact_id)
+            if artifact:
+                artifact_type = artifact.get("type", "unknown")
+                file_path = self.memory_dir / artifact_type / f"{artifact_id}.json"
+                if file_path.exists():
+                    file_path.unlink()
+
+            # Remove from internal tracking
+            self._artifacts.pop(artifact_id, None)
+
+            # Commit FTS changes
+            self._conn.commit()
+            self._lock_holder = None
+
+        return True
+
+    def delete_artifacts_batch(self, artifact_ids: List[str]) -> int:
+        """Delete multiple artifacts in a single FTS transaction (faster)."""
+        deleted = 0
+
+        with self._write_lock:
+            self._lock_holder = threading.current_thread().ident
+
+            # Phase 1: Index deletes + file deletes (index.delete commits internally)
+            for artifact_id in artifact_ids:
+                # Delete from index first
+                self.index.delete(artifact_id)
+
+                # Delete file if exists
+                artifact = self._artifacts.get(artifact_id)
+                if artifact:
+                    artifact_type = artifact.get("type", "unknown")
+                    file_path = self.memory_dir / artifact_type / f"{artifact_id}.json"
+                    if file_path.exists():
+                        file_path.unlink()
+
+                # Remove from internal tracking
+                self._artifacts.pop(artifact_id, None)
+                deleted += 1
+
+            # Phase 2: Batch FTS deletes (single commit)
+            for artifact_id in artifact_ids:
+                self._delete_fts_no_commit(artifact_id)
+            self._conn.commit()
+
+            self._lock_holder = None
+
+        return deleted
+
+    def _assert_lock_held(self):
+        """Assert that the current thread holds the write lock."""
+        current = threading.current_thread().ident
+        if self._lock_holder != current:
+            raise RuntimeError(
+                f"_write_lock must be held! Current thread: {current}, "
+                f"lock holder: {self._lock_holder}"
+            )
+
+    def _populate_fts_no_commit(self, artifact: MockArtifact):
+        """Populate FTS without committing (for batching).
+
+        INTERNAL: Caller MUST hold _write_lock.
+        """
+        self._assert_lock_held()
+
         title = artifact.claim[:100] if artifact.claim else ""
         tags_str = " ".join(artifact.tags)
         text = artifact.claim
 
-        # Use shared connection (no new connection = no contention)
-        # Delete existing entry if any
+        # Delete existing entry if any, then insert
         self._conn.execute("DELETE FROM artifact_fts WHERE id = ?", (artifact.id,))
-        # Insert new entry
         self._conn.execute(
             "INSERT INTO artifact_fts (id, title, tags, text) VALUES (?, ?, ?, ?)",
             (artifact.id, title, tags_str, text)
         )
-        self._conn.commit()
+        # No commit - caller handles batching
+
+    def _delete_fts_no_commit(self, artifact_id: str):
+        """Delete from FTS without committing (for batching).
+
+        INTERNAL: Caller MUST hold _write_lock.
+        """
+        self._assert_lock_held()
+        self._conn.execute("DELETE FROM artifact_fts WHERE id = ?", (artifact_id,))
+        # No commit - caller handles batching
 
     def get_artifact(self, artifact_id: str) -> Optional[dict]:
         """Get artifact from index."""

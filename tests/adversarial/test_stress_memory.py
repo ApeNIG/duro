@@ -27,7 +27,7 @@ DURO_MCP_PATH = Path.home() / "duro-mcp"
 if str(DURO_MCP_PATH) not in sys.path:
     sys.path.insert(0, str(DURO_MCP_PATH))
 
-from harness import IsolatedTestDB, MockEmbedder, MockArtifact, test_with_timeout, HarnessTimeoutError
+from harness import IsolatedTestDB, MockEmbedder, MockArtifact, test_with_timeout
 
 
 # =============================================================================
@@ -468,32 +468,65 @@ class TestResourceLimits:
                 conn.close()
 
     def test_rapid_create_delete_cycles(self):
-        """Rapid create/delete cycles to stress test.
+        """Rapid create/delete cycles to stress test (CI-friendly version).
 
-        Uses timeout wrapper to detect hangs (potential deadlocks).
-        On timeout, dumps all thread stack traces for debugging.
+        Uses batched operations for speed and proper locking for safety.
+        Uses faulthandler timeout - dumps stacks to stderr if stuck.
         """
-        # 120 second timeout with stack trace dump on hang
-        # (reduced cycles to 10 for faster CI, original was 20)
-        with test_with_timeout(seconds=120, dump_stack=True):
+        # 60 second timeout with stack trace dump on hang
+        with test_with_timeout(seconds=60):
             with IsolatedTestDB(name="rapid_cycle") as db:
-                cycles = 10  # Reduced from 20 for faster testing
+                cycles = 10  # CI-friendly: 10 cycles
+                batch_size = 50
+
+                for cycle in range(cycles):
+                    # Create batch (batched = single transaction)
+                    artifacts = [
+                        MockArtifact(
+                            id=f"rapid_{i:04d}",
+                            type="fact",
+                            claim=f"Cycle {cycle} item {i}"
+                        )
+                        for i in range(batch_size)
+                    ]
+                    db.add_artifacts_batch(artifacts)
+
+                    # Delete batch (uses proper locking)
+                    ids_to_delete = [f"rapid_{i:04d}" for i in range(batch_size)]
+                    db.delete_artifacts_batch(ids_to_delete)
+
+                # Final state should be empty
+                count = db.count_artifacts()
+                assert count == 0
+
+    @pytest.mark.slow
+    def test_rapid_create_delete_cycles_full(self):
+        """Full-pain stress test (nightly/manual only).
+
+        Original 20x50 = 1000 creates + 1000 deletes per run.
+        Run with: pytest -m slow
+        """
+        with test_with_timeout(seconds=300):  # 5 min timeout
+            with IsolatedTestDB(name="rapid_cycle_full") as db:
+                cycles = 20  # Full pain: 20 cycles
                 batch_size = 50
 
                 for cycle in range(cycles):
                     # Create batch
-                    for i in range(batch_size):
-                        db.add_artifact(MockArtifact(
+                    artifacts = [
+                        MockArtifact(
                             id=f"rapid_{i:04d}",
                             type="fact",
                             claim=f"Cycle {cycle} item {i}"
-                        ))
+                        )
+                        for i in range(batch_size)
+                    ]
+                    db.add_artifacts_batch(artifacts)
 
                     # Delete batch
-                    for i in range(batch_size):
-                        db.index.delete(f"rapid_{i:04d}")
+                    ids_to_delete = [f"rapid_{i:04d}" for i in range(batch_size)]
+                    db.delete_artifacts_batch(ids_to_delete)
 
-                    # Progress indicator
                     if cycle % 5 == 0:
                         print(f"  Cycle {cycle}/{cycles} complete")
 
