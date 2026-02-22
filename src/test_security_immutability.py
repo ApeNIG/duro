@@ -304,8 +304,10 @@ def test_external_tool_cannot_read_memory():
     # Paths an attacker might try to read via external tools
     attack_paths = [
         agent_home / "memory" / "artifacts" / "fact_secret.json",
-        agent_home / "memory" / "audit" / "security_audit.jsonl",
         agent_home / "memory" / "decisions" / "decision_sensitive.json",
+        agent_home / "memory" / "facts" / "fact_api_key.json",
+        agent_home / "memory" / "episodes" / "episode_private.json",
+        agent_home / "memory" / "audit" / "security_audit.jsonl",
         agent_home / "soul.md",
         agent_home / "core.md",
     ]
@@ -322,10 +324,16 @@ def test_external_tool_cannot_read_memory():
             f"External access to {path} should have risk_level 'sensitive' or 'blocked', "
             f"got '{validation.risk_level}'"
         )
+        # Pin to the intended mechanism - catch reason drift
+        assert "Internal sensitive path" in validation.reason, (
+            f"Denial reason should mention 'Internal sensitive path', "
+            f"got: {validation.reason}"
+        )
 
-    # Also test via check_workspace_constraints (the policy gate integration point)
+    # Test via check_workspace_constraints (policy gate integration point)
+    # Use clearly fake tool name - real tool names could get whitelisted later
     fake_tool_args = {"path": str(agent_home / "memory" / "artifacts" / "stolen.json")}
-    allowed, reason, _ = wg.check_workspace_constraints("file_read", fake_tool_args)
+    allowed, reason, _ = wg.check_workspace_constraints("attacker_read_file", fake_tool_args)
 
     assert not allowed, (
         f"check_workspace_constraints should deny access to memory/artifacts, "

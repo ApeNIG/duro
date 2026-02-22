@@ -77,7 +77,10 @@ DEFAULT_STRICT = True
 INTERNAL_SENSITIVE_PATHS: tuple = (
     MEMORY_DIR,  # Contains sensitive artifacts
     MEMORY_DIR / "artifacts",
+    MEMORY_DIR / "decisions",
     MEMORY_DIR / "audit",
+    MEMORY_DIR / "facts",
+    MEMORY_DIR / "episodes",
     AGENT_HOME / "soul.md",  # Personality config
     AGENT_HOME / "core.md",  # Core memory
 )
