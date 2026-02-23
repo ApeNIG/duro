@@ -4,8 +4,8 @@ test.describe('Navigation', () => {
   test('should load overview page by default', async ({ page }) => {
     await page.goto('/')
 
-    // Should redirect to /overview
-    await expect(page).toHaveURL(/.*overview/)
+    // Wait for navigation to complete (React Router redirect)
+    await page.waitForURL(/.*overview/, { timeout: 10000 })
 
     // Header should be visible
     await expect(page.locator('header')).toBeVisible()
@@ -17,22 +17,22 @@ test.describe('Navigation', () => {
   test('should navigate between pages via sidebar', async ({ page }) => {
     await page.goto('/overview')
 
-    // Navigate to Search
-    await page.getByRole('link', { name: 'Search' }).click()
+    // Navigate to Search (use exact match in sidebar nav)
+    await page.locator('aside').getByRole('link', { name: 'Search' }).click()
     await expect(page).toHaveURL(/.*search/)
     await expect(page.getByText('Semantic Search')).toBeVisible()
 
     // Navigate to Memory
-    await page.getByRole('link', { name: 'Memory' }).click()
+    await page.locator('aside').getByRole('link', { name: 'Memory' }).click()
     await expect(page).toHaveURL(/.*memory/)
 
     // Navigate to Episodes
-    await page.getByRole('link', { name: 'Episodes' }).click()
+    await page.locator('aside').getByRole('link', { name: 'Episodes' }).click()
     await expect(page).toHaveURL(/.*episodes/)
     await expect(page.getByText('Episode Timeline')).toBeVisible()
 
     // Navigate to Settings
-    await page.getByRole('link', { name: 'Settings' }).click()
+    await page.locator('aside').getByRole('link', { name: 'Settings' }).click()
     await expect(page).toHaveURL(/.*settings/)
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
   })
@@ -75,11 +75,16 @@ test.describe('Layout', () => {
   test('should show stats grid on overview', async ({ page }) => {
     await page.goto('/overview')
 
-    // Wait for stats to load
-    await page.waitForSelector('[class*="grid"]')
+    // Wait for stats API response
+    await page.waitForResponse(response =>
+      response.url().includes('/api/stats') && response.status() === 200
+    )
 
-    // Check for stat labels
-    await expect(page.getByText('Total Artifacts')).toBeVisible()
+    // Wait a moment for React to render
+    await page.waitForTimeout(500)
+
+    // Check for stat labels (text appears below the numbers)
+    await expect(page.getByText('Total Artifacts')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText('Facts')).toBeVisible()
     await expect(page.getByText('Decisions')).toBeVisible()
   })

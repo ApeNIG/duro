@@ -44,8 +44,8 @@ test.describe('Search Page', () => {
     await searchInput.fill('test query')
     await expect(searchInput).toHaveValue('test query')
 
-    // Clear button should appear
-    const clearButton = page.locator('button').filter({ has: page.locator('svg.lucide-x') })
+    // Clear button - use more specific selector (the X button near the search input in main content)
+    const clearButton = page.locator('main button').filter({ has: page.locator('svg.lucide-x') })
     await clearButton.click()
 
     // Input should be cleared
@@ -58,7 +58,13 @@ test.describe('Search Page', () => {
     // Type a search query
     await searchInput.fill('authentication')
 
-    // Wait for debounce and results
+    // Wait for search API response
+    await page.waitForResponse(response =>
+      response.url().includes('/api/artifacts') && response.url().includes('search') && response.status() === 200,
+      { timeout: 10000 }
+    )
+
+    // Wait for React to render results
     await page.waitForTimeout(500)
 
     // Should show either results or "No results found"

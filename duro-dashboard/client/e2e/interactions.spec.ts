@@ -59,31 +59,47 @@ test.describe('Keyboard Shortcuts', () => {
   test('should navigate to search with / key', async ({ page }) => {
     await page.goto('/overview')
 
+    // Wait for page to be fully loaded with API data
+    await page.waitForResponse(response =>
+      response.url().includes('/api/health') && response.status() === 200
+    )
+
+    // Focus on body to ensure keyboard events are captured
+    await page.locator('body').click()
+
     // Press / to go to search
     await page.keyboard.press('/')
 
     // Should navigate to search page
-    await expect(page).toHaveURL(/.*search/)
+    await expect(page).toHaveURL(/.*search/, { timeout: 10000 })
   })
 
   test('should navigate with j/k keys', async ({ page }) => {
     await page.goto('/overview')
 
+    // Wait for page to be fully loaded
+    await page.waitForResponse(response =>
+      response.url().includes('/api/health') && response.status() === 200
+    )
+
+    // Focus on body
+    await page.locator('body').click()
+
     // Press j to go to next page
     await page.keyboard.press('j')
-    await expect(page).toHaveURL(/.*search/)
+    await expect(page).toHaveURL(/.*search/, { timeout: 5000 })
 
     // Press j again
     await page.keyboard.press('j')
-    await expect(page).toHaveURL(/.*memory/)
+    await expect(page).toHaveURL(/.*memory/, { timeout: 5000 })
 
     // Press k to go back
     await page.keyboard.press('k')
-    await expect(page).toHaveURL(/.*search/)
+    await expect(page).toHaveURL(/.*search/, { timeout: 5000 })
 
     // Press k again
     await page.keyboard.press('k')
-    await expect(page).toHaveURL(/.*overview/)
+    await expect(page).toHaveURL(/.*overview/, { timeout: 5000 })
   })
 
   test('should not trigger shortcuts when typing in input', async ({ page }) => {
