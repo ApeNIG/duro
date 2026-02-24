@@ -52,10 +52,12 @@ except ImportError as e:
 # Agent lib imports (Cartridge Memory System)
 # Separate flags so one missing module doesn't break everything
 AGENT_LIB_PATH = str(Path.home() / ".agent" / "lib")
+PROJECT_LIB_PATH = str(Path(__file__).resolve().parent.parent / "lib")
 
 # Only insert if not already present (prevents duplicates on hot-reload)
-if AGENT_LIB_PATH not in sys.path:
-    sys.path.insert(0, AGENT_LIB_PATH)
+for _lib_path in (PROJECT_LIB_PATH, AGENT_LIB_PATH):
+    if _lib_path not in sys.path:
+        sys.path.insert(0, _lib_path)
 
 # Constitution loader
 CONSTITUTION_AVAILABLE = False
@@ -436,7 +438,7 @@ def _run_apply_decay_callable() -> dict:
 
         # Cache stale facts for surfacing
         stale_cache = []
-        for f in report.stale_high_importance[:5]:
+        for f in report.top_stale_high_importance[:5]:
             artifact = artifact_store.get_artifact(f.get("id"))
             if artifact:
                 data = artifact.get("data", {})
@@ -481,6 +483,133 @@ def _run_orphan_cleanup_callable() -> dict:
         }
     except Exception as e:
         return {"error": str(e), "notable": False}
+
+
+def _build_skill_tools() -> dict:
+    """Build the tools dict that reflective skills need."""
+    from embeddings import embed_text, is_embedding_available
+
+    def _query_memory_wrapper(**kwargs):
+        return artifact_store.query(**kwargs)
+
+    def _semantic_search_wrapper(query, **kwargs):
+        try:
+            query_embedding = None
+            if is_embedding_available():
+                query_embedding = embed_text(query)
+            return artifact_store.index.hybrid_search(
+                query=query,
+                query_embedding=query_embedding,
+                artifact_type=kwargs.get("artifact_type"),
+                tags=kwargs.get("tags"),
+                limit=kwargs.get("limit", 20),
+                explain=kwargs.get("explain", False),
+            )
+        except Exception as e:
+            return {"results": [], "error": str(e)}
+
+    def _store_fact_wrapper(**kwargs):
+        ok, aid, path = artifact_store.store_fact(
+            claim=kwargs.get("claim", ""),
+            source_urls=kwargs.get("source_urls"),
+            snippet=kwargs.get("snippet"),
+            confidence=kwargs.get("confidence", 0.5),
+            tags=kwargs.get("tags"),
+            workflow=kwargs.get("workflow", "scheduled_maintenance"),
+            sensitivity=kwargs.get("sensitivity", "public"),
+            evidence_type=kwargs.get("evidence_type", "none"),
+            provenance=kwargs.get("provenance", "user"),
+        )
+        return {"success": ok, "artifact_id": aid, "path": path}
+
+    def _store_decision_wrapper(**kwargs):
+        ok, aid, path = artifact_store.store_decision(
+            decision=kwargs.get("decision", ""),
+            rationale=kwargs.get("rationale", ""),
+            alternatives=kwargs.get("alternatives"),
+            context=kwargs.get("context"),
+            reversible=kwargs.get("reversible", True),
+            tags=kwargs.get("tags"),
+            workflow=kwargs.get("workflow", "scheduled_maintenance"),
+            sensitivity=kwargs.get("sensitivity", "internal"),
+        )
+        return {"success": ok, "artifact_id": aid, "path": path}
+
+    return {
+        "query_memory": _query_memory_wrapper,
+        "semantic_search": _semantic_search_wrapper,
+        "store_fact": _store_fact_wrapper,
+        "store_decision": _store_decision_wrapper,
+    }
+
+
+def _run_reflective_skill(skill_name: str, args: dict = None) -> dict:
+    """Run a reflective skill as a maintenance task."""
+    try:
+        tools = _build_skill_tools()
+        context = {"run_id": f"maintenance_{skill_name}", "timeout": 60}
+        success, result = skills.run_skill_with_tools(
+            skill_name, args or {}, tools, context
+        )
+        if not success:
+            return {"error": result.get("error", str(result)), "notable": False}
+
+        # Extract summary stats for surfacing
+        notable = False
+        priority = 30
+
+        if skill_name == "orphan_detection":
+            orphan_count = result.get("orphan_count", 0)
+            stale_count = result.get("stale_count", 0)
+            dup_count = result.get("duplicate_count", 0)
+            notable = (orphan_count + stale_count + dup_count) > 5
+            priority = 50 if notable else 30
+
+        elif skill_name == "drift_report":
+            contradicted = len([d for d in result.get("decisions", [])
+                               if d.get("follow_through") == "contradicted"])
+            unfollowed = len([d for d in result.get("decisions", [])
+                             if d.get("follow_through") == "none"])
+            notable = contradicted > 3 or unfollowed > 10
+            priority = 70 if contradicted > 3 else 50
+
+        elif skill_name == "emerge":
+            pattern_count = len(result.get("patterns", []))
+            notable = pattern_count > 3
+            priority = 40
+
+        elif skill_name == "idea_generation":
+            idea_count = len(result.get("ideas", []))
+            notable = idea_count > 3
+            priority = 40
+
+        result["notable"] = notable
+        result["priority"] = priority
+        return result
+
+    except Exception as e:
+        log_warn(f"Reflective skill {skill_name} failed: {e}")
+        return {"error": str(e), "notable": False}
+
+
+def _run_orphan_detection_callable() -> dict:
+    """Maintenance callable: run orphan_detection reflective skill."""
+    return _run_reflective_skill("orphan_detection")
+
+
+def _run_drift_report_callable() -> dict:
+    """Maintenance callable: run drift_report reflective skill."""
+    return _run_reflective_skill("drift_report")
+
+
+def _run_emerge_callable() -> dict:
+    """Maintenance callable: run emerge reflective skill."""
+    return _run_reflective_skill("emerge")
+
+
+def _run_idea_generation_callable() -> dict:
+    """Maintenance callable: run idea_generation reflective skill."""
+    return _run_reflective_skill("idea_generation")
 
 
 def _init_autonomy_scheduler():
@@ -535,7 +664,33 @@ def _init_autonomy_scheduler():
             priority=30,
         )
 
-        log_info("Autonomy scheduler initialized")
+        # Reflective layer skills (Phase 4)
+        autonomy_scheduler.maintenance.register_task(
+            "orphan_detection",
+            _run_orphan_detection_callable,
+            interval=timedelta(days=3),
+            priority=40,
+        )
+        autonomy_scheduler.maintenance.register_task(
+            "drift_report",
+            _run_drift_report_callable,
+            interval=timedelta(days=7),
+            priority=60,
+        )
+        autonomy_scheduler.maintenance.register_task(
+            "emerge",
+            _run_emerge_callable,
+            interval=timedelta(days=7),
+            priority=40,
+        )
+        autonomy_scheduler.maintenance.register_task(
+            "idea_generation",
+            _run_idea_generation_callable,
+            interval=timedelta(days=14),
+            priority=40,
+        )
+
+        log_info("Autonomy scheduler initialized (with reflective skills)")
         return autonomy_scheduler
 
     except Exception as e:
@@ -1328,13 +1483,13 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="duro_run_maintenance",
-            description="Manually trigger a maintenance task. Use this to force immediate execution of decay, health check, or orphan cleanup.",
+            description="Manually trigger a maintenance task. Includes core maintenance (decay, health_check, orphan_cleanup) and reflective skills (orphan_detection, drift_report, emerge, idea_generation).",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "task": {
                         "type": "string",
-                        "enum": ["decay", "health_check", "orphan_cleanup"],
+                        "enum": ["decay", "health_check", "orphan_cleanup", "orphan_detection", "drift_report", "emerge", "idea_generation"],
                         "description": "The maintenance task to run"
                     }
                 },
@@ -3378,7 +3533,7 @@ Contact the system administrator or check duro-mcp installation.""")]
                 tags=[section]
             )
             if not log_success:
-                logging.warning(f"Failed to create log artifact for save_memory")
+                log_warn(f"Failed to create log artifact for save_memory")
             text = f"Memory saved to today's log under '{section}'." if success else "Failed to save memory."
             return [TextContent(type="text", text=text)]
 
@@ -3393,7 +3548,7 @@ Contact the system administrator or check duro-mcp installation.""")]
                 tags=[category]
             )
             if not log_success:
-                logging.warning(f"Failed to create log artifact for save_learning")
+                log_warn(f"Failed to create log artifact for save_learning")
             text = f"Learning saved: {learning[:100]}..." if success else "Failed to save learning."
             return [TextContent(type="text", text=text)]
 
@@ -3409,7 +3564,7 @@ Contact the system administrator or check duro-mcp installation.""")]
                 outcome=outcome
             )
             if not log_success:
-                logging.warning(f"Failed to create log artifact for log_task: {task}")
+                log_warn(f"Failed to create log artifact for log_task: {task}")
             text = "Task logged successfully." if success else "Failed to log task."
             return [TextContent(type="text", text=text)]
 
@@ -3427,7 +3582,7 @@ Contact the system administrator or check duro-mcp installation.""")]
                 lesson=lesson
             )
             if not log_success:
-                logging.warning(f"Failed to create log artifact for log_failure: {task}")
+                log_warn(f"Failed to create log artifact for log_failure: {task}")
             text = "Failure logged with lesson." if success else "Failed to log failure."
             return [TextContent(type="text", text=text)]
 
@@ -3514,7 +3669,37 @@ Contact the system administrator or check duro-mcp installation.""")]
         elif name == "duro_run_skill":
             skill_name = arguments["skill_name"]
             args = arguments.get("args", {})
-            success, output = skills.run_skill(skill_name, args)
+
+            # Check if skill has new-style run() interface
+            skill_info = skills.get_skill(skill_name)
+            skill_path = skills.get_skill_path(skill_info) if skill_info else None
+            has_run_interface = False
+            if skill_path and skill_path.exists():
+                try:
+                    import importlib.util as ilu
+                    spec = ilu.spec_from_file_location(skill_name, skill_path)
+                    mod = ilu.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    has_run_interface = hasattr(mod, 'run') and hasattr(mod, 'REQUIRES')
+                except Exception:
+                    pass
+
+            if has_run_interface:
+                skill_tools = _build_skill_tools()
+                context = {"run_id": f"skill_run_{skill_name}", "timeout": 60}
+
+                success, result = skills.run_skill_with_tools(
+                    skill_name, args, skill_tools, context
+                )
+                if success:
+                    # Return the report if available, otherwise JSON summary
+                    output = result.get("report", json.dumps(result, indent=2, default=str))
+                else:
+                    output = result.get("error", str(result))
+            else:
+                # Legacy subprocess execution
+                success, output = skills.run_skill(skill_name, args)
+
             text = f"**Skill execution {'succeeded' if success else 'failed'}**\n\n{output}"
             return [TextContent(type="text", text=text)]
 
@@ -3619,12 +3804,16 @@ Contact the system administrator or check duro-mcp installation.""")]
 
             project_ids = sorted(list_constitutions())  # Sorted for stability
             if not project_ids:
-                lines.append("\nNo constitutions found in `~/.agent/constitutions/`")
+                lines.append(f"\nNo constitutions found.")
                 return [TextContent(type="text", text="\n".join(lines))]
 
             lines.append(f"\n### Projects ({len(project_ids)})\n")
             for pid in project_ids:
-                info = get_constitution_info(pid)
+                try:
+                    info = get_constitution_info(pid)
+                except Exception as e:
+                    lines.append(f"**{pid}** — validation error: {e}\n")
+                    continue
                 if info:
                     lines.append(f"**{info['name']}** (`{pid}`) v{info['version']}")
                     lines.append(f"  - Laws: {info['law_count']} ({info['hard_law_count']} hard)")

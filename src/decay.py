@@ -368,7 +368,7 @@ def apply_decay_to_store(artifact_store, dry_run: bool = True) -> dict:
     if not dry_run:
         for i, fact in enumerate(facts):
             if result.results[i].get("decayed"):
-                artifact_store.update_artifact(fact["id"], fact)
+                artifact_store.update_artifact(fact)
 
     return {
         "decayed": result.decayed_count,

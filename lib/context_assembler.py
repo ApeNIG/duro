@@ -22,7 +22,14 @@ from enum import Enum
 # Sibling imports
 from constitution_loader import load_constitution, render_constitution, list_constitutions
 
-SKILLS_DIR = Path.home() / ".agent" / "skills"
+def _resolve_dir(name: str) -> Path:
+    """Resolve data directory: project-local first, then ~/.agent/."""
+    project_dir = Path(__file__).resolve().parent.parent / name
+    if project_dir.is_dir():
+        return project_dir
+    return Path.home() / ".agent" / name
+
+SKILLS_DIR = _resolve_dir("skills")
 STATS_FILE = SKILLS_DIR / "stats.json"
 INDEX_FILE = SKILLS_DIR / "index.json"
 
@@ -154,8 +161,10 @@ def get_skill_rendering(skill: Dict[str, Any], mode: RenderMode) -> str:
             return renderings[try_mode].get("content", "")
 
     # Ultimate fallback: use description
-    desc = skill.get("description", {})
-    return desc.get("short", skill.get("name", "Unknown skill"))
+    desc = skill.get("description", "")
+    if isinstance(desc, dict):
+        return desc.get("short", skill.get("name", "Unknown skill"))
+    return str(desc) if desc else skill.get("name", "Unknown skill")
 
 
 def score_skill_for_task(skill: Dict[str, Any], task_description: str, stats: Dict[str, Any]) -> float:
@@ -182,7 +191,11 @@ def score_skill_for_task(skill: Dict[str, Any], task_description: str, stats: Di
 
     # Check hard triggers (intents)
     triggers = skill.get("triggers", {})
+    if not isinstance(triggers, dict):
+        triggers = {}
     hard_triggers = triggers.get("hard", {})
+    if not isinstance(hard_triggers, dict):
+        hard_triggers = {}
 
     for intent in hard_triggers.get("intents", []):
         if intent.lower() in task_lower:
@@ -191,6 +204,8 @@ def score_skill_for_task(skill: Dict[str, Any], task_description: str, stats: Di
 
     # Check soft triggers (keywords)
     soft_triggers = triggers.get("soft", {})
+    if not isinstance(soft_triggers, dict):
+        soft_triggers = {}
     for keyword in soft_triggers.get("keywords", []):
         if keyword.lower() in task_lower:
             base_score += 2.0

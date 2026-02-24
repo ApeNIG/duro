@@ -50,9 +50,14 @@ class DuroSkills:
         return index.get("skills", [])
 
     def get_skill(self, skill_name: str) -> Optional[Dict]:
-        """Get a specific skill by name."""
+        """Get a specific skill by name. Reloads index on cache miss."""
         skills = self.list_skills()
         for skill in skills:
+            if skill["name"] == skill_name or skill["id"] == skill_name:
+                return skill
+        # Cache miss — reload index in case new skills were registered
+        index = self._load_index(force_reload=True)
+        for skill in index.get("skills", []):
             if skill["name"] == skill_name or skill["id"] == skill_name:
                 return skill
         return None

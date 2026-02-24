@@ -13,7 +13,14 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
-CONSTITUTIONS_DIR = Path.home() / ".agent" / "constitutions"
+def _resolve_dir(name: str) -> Path:
+    """Resolve data directory: project-local first, then ~/.agent/."""
+    project_dir = Path(__file__).resolve().parent.parent / name
+    if project_dir.is_dir():
+        return project_dir
+    return Path.home() / ".agent" / name
+
+CONSTITUTIONS_DIR = _resolve_dir("constitutions")
 
 # Cache: project_id -> (mtime, constitution)
 _cache: Dict[str, tuple[float, Dict[str, Any]]] = {}
@@ -72,10 +79,13 @@ def validate_constitution(data: Dict[str, Any]) -> List[str]:
     errors = []
 
     # Required top-level fields
-    required = ['project_id', 'name', 'version', 'north_star', 'laws', 'constraints']
+    required = ['project_id', 'name', 'version', 'north_star', 'laws']
     for field in required:
         if field not in data:
             errors.append(f"Missing required field: {field}")
+
+    # Optional fields with defaults
+    data.setdefault('constraints', [])
 
     if errors:
         return errors  # Can't validate further without required fields
@@ -99,10 +109,13 @@ def validate_constitution(data: Dict[str, Any]) -> List[str]:
         elif law['strength'] not in ('hard', 'soft'):
             errors.append(f"{prefix}: strength must be 'hard' or 'soft'")
 
-    # Validate constraints
+    # Validate constraints (optional — default to empty)
     constraints = data.get('constraints', {})
-    if 'do_not' not in constraints:
-        errors.append("constraints.do_not is required")
+    if isinstance(constraints, list):
+        # Some constitutions use list format; normalize
+        data['constraints'] = {'do_not': constraints}
+    elif isinstance(constraints, dict) and 'do_not' not in constraints:
+        constraints['do_not'] = []
 
     # Validate conflict_policy if present
     if 'conflict_policy' in data:
