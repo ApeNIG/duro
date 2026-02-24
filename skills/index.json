@@ -1175,8 +1175,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 0,
-      "success_rate": 1.0,
+      "usage_count": 2,
+      "success_rate": 0.5,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1186,7 +1186,8 @@
       ],
       "fallback_skill": null,
       "pre_checks": [],
-      "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance."
+      "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
+      "last_used": "2026-02-24T23:04:04.941604"
     },
     {
       "id": "skill_memory_006",
@@ -1215,7 +1216,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 1,
+      "usage_count": 2,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1227,7 +1228,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-02-24T21:33:15.146948"
+      "last_used": "2026-02-24T23:01:02.547675"
     },
     {
       "id": "skill_memory_007",
