@@ -1344,7 +1344,7 @@
         "how would I answer",
         "in my voice"
       ],
-      "usage_count": 1,
+      "usage_count": 5,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1360,7 +1360,7 @@
         "semantic_search"
       ],
       "notes": "Synthesizes user's background knowledge, decisions, and biases to generate authentic responses. Inspired by Obsidian+Claude podcast.",
-      "last_used": "2026-02-24T22:12:06.437822"
+      "last_used": "2026-02-24T22:24:03.458788"
     },
     {
       "id": "skill_memory_010",
@@ -1388,7 +1388,7 @@
         "devil's advocate",
         "counterarguments"
       ],
-      "usage_count": 1,
+      "usage_count": 5,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1404,7 +1404,7 @@
         "semantic_search"
       ],
       "notes": "Devil's advocate mode - finds contradicting evidence in user's own artifact history. Inspired by Obsidian+Claude podcast.",
-      "last_used": "2026-02-24T22:12:06.919615"
+      "last_used": "2026-02-24T22:24:04.357821"
     }
   ],
   "selection_priority": [
