@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 0,
+      "usage_count": 4,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1041,7 +1041,8 @@
       ],
       "fallback_skill": null,
       "pre_checks": [],
-      "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts."
+      "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
+      "last_used": "2026-02-26T18:18:57.220874"
     },
     {
       "id": "skill_memory_002",
@@ -1067,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 2,
+      "usage_count": 4,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1079,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-02-24T22:51:32.803786"
+      "last_used": "2026-02-26T18:19:04.307075"
     },
     {
       "id": "skill_memory_003",
@@ -1175,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 2,
-      "success_rate": 0.5,
+      "usage_count": 5,
+      "success_rate": 0.6,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1187,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-02-24T23:04:04.941604"
+      "last_used": "2026-02-26T18:19:18.317321"
     },
     {
       "id": "skill_memory_006",
@@ -1216,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 2,
+      "usage_count": 4,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1228,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-02-24T23:01:02.547675"
+      "last_used": "2026-02-26T18:19:11.117877"
     },
     {
       "id": "skill_memory_007",
@@ -1294,7 +1295,7 @@
         "morning brief",
         "what do I need to know"
       ],
-      "usage_count": 4,
+      "usage_count": 5,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 120,
@@ -1317,7 +1318,7 @@
         "semantic_search"
       ],
       "notes": "The 'last mile' for frictionless insight surfacing. Lightweight analysis across all artifact types - no skill dependencies.",
-      "last_used": "2026-02-26T13:36:57.985933"
+      "last_used": "2026-02-26T18:14:14.028402"
     },
     {
       "id": "skill_memory_009",
@@ -1499,6 +1500,65 @@
       ],
       "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations.",
       "last_used": "2026-02-26T17:58:00.676292"
+    },
+    {
+      "id": "skill_memory_013",
+      "name": "daily_synthesis",
+      "path": "memory/daily_synthesis.py",
+      "description": "Compound skill that chains reflection skills together for deeper insights - graduate_logs \u2192 emerge \u2192 idea_generation \u2192 connect_domains",
+      "tier": "tested",
+      "phase": "4.0",
+      "compound": true,
+      "chains": [
+        "graduate_logs",
+        "emerge",
+        "idea_generation",
+        "connect_domains"
+      ],
+      "keywords": [
+        "compound",
+        "synthesis",
+        "chain",
+        "reflect",
+        "emerge",
+        "graduate",
+        "ideas",
+        "connect",
+        "daily",
+        "session-end",
+        "deep",
+        "analysis"
+      ],
+      "triggers": [
+        "daily synthesis",
+        "compound reflect",
+        "deep reflection",
+        "chain skills",
+        "full analysis",
+        "synthesize"
+      ],
+      "usage_count": 0,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 180,
+      "expected_runtime_seconds": 60,
+      "dependencies": [
+        "graduate_logs",
+        "emerge",
+        "idea_generation",
+        "connect_domains"
+      ],
+      "side_effects": [
+        "reads_database",
+        "writes_database"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "requires": [
+        "run_skill",
+        "query_memory"
+      ],
+      "notes": "First compound skill - runs 4 skills in sequence, passing outputs between them. Each step builds on the previous: learnings become facts, facts reveal patterns, patterns spawn ideas, ideas suggest connections. Run at session end for maximum insight."
     }
   ],
   "selection_priority": [
