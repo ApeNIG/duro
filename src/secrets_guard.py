@@ -64,9 +64,15 @@ SECRET_PATTERNS: List[SecretPattern] = [
     # OpenAI / Anthropic
     SecretPattern(
         name="openai_api_key",
-        pattern=re.compile(r'sk-[a-zA-Z0-9]{20,}'),
+        pattern=re.compile(r'sk-(?:proj-)?[a-zA-Z0-9]{20,}'),
         severity="critical",
-        description="OpenAI API Key"
+        description="OpenAI API Key (legacy and project format)"
+    ),
+    SecretPattern(
+        name="openai_api_key_new",
+        pattern=re.compile(r'sk-(?:proj|org|svcacct)-[a-zA-Z0-9_\-]{20,}'),
+        severity="critical",
+        description="OpenAI API Key (new prefixed format)"
     ),
     SecretPattern(
         name="anthropic_api_key",
@@ -80,13 +86,31 @@ SECRET_PATTERNS: List[SecretPattern] = [
         name="github_pat",
         pattern=re.compile(r'ghp_[a-zA-Z0-9]{36}'),
         severity="critical",
-        description="GitHub Personal Access Token"
+        description="GitHub Personal Access Token (classic)"
+    ),
+    SecretPattern(
+        name="github_pat_fine_grained",
+        pattern=re.compile(r'github_pat_[a-zA-Z0-9_]{22,}'),
+        severity="critical",
+        description="GitHub Personal Access Token (fine-grained)"
     ),
     SecretPattern(
         name="github_oauth",
         pattern=re.compile(r'gho_[a-zA-Z0-9]{36}'),
         severity="critical",
         description="GitHub OAuth Token"
+    ),
+    SecretPattern(
+        name="github_app_token",
+        pattern=re.compile(r'ghs_[a-zA-Z0-9]{36}'),
+        severity="critical",
+        description="GitHub App Installation Token"
+    ),
+    SecretPattern(
+        name="github_refresh_token",
+        pattern=re.compile(r'ghr_[a-zA-Z0-9]{36,}'),
+        severity="critical",
+        description="GitHub Refresh Token"
     ),
 
     # Stripe
@@ -681,3 +705,146 @@ def should_scan_output(tool_name: str) -> bool:
         return False
     # Default: scan everything else
     return True
+
+
+# ============================================================
+# INCOMING CONTENT REDACTION (Pre-Processing Layer)
+# ============================================================
+
+@dataclass
+class IncomingRedactionResult:
+    """Result of redacting secrets from incoming content."""
+    original_had_secrets: bool
+    redacted_content: str
+    redaction_count: int
+    secret_hashes: List[str]  # For audit correlation
+    pattern_names: List[str]  # What types were found
+
+
+def redact_incoming_content(
+    content: str,
+    source: str = "unknown",
+    include_pii: bool = False,
+) -> IncomingRedactionResult:
+    """
+    Redact secrets from incoming content BEFORE it enters the system.
+
+    This is the FIRST LINE OF DEFENSE - applied to:
+    - User chat messages
+    - File contents being stored in memory
+    - Logs being captured
+    - File-history captures
+    - Any external content
+
+    Args:
+        content: Raw incoming content
+        source: Source identifier for audit (e.g., "chat", "file_read", "log")
+        include_pii: Whether to also redact PII patterns
+
+    Returns:
+        IncomingRedactionResult with redacted content
+    """
+    if not content or not isinstance(content, str):
+        return IncomingRedactionResult(
+            original_had_secrets=False,
+            redacted_content=content or "",
+            redaction_count=0,
+            secret_hashes=[],
+            pattern_names=[],
+        )
+
+    # Scan for secrets
+    scan_result = scan_string(content, include_pii=include_pii)
+
+    if not scan_result.has_secrets:
+        return IncomingRedactionResult(
+            original_had_secrets=False,
+            redacted_content=content,
+            redaction_count=0,
+            secret_hashes=[],
+            pattern_names=[],
+        )
+
+    # Collect metadata before redaction
+    secret_hashes = [m.hash for m in scan_result.matches]
+    pattern_names = list(set(m.pattern_name for m in scan_result.matches))
+
+    # Redact each match (process in reverse order to preserve positions)
+    redacted = content
+    sorted_matches = sorted(
+        scan_result.matches,
+        key=lambda m: int(m.location.split()[1].split('-')[0]) if 'char' in m.location else 0,
+        reverse=True
+    )
+
+    redaction_count = 0
+    for match in sorted_matches:
+        try:
+            # Extract position from location string "char X-Y"
+            if 'char' in match.location:
+                pos_str = match.location.replace('char ', '')
+                start, end = map(int, pos_str.split('-'))
+                # Redact with type and hash for debugging
+                redacted = redacted[:start] + f"[REDACTED:{match.pattern_name}:{match.hash}]" + redacted[end:]
+                redaction_count += 1
+        except (ValueError, IndexError):
+            # If we can't parse position, skip
+            continue
+
+    return IncomingRedactionResult(
+        original_had_secrets=True,
+        redacted_content=redacted,
+        redaction_count=redaction_count,
+        secret_hashes=secret_hashes,
+        pattern_names=pattern_names,
+    )
+
+
+def create_incoming_redaction_audit_entry(
+    source: str,
+    result: IncomingRedactionResult,
+    content_hash: str,
+) -> Dict[str, Any]:
+    """
+    Create an audit log entry for incoming content redaction.
+
+    Only metadata is logged - never the actual secrets or full content.
+    """
+    return {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "event": "incoming_redaction",
+        "source": source,
+        "had_secrets": result.original_had_secrets,
+        "redaction_count": result.redaction_count,
+        "content_hash": content_hash,  # Hash of ORIGINAL content for correlation
+        "pattern_names": result.pattern_names,
+        "secret_hashes": result.secret_hashes,
+    }
+
+
+# Quick patterns for fast pre-check (avoid full scan if no potential secrets)
+QUICK_SECRET_INDICATORS = re.compile(
+    r'(?:'
+    r'ghp_|gho_|ghs_|ghr_|github_pat_|'  # GitHub tokens
+    r'sk-[a-zA-Z0-9]|sk-ant-|'  # OpenAI/Anthropic
+    r'AIza[0-9A-Za-z]|'  # Google
+    r'AKIA[0-9A-Z]|'  # AWS
+    r'xox[baprs]-|'  # Slack
+    r'eyJ[a-zA-Z0-9]|'  # JWT
+    r'-----BEGIN\s|'  # Private keys
+    r'pk_(live|test)_|sk_(live|test)_'  # Stripe
+    r')',
+    re.IGNORECASE
+)
+
+
+def has_potential_secrets(content: str) -> bool:
+    """
+    Quick check for potential secrets before full scan.
+
+    Use this for performance optimization - if no quick indicators,
+    skip the full regex scan.
+    """
+    if not content:
+        return False
+    return bool(QUICK_SECRET_INDICATORS.search(content))

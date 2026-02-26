@@ -139,7 +139,10 @@ try:
     from secrets_guard import (
         scan_and_redact_output, should_scan_output,
         create_output_audit_entry, compute_output_hash,
-        HIGH_RISK_OUTPUT_TOOLS
+        HIGH_RISK_OUTPUT_TOOLS,
+        # Incoming redaction (Layer 3 pre-processing)
+        redact_incoming_content, has_potential_secrets,
+        create_incoming_redaction_audit_entry,
     )
     SECRETS_OUTPUT_AVAILABLE = True
 except ImportError as e:
@@ -567,12 +570,28 @@ def _build_skill_tools(_running_skills=None) -> dict:
         finally:
             _running_skills.discard(skill_name)
 
+    def _log_task_wrapper(task: str, outcome: str):
+        """Log a completed task from within a skill."""
+        try:
+            success = memory.save_task_completed(task, outcome)
+            # Also create indexed log artifact
+            artifact_store.store_log(
+                event_type="task_complete",
+                message=f"{task}: {outcome}",
+                task=task,
+                outcome=outcome
+            )
+            return {"success": success}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     return {
         "query_memory": _query_memory_wrapper,
         "semantic_search": _semantic_search_wrapper,
         "store_fact": _store_fact_wrapper,
         "store_decision": _store_decision_wrapper,
         "run_skill": _run_skill_wrapper,
+        "log_task": _log_task_wrapper,
     }
 
 
@@ -3573,6 +3592,12 @@ Contact the system administrator or check duro-mcp installation.""")]
         elif name == "duro_save_memory":
             content = arguments["content"]
             section = arguments.get("section", "Session Log")
+            # INCOMING REDACTION: prevent secrets from persisting in memory
+            if SECRETS_OUTPUT_AVAILABLE and has_potential_secrets(content):
+                redact_result = redact_incoming_content(content, source="duro_save_memory")
+                if redact_result.original_had_secrets:
+                    content = redact_result.redacted_content
+                    log_info(f"Redacted {redact_result.redaction_count} secret(s) from save_memory")
             success = memory.save_to_today(content, section)
             # Also create indexed log artifact (check return value)
             log_success, log_id, _ = artifact_store.store_log(
@@ -3588,6 +3613,12 @@ Contact the system administrator or check duro-mcp installation.""")]
         elif name == "duro_save_learning":
             learning = arguments["learning"]
             category = arguments.get("category", "General")
+            # INCOMING REDACTION: prevent secrets from persisting
+            if SECRETS_OUTPUT_AVAILABLE and has_potential_secrets(learning):
+                redact_result = redact_incoming_content(learning, source="duro_save_learning")
+                if redact_result.original_had_secrets:
+                    learning = redact_result.redacted_content
+                    log_info(f"Redacted {redact_result.redaction_count} secret(s) from save_learning")
             success = memory.save_learning(learning, category)
             # Also create indexed log artifact (check return value)
             log_success, log_id, _ = artifact_store.store_log(
@@ -3603,6 +3634,16 @@ Contact the system administrator or check duro-mcp installation.""")]
         elif name == "duro_log_task":
             task = arguments["task"]
             outcome = arguments["outcome"]
+            # INCOMING REDACTION: prevent secrets from persisting
+            if SECRETS_OUTPUT_AVAILABLE:
+                if has_potential_secrets(task):
+                    redact_result = redact_incoming_content(task, source="duro_log_task")
+                    if redact_result.original_had_secrets:
+                        task = redact_result.redacted_content
+                if has_potential_secrets(outcome):
+                    redact_result = redact_incoming_content(outcome, source="duro_log_task")
+                    if redact_result.original_had_secrets:
+                        outcome = redact_result.redacted_content
             success = memory.save_task_completed(task, outcome)
             # Also create indexed log artifact (check return value)
             log_success, log_id, _ = artifact_store.store_log(
@@ -4504,6 +4545,10 @@ Contact the system administrator or check duro-mcp installation.""")]
             lines.append(f"**Pattern Count:** {status.get('pattern_count', 0)}")
             lines.append(f"**Detections (session):** {status.get('detection_count', 0)}")
             lines.append(f"**Sanitizations (session):** {status.get('sanitization_count', 0)}")
+            lines.append(f"\n**Incoming Secret Redaction (Layer 3):**")
+            lines.append(f"  - Active: {'Yes' if SECRETS_OUTPUT_AVAILABLE else 'No'}")
+            lines.append(f"  - Covers: save_memory, save_learning, log_task, store_fact, store_decision, store_incident")
+            lines.append(f"  - Patterns: ghp_, github_pat_, gho_, ghs_, ghr_, sk-, sk-ant-, AIza, AKIA, private keys, JWTs")
 
             if status.get('vault_entries', 0) > 0:
                 lines.append(f"\n**Content Vault:**")
@@ -5271,10 +5316,24 @@ Contact the system administrator or check duro-mcp installation.""")]
 
         # Artifact tools
         elif name == "duro_store_fact":
+            # INCOMING REDACTION: prevent secrets from persisting in facts
+            claim = arguments["claim"]
+            snippet = arguments.get("snippet")
+            if SECRETS_OUTPUT_AVAILABLE:
+                if has_potential_secrets(claim):
+                    redact_result = redact_incoming_content(claim, source="duro_store_fact")
+                    if redact_result.original_had_secrets:
+                        claim = redact_result.redacted_content
+                        log_info(f"Redacted {redact_result.redaction_count} secret(s) from fact claim")
+                if snippet and has_potential_secrets(snippet):
+                    redact_result = redact_incoming_content(snippet, source="duro_store_fact")
+                    if redact_result.original_had_secrets:
+                        snippet = redact_result.redacted_content
+                        log_info(f"Redacted {redact_result.redaction_count} secret(s) from fact snippet")
             success, artifact_id, path = artifact_store.store_fact(
-                claim=arguments["claim"],
+                claim=claim,
                 source_urls=arguments.get("source_urls"),
-                snippet=arguments.get("snippet"),
+                snippet=snippet,
                 confidence=arguments.get("confidence", 0.5),
                 tags=arguments.get("tags"),
                 workflow=arguments.get("workflow", "manual"),
@@ -5293,11 +5352,30 @@ Contact the system administrator or check duro-mcp installation.""")]
             return [TextContent(type="text", text=text)]
 
         elif name == "duro_store_decision":
+            # INCOMING REDACTION: prevent secrets from persisting in decisions
+            decision = arguments["decision"]
+            rationale = arguments["rationale"]
+            context = arguments.get("context")
+            if SECRETS_OUTPUT_AVAILABLE:
+                if has_potential_secrets(decision):
+                    redact_result = redact_incoming_content(decision, source="duro_store_decision")
+                    if redact_result.original_had_secrets:
+                        decision = redact_result.redacted_content
+                        log_info(f"Redacted {redact_result.redaction_count} secret(s) from decision")
+                if has_potential_secrets(rationale):
+                    redact_result = redact_incoming_content(rationale, source="duro_store_decision")
+                    if redact_result.original_had_secrets:
+                        rationale = redact_result.redacted_content
+                        log_info(f"Redacted {redact_result.redaction_count} secret(s) from rationale")
+                if context and has_potential_secrets(context):
+                    redact_result = redact_incoming_content(context, source="duro_store_decision")
+                    if redact_result.original_had_secrets:
+                        context = redact_result.redacted_content
             success, artifact_id, path = artifact_store.store_decision(
-                decision=arguments["decision"],
-                rationale=arguments["rationale"],
+                decision=decision,
+                rationale=rationale,
                 alternatives=arguments.get("alternatives"),
-                context=arguments.get("context"),
+                context=context,
                 reversible=arguments.get("reversible", True),
                 tags=arguments.get("tags"),
                 workflow=arguments.get("workflow", "manual"),
@@ -5723,14 +5801,37 @@ Contact the system administrator or check duro-mcp installation.""")]
 
         # Incident & Change Ledger handlers
         elif name == "duro_store_incident":
+            # INCOMING REDACTION: incident RCAs may accidentally contain secrets from debugging
+            symptom = arguments["symptom"]
+            actual_cause = arguments["actual_cause"]
+            fix = arguments["fix"]
+            trigger = arguments.get("trigger")
+            prevention = arguments.get("prevention")
+            if SECRETS_OUTPUT_AVAILABLE:
+                for field_name, field_val in [("symptom", symptom), ("actual_cause", actual_cause),
+                                               ("fix", fix), ("trigger", trigger), ("prevention", prevention)]:
+                    if field_val and has_potential_secrets(field_val):
+                        redact_result = redact_incoming_content(field_val, source="duro_store_incident")
+                        if redact_result.original_had_secrets:
+                            if field_name == "symptom":
+                                symptom = redact_result.redacted_content
+                            elif field_name == "actual_cause":
+                                actual_cause = redact_result.redacted_content
+                            elif field_name == "fix":
+                                fix = redact_result.redacted_content
+                            elif field_name == "trigger":
+                                trigger = redact_result.redacted_content
+                            elif field_name == "prevention":
+                                prevention = redact_result.redacted_content
+                            log_info(f"Redacted {redact_result.redaction_count} secret(s) from incident {field_name}")
             success, artifact_id, path = artifact_store.store_incident(
-                symptom=arguments["symptom"],
-                actual_cause=arguments["actual_cause"],
-                fix=arguments["fix"],
-                trigger=arguments.get("trigger"),
+                symptom=symptom,
+                actual_cause=actual_cause,
+                fix=fix,
+                trigger=trigger,
                 first_bad_boundary=arguments.get("first_bad_boundary"),
                 why_not_caught=arguments.get("why_not_caught"),
-                prevention=arguments.get("prevention"),
+                prevention=prevention,
                 related_recent_changes=arguments.get("related_recent_changes"),
                 # Debug Gate fields
                 repro_steps=arguments.get("repro_steps"),
