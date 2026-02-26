@@ -1,7 +1,7 @@
 # Internal directories (keep in duro-private)
 memory/
 rules/
-skills/
+# skills/ - NOW TRACKED (skills are code, they belong in version control)
 projects/
 evals/
 constitutions/
@@ -45,8 +45,9 @@ evals/fixtures/
 memory/logs/audit.jsonl
 memory/logs/repairs.jsonl
 
-# Python cache
+# Python cache (global and in skills/)
 __pycache__/
+skills/**/__pycache__/
 *.pyc
 *.pyo
 venv/
