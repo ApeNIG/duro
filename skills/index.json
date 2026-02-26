@@ -1140,7 +1140,7 @@
         "accountability",
         "decision drift"
       ],
-      "usage_count": 2,
+      "usage_count": 3,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1152,7 +1152,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Surfaces decisions with no follow-up, contradicting follow-up, or active themes without decisions. Scheduled every 7 days.",
-      "last_used": "2026-02-24T22:55:42.485908"
+      "last_used": "2026-02-26T19:26:23.523210"
     },
     {
       "id": "skill_memory_005",

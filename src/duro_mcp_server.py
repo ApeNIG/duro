@@ -1860,6 +1860,21 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
+            name="duro_batch_reinforce_facts",
+            description="Batch reinforce multiple facts at once. More efficient than calling duro_reinforce_fact multiple times. Use for maintenance workflows.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "fact_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of fact IDs to reinforce"
+                    }
+                },
+                "required": ["fact_ids"]
+            }
+        ),
+        Tool(
             name="duro_verify_fact",
             description="Explicitly verify a fact - set verification_state='verified' with timestamp. Requires evidence (source_urls). Use this for human/workflow verification, NOT auto-verification.",
             inputSchema={
@@ -5144,6 +5159,61 @@ Contact the system administrator or check duro-mcp installation.""")]
             data = updated_fact.get("data", {})
             text = f"## Fact Reinforced\n\n- **ID:** `{fact_id}`\n- **Reinforcement count:** {data.get('reinforcement_count', 0)}\n- **Last reinforced:** {data.get('last_reinforced_at')}"
             return [TextContent(type="text", text=text)]
+
+        elif name == "duro_batch_reinforce_facts":
+            from decay import reinforce_fact
+
+            fact_ids = arguments["fact_ids"]
+            reinforced = []
+            not_found = []
+            not_fact = []
+            failed = []
+
+            for fact_id in fact_ids:
+                fact = artifact_store.get_artifact(fact_id)
+
+                if not fact:
+                    not_found.append(fact_id)
+                    continue
+
+                if fact.get("type") != "fact":
+                    not_fact.append(fact_id)
+                    continue
+
+                # Reinforce
+                updated_fact = reinforce_fact(fact)
+
+                # Use proper update pipeline (signing, no re-embed since content unchanged)
+                success, msg = artifact_store.update_artifact(updated_fact, re_embed=False)
+                if not success:
+                    failed.append(fact_id)
+                else:
+                    reinforced.append(fact_id)
+
+            lines = ["## Batch Reinforce Results", ""]
+            lines.append(f"**Reinforced:** {len(reinforced)} / {len(fact_ids)}")
+
+            if reinforced:
+                lines.append(f"\n### Reinforced ({len(reinforced)})")
+                for fid in reinforced:
+                    lines.append(f"- `{fid}`")
+
+            if not_found:
+                lines.append(f"\n### Not Found ({len(not_found)})")
+                for fid in not_found:
+                    lines.append(f"- `{fid}`")
+
+            if not_fact:
+                lines.append(f"\n### Not a Fact ({len(not_fact)})")
+                for fid in not_fact:
+                    lines.append(f"- `{fid}`")
+
+            if failed:
+                lines.append(f"\n### Failed ({len(failed)})")
+                for fid in failed:
+                    lines.append(f"- `{fid}`")
+
+            return [TextContent(type="text", text="\n".join(lines))]
 
         elif name == "duro_verify_fact":
             fact_id = arguments["fact_id"]
