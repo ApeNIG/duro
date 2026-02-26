@@ -1294,7 +1294,7 @@
         "morning brief",
         "what do I need to know"
       ],
-      "usage_count": 3,
+      "usage_count": 4,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 120,
@@ -1317,7 +1317,7 @@
         "semantic_search"
       ],
       "notes": "The 'last mile' for frictionless insight surfacing. Lightweight analysis across all artifact types - no skill dependencies.",
-      "last_used": "2026-02-24T22:54:16.181027"
+      "last_used": "2026-02-26T13:36:57.985933"
     },
     {
       "id": "skill_memory_009",
@@ -1406,6 +1406,54 @@
       ],
       "notes": "Devil's advocate mode - finds contradicting evidence in user's own artifact history. Inspired by Obsidian+Claude podcast.",
       "last_used": "2026-02-24T22:24:04.357821"
+    },
+    {
+      "id": "skill_memory_011",
+      "name": "fact_triage",
+      "path": "memory/fact_triage.py",
+      "description": "Batch-triage unverified facts by verification priority",
+      "tier": "tested",
+      "phase": "4.0",
+      "keywords": [
+        "triage",
+        "fact",
+        "verify",
+        "unverified",
+        "priority",
+        "blast radius",
+        "confidence",
+        "mismatch",
+        "quick win",
+        "maintenance",
+        "trust",
+        "critical",
+        "queue",
+        "batch",
+        "verification"
+      ],
+      "triggers": [
+        "triage",
+        "verify facts",
+        "fact priority",
+        "unverified",
+        "verification queue"
+      ],
+      "usage_count": 1,
+      "success_rate": 0.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 10,
+      "dependencies": [],
+      "side_effects": [
+        "reads_database"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "requires": [
+        "query_memory"
+      ],
+      "notes": "Reflective layer skill from Mac Duro. Scores facts by blast radius (30%), confidence mismatch (25%), age (20%), usage (20%), quick win bonus (5%). Tiers: critical, high, medium, low.",
+      "last_used": "2026-02-26T13:40:39.729880"
     }
   ],
   "selection_priority": [
