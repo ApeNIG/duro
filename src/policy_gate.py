@@ -872,41 +872,55 @@ def policy_gate(
                             error="secrets_bash_violation",
                         )
 
-                # PRE-PROCESSING: For SENSITIVE_TOOLS, redact secrets before storage
-                # This is the "redact-and-persist" strategy - content is cleaned, not blocked
-                if decision.allowed and INCOMING_REDACTION_AVAILABLE and tool_name in SENSITIVE_TOOLS:
-                    def redact_value_in_place(obj):
-                        """Recursively redact string fields, modifying containers in place."""
-                        nonlocal redaction_applied, total_redactions
-                        if isinstance(obj, str):
-                            if has_potential_secrets(obj):
-                                result = redact_incoming_content(obj, source=f"gate_{tool_name}")
-                                if result.original_had_secrets:
-                                    redaction_applied = True
-                                    total_redactions += result.redaction_count
-                                    return result.redacted_content
-                            return obj
-                        elif isinstance(obj, dict):
-                            # Modify dict in place
-                            for key in list(obj.keys()):
-                                obj[key] = redact_value_in_place(obj[key])
-                            return obj
-                        elif isinstance(obj, list):
-                            # Modify list in place
-                            for i in range(len(obj)):
-                                obj[i] = redact_value_in_place(obj[i])
-                            return obj
-                        return obj
+                # SENSITIVE_TOOLS: Scan → Redact → Allow (never block, always clean)
+                # Uses SAME scanner for detection AND redaction to eliminate mismatches
+                if decision.allowed and SECRETS_GUARD_AVAILABLE and tool_name in SENSITIVE_TOOLS:
+                    # Step 1: Scan using the SAME function used by check_secrets_policy
+                    initial_scan = scan_arguments(arguments, include_pii=False)
 
-                    # Apply redaction to arguments IN PLACE (so caller sees redacted values)
-                    redact_value_in_place(arguments)
+                    if initial_scan.has_secrets:
+                        # Step 2: Redact using the existing redact_arguments (uses same scanner)
+                        # But we need to modify IN PLACE for the caller
+                        redacted_args = redact_arguments_secrets(arguments)
 
-                    if redaction_applied:
-                        # Log the redaction event for audit trail
-                        print(f"[INFO] Gate redacted {total_redactions} secret(s) from {tool_name} arguments", file=sys.stderr)
+                        # Copy redacted values back to original arguments dict
+                        def copy_redacted_in_place(original, redacted):
+                            """Copy redacted values from redacted dict back to original."""
+                            nonlocal redaction_applied, total_redactions
+                            if isinstance(original, dict) and isinstance(redacted, dict):
+                                for key in original:
+                                    if key in redacted:
+                                        if isinstance(original[key], str) and isinstance(redacted[key], str):
+                                            if original[key] != redacted[key]:
+                                                original[key] = redacted[key]
+                                                redaction_applied = True
+                                                # Count [REDACTED: markers in the new value
+                                                total_redactions += redacted[key].count('[REDACTED:')
+                                        elif isinstance(original[key], (dict, list)):
+                                            copy_redacted_in_place(original[key], redacted[key])
+                            elif isinstance(original, list) and isinstance(redacted, list):
+                                for i in range(min(len(original), len(redacted))):
+                                    if isinstance(original[i], str) and isinstance(redacted[i], str):
+                                        if original[i] != redacted[i]:
+                                            original[i] = redacted[i]
+                                            redaction_applied = True
+                                            total_redactions += redacted[i].count('[REDACTED:')
+                                    elif isinstance(original[i], (dict, list)):
+                                        copy_redacted_in_place(original[i], redacted[i])
 
-                # General secrets check for all tools (post-redaction for SENSITIVE_TOOLS)
-                if decision.allowed:
+                        copy_redacted_in_place(arguments, redacted_args)
+
+                        if redaction_applied:
+                            print(f"[INFO] Gate redacted {total_redactions} secret(s) from {tool_name} arguments", file=sys.stderr)
+                            # Log for audit (metadata only)
+                            _log_secret_detection(tool_name, initial_scan, "redacted",
+                                                f"Redacted {total_redactions} secret(s) from arguments")
+
+                    # SENSITIVE_TOOLS: Always allow after redaction - skip blocking check
+                    # This eliminates "detected but not redacted" failures
+
+                # NON-SENSITIVE TOOLS: Normal secrets check (block if found)
+                elif decision.allowed and SECRETS_GUARD_AVAILABLE and tool_name not in SENSITIVE_TOOLS:
                     secrets_allowed, secrets_reason, scan_result = check_secrets_policy(
                         tool_name, arguments
                     )
@@ -931,10 +945,6 @@ def policy_gate(
                     elif scan_result and scan_result.has_secrets:
                         # Allowed but secrets detected - log for audit
                         _log_secret_detection(tool_name, scan_result, "allowed", secrets_reason)
-                    elif redaction_applied:
-                        # Secrets were redacted, log as "redacted" action
-                        _log_secret_detection(tool_name, scan_result or type('MockScanResult', (), {'matches': [], 'has_secrets': False})(),
-                                            "redacted", f"Redacted {total_redactions} secret(s) from arguments")
 
             except Exception as e:
                 # Secrets check error = DENY (fail-closed)
