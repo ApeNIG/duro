@@ -48,6 +48,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install test dependencies
+        run: pip install pytest
+        shell: bash
+
       - name: Run security regression tests
         env:
           DURO_AGENT_HOME: ${{ runner.temp }}/duro-agent-home
