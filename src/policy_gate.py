@@ -47,12 +47,17 @@ except ImportError as e:
 # Secrets guard (Layer 3 - secrets out of prompts/logs)
 SECRETS_GUARD_AVAILABLE = False
 SECRETS_GUARD_ERROR = None
+INCOMING_REDACTION_AVAILABLE = False
 try:
     from secrets_guard import (
         check_secrets_policy, scan_arguments, redact_arguments as redact_arguments_secrets,
-        create_secret_audit_entry, check_bash_secrets
+        create_secret_audit_entry, check_bash_secrets,
+        # Incoming redaction for pre-processing
+        redact_incoming_content, has_potential_secrets,
+        create_incoming_redaction_audit_entry, SENSITIVE_TOOLS,
     )
     SECRETS_GUARD_AVAILABLE = True
+    INCOMING_REDACTION_AVAILABLE = True
 except ImportError as e:
     SECRETS_GUARD_ERROR = str(e)
 
@@ -843,10 +848,14 @@ def policy_gate(
                 )
 
         # === SECRETS CONSTRAINTS (Layer 3) ===
-        # Check for secrets in arguments - never let them leak to logs/memory
+        # For SENSITIVE_TOOLS: redact secrets FIRST, then allow (redact-and-persist strategy)
+        # For other tools: block if secrets detected (block-and-deny strategy)
+        redaction_applied = False
+        total_redactions = 0
+
         if decision.allowed and SECRETS_GUARD_AVAILABLE:
             try:
-                # Special handling for Bash commands
+                # Special handling for Bash commands - always block secrets in commands
                 if tool_name == "Bash" and "command" in arguments:
                     bash_allowed, bash_reason = check_bash_secrets(arguments["command"])
                     if not bash_allowed:
@@ -863,7 +872,40 @@ def policy_gate(
                             error="secrets_bash_violation",
                         )
 
-                # General secrets check for all tools
+                # PRE-PROCESSING: For SENSITIVE_TOOLS, redact secrets before storage
+                # This is the "redact-and-persist" strategy - content is cleaned, not blocked
+                if decision.allowed and INCOMING_REDACTION_AVAILABLE and tool_name in SENSITIVE_TOOLS:
+                    def redact_value_in_place(obj):
+                        """Recursively redact string fields, modifying containers in place."""
+                        nonlocal redaction_applied, total_redactions
+                        if isinstance(obj, str):
+                            if has_potential_secrets(obj):
+                                result = redact_incoming_content(obj, source=f"gate_{tool_name}")
+                                if result.original_had_secrets:
+                                    redaction_applied = True
+                                    total_redactions += result.redaction_count
+                                    return result.redacted_content
+                            return obj
+                        elif isinstance(obj, dict):
+                            # Modify dict in place
+                            for key in list(obj.keys()):
+                                obj[key] = redact_value_in_place(obj[key])
+                            return obj
+                        elif isinstance(obj, list):
+                            # Modify list in place
+                            for i in range(len(obj)):
+                                obj[i] = redact_value_in_place(obj[i])
+                            return obj
+                        return obj
+
+                    # Apply redaction to arguments IN PLACE (so caller sees redacted values)
+                    redact_value_in_place(arguments)
+
+                    if redaction_applied:
+                        # Log the redaction event for audit trail
+                        print(f"[INFO] Gate redacted {total_redactions} secret(s) from {tool_name} arguments", file=sys.stderr)
+
+                # General secrets check for all tools (post-redaction for SENSITIVE_TOOLS)
                 if decision.allowed:
                     secrets_allowed, secrets_reason, scan_result = check_secrets_policy(
                         tool_name, arguments
@@ -889,6 +931,10 @@ def policy_gate(
                     elif scan_result and scan_result.has_secrets:
                         # Allowed but secrets detected - log for audit
                         _log_secret_detection(tool_name, scan_result, "allowed", secrets_reason)
+                    elif redaction_applied:
+                        # Secrets were redacted, log as "redacted" action
+                        _log_secret_detection(tool_name, scan_result or type('MockScanResult', (), {'matches': [], 'has_secrets': False})(),
+                                            "redacted", f"Redacted {total_redactions} secret(s) from arguments")
 
             except Exception as e:
                 # Secrets check error = DENY (fail-closed)

@@ -151,12 +151,20 @@ SECRET_PATTERNS: List[SecretPattern] = [
         description="Private Key Header"
     ),
 
-    # Passwords in common formats
+    # Passwords in common formats - requires actual assignment syntax (= or :)
+    # Fixed to avoid false positives on sentences containing "secret", "password", etc.
     SecretPattern(
         name="password_assignment",
-        pattern=re.compile(r'(?i)(password|passwd|pwd|secret)["\s:=]+["\']?([^\s"\']{8,})["\']?'),
+        pattern=re.compile(r'(?i)(?<![a-z])(password|passwd|pwd)\s*["\']?\s*[:=]\s*["\']?([^\s"\']{8,})["\']?'),
         severity="high",
-        description="Password assignment"
+        description="Password assignment (password=, password:, etc.)"
+    ),
+    # Secret assignment - more strict to avoid "secrets policy" false positives
+    SecretPattern(
+        name="secret_assignment",
+        pattern=re.compile(r'(?i)(?<![a-z])secret\s*["\']?\s*[:=]\s*["\']?([^\s"\']{8,})["\']?'),
+        severity="high",
+        description="Secret assignment (secret=, secret:, etc.)"
     ),
 
     # Bearer tokens
