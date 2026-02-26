@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 6,
+      "usage_count": 8,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1042,7 +1042,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
-      "last_used": "2026-02-26T19:08:53.813159"
+      "last_used": "2026-02-26T20:09:03.890032"
     },
     {
       "id": "skill_memory_002",
@@ -1068,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 6,
+      "usage_count": 8,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1080,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-02-26T19:09:00.431516"
+      "last_used": "2026-02-26T20:09:04.228860"
     },
     {
       "id": "skill_memory_003",
@@ -1176,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 8,
-      "success_rate": 0.625,
+      "usage_count": 10,
+      "success_rate": 0.7,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1188,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-02-26T19:09:15.272131"
+      "last_used": "2026-02-26T20:09:04.524579"
     },
     {
       "id": "skill_memory_006",
@@ -1217,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 6,
+      "usage_count": 8,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1229,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-02-26T19:09:05.902381"
+      "last_used": "2026-02-26T20:09:04.276072"
     },
     {
       "id": "skill_memory_007",
@@ -1537,7 +1537,7 @@
         "full analysis",
         "synthesize"
       ],
-      "usage_count": 0,
+      "usage_count": 2,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 180,
@@ -1558,7 +1558,54 @@
         "run_skill",
         "query_memory"
       ],
-      "notes": "First compound skill - runs 4 skills in sequence, passing outputs between them. Each step builds on the previous: learnings become facts, facts reveal patterns, patterns spawn ideas, ideas suggest connections. Run at session end for maximum insight."
+      "notes": "First compound skill - runs 4 skills in sequence, passing outputs between them. Each step builds on the previous: learnings become facts, facts reveal patterns, patterns spawn ideas, ideas suggest connections. Run at session end for maximum insight.",
+      "last_used": "2026-02-26T20:09:04.536690"
+    },
+    {
+      "id": "skill_memory_014",
+      "name": "stale_decision_surfacer",
+      "path": "memory/stale_decision_surfacer.py",
+      "description": "Surface stale decisions that need attention before they rot - the foreman that ensures decisions don't decay",
+      "tier": "tested",
+      "phase": "4.0",
+      "keywords": [
+        "decisions",
+        "stale",
+        "surfacer",
+        "review",
+        "validation",
+        "follow-through",
+        "accountability",
+        "rot",
+        "foreman",
+        "unreviewed",
+        "contradiction"
+      ],
+      "triggers": [
+        "stale decisions",
+        "decision rot",
+        "unreviewed decisions",
+        "decision surfacer",
+        "decision audit"
+      ],
+      "usage_count": 4,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 15,
+      "dependencies": [],
+      "side_effects": [
+        "reads_database",
+        "logs_tasks"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "requires": [
+        "query_memory",
+        "log_task"
+      ],
+      "notes": "The decision foreman. Surfaces: (1) unreviewed decisions older than N days, (2) validated decisions with no linked work, (3) contradictions. Auto-logs tasks per stale decision. Run as step 0 in daily_synthesis.",
+      "last_used": "2026-02-26T20:09:03.485073"
     }
   ],
   "selection_priority": [

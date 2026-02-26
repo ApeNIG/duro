@@ -1,13 +1,14 @@
 """
 Skill: daily_synthesis
 Description: Compound skill that chains reflection skills together for deeper insights
-Version: 1.0.0
+Version: 1.1.0
 Tier: tested
 
 This is a COMPOUND SKILL - it runs multiple skills in sequence and passes
 outputs between them. The result is insights that no single skill could produce.
 
 Flow:
+0. stale_decision_surfacer → Surface decisions that need attention (foreman)
 1. graduate_logs → Promote today's learnings to permanent facts
 2. emerge → Find patterns across all artifacts (including new facts)
 3. idea_generation → Create actionable ideas from patterns
@@ -17,6 +18,7 @@ Flow:
 Why compound?
 - Single skills see one slice of knowledge
 - Compound skills see how slices connect
+- The output of step 0 surfaces what needs review
 - The output of step 1 makes step 2 smarter
 - The output of step 2 makes step 3 smarter
 - etc.
@@ -37,7 +39,7 @@ SKILL_META = {
     "name": "daily_synthesis",
     "description": "Compound skill that chains reflection skills for deeper insights",
     "tier": "tested",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "duro",
     "origin": "Built to close the skill compounding gap - skills should build on each other",
     "validated": "2026-02-26",
@@ -47,11 +49,12 @@ SKILL_META = {
     ],
     "keywords": [
         "compound", "synthesis", "chain", "reflect", "emerge",
-        "graduate", "ideas", "connect", "daily", "session-end"
+        "graduate", "ideas", "connect", "daily", "session-end",
+        "stale", "decisions", "foreman"
     ],
     "phase": "4.0",
     "compound": True,  # Marks this as a compound skill
-    "chains": ["graduate_logs", "emerge", "idea_generation", "connect_domains"],
+    "chains": ["stale_decision_surfacer", "graduate_logs", "emerge", "idea_generation", "connect_domains"],
 }
 
 # Default configuration
@@ -79,6 +82,7 @@ def run_child_skill(
 ) -> Dict[str, Any]:
     """
     Run a child skill and return its results.
+    Properly propagates success/failure from child skill.
     """
     run_skill = tools.get("run_skill")
     if not run_skill:
@@ -86,10 +90,13 @@ def run_child_skill(
 
     try:
         result = run_skill(skill_name=skill_name, args=args)
+        # Propagate success from child skill result
+        child_success = result.get("success", False) if isinstance(result, dict) else False
+        child_result = result.get("result", result) if isinstance(result, dict) else result
         return {
-            "success": True,
+            "success": child_success,
             "skill": skill_name,
-            "result": result
+            "result": child_result
         }
     except Exception as e:
         return {
@@ -127,6 +134,7 @@ def extract_domain_suggestions(idea_result: Dict) -> List[tuple]:
 
 
 def format_compound_report(
+    surfacer_result: Dict,
     graduate_result: Dict,
     emerge_result: Dict,
     idea_result: Dict,
@@ -139,6 +147,29 @@ def format_compound_report(
     lines = []
     lines.append("# Daily Synthesis Report")
     lines.append(f"*Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC*")
+    lines.append("")
+
+    # Section 0: Stale Decisions (the foreman)
+    lines.append("## 0. Decision Health")
+    if surfacer_result.get("success"):
+        result = surfacer_result.get("result", {})
+        if isinstance(result, dict):
+            stale_count = result.get("stale_count", 0)
+            tasks_logged = result.get("tasks_logged", 0)
+            if stale_count > 0:
+                lines.append(f"**{stale_count}** stale decisions found | **{tasks_logged}** tasks logged")
+                # Show top unreviewed
+                unreviewed = result.get("stale_unreviewed", [])
+                if unreviewed:
+                    lines.append("**Top unreviewed:**")
+                    for d in unreviewed[:3]:
+                        lines.append(f"- {d.get('days_since', 0)}d: {d.get('decision_text', '')[:60]}...")
+            else:
+                lines.append("All decisions are current. No rot detected.")
+        elif isinstance(result, str):
+            lines.append(result.split("\n")[0])
+    else:
+        lines.append(f"*Skipped: {surfacer_result.get('error', 'unknown error')}*")
     lines.append("")
 
     # Section 1: Graduated Learnings
@@ -270,7 +301,8 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     """
     Main compound skill execution.
 
-    Runs 4 skills in sequence, passing insights between them:
+    Runs 5 skills in sequence, passing insights between them:
+    0. stale_decision_surfacer - Surface decisions needing attention (foreman)
     1. graduate_logs - Promote learnings
     2. emerge - Find patterns
     3. idea_generation - Create ideas
@@ -284,8 +316,10 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             max_ideas: int (default 5)
             max_connections: int (default 2)
             dry_run: bool (default False)
+            skip_surfacer: bool (default False) - Skip stale decision surfacing
             skip_graduate: bool (default False) - Skip if already graduated
             skip_connections: bool (default False) - Skip domain exploration
+            stale_days: int (default 7) - Threshold for stale decisions
         }
         tools: {
             run_skill: callable - Run child skills
@@ -313,8 +347,10 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     max_ideas = args.get("max_ideas", DEFAULT_CONFIG["max_ideas"])
     max_connections = args.get("max_connections", DEFAULT_CONFIG["max_connections"])
     dry_run = args.get("dry_run", DEFAULT_CONFIG["dry_run"])
+    skip_surfacer = args.get("skip_surfacer", False)
     skip_graduate = args.get("skip_graduate", False)
     skip_connections = args.get("skip_connections", False)
+    stale_days = args.get("stale_days", 7)
 
     run_skill = tools.get("run_skill")
     if not run_skill:
@@ -322,6 +358,28 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
 
     skills_run = []
     steps_completed = 0
+
+    # ================================================
+    # Step 0: Stale Decision Surfacer → The Foreman
+    # ================================================
+    surfacer_result = {"success": False, "error": "skipped"}
+
+    if not skip_surfacer:
+        remaining = timeout - (time.time() - start_time)
+        if remaining > 20:
+            surfacer_result = run_child_skill(
+                "stale_decision_surfacer",
+                {
+                    "stale_days": stale_days,
+                    "max_items": 10,
+                    "auto_log_tasks": not dry_run,
+                },
+                tools,
+                remaining
+            )
+            skills_run.append("stale_decision_surfacer")
+            if surfacer_result.get("success"):
+                steps_completed += 1
 
     # ================================================
     # Step 1: Graduate Logs → Promote learnings to facts
@@ -428,6 +486,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     elapsed = time.time() - start_time
 
     report = format_compound_report(
+        surfacer_result,
         graduate_result,
         emerge_result,
         idea_result,
@@ -442,6 +501,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         "skills_run": skills_run,
         "elapsed_seconds": round(elapsed, 2),
         "child_results": {
+            "stale_decision_surfacer": surfacer_result,
             "graduate_logs": graduate_result,
             "emerge": emerge_result,
             "idea_generation": idea_result,
@@ -452,11 +512,15 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
 
 # --- CLI Mode ---
 if __name__ == "__main__":
-    print("daily_synthesis - Compound Reflection Skill")
+    print("daily_synthesis - Compound Reflection Skill v1.1.0")
     print("=" * 50)
     print()
     print("This skill CHAINS multiple skills together:")
     print()
+    print("  0. stale_decision_surfacer (THE FOREMAN)")
+    print("     └─ Surfaces decisions that need attention")
+    print("         │")
+    print("         ▼")
     print("  1. graduate_logs")
     print("     └─ Promotes learnings to permanent facts")
     print("         │")
@@ -476,4 +540,4 @@ if __name__ == "__main__":
     print("  [Unified Report]")
     print()
     print("Each step builds on the previous.")
-    print("This is compound intelligence.")
+    print("Decisions must not be allowed to rot.")
