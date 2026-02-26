@@ -148,6 +148,8 @@ SAFE_AUTO_START_TOOLS: Set[str] = {
     "duro_validate_decision",
     "duro_link_decision",
     "duro_reinforce_fact",
+    # Authorization (scoped to specific action, one-shot)
+    "duro_grant_approval",
     # Read-only operations (always safe)
     "duro_query_memory",
     "duro_semantic_search",
