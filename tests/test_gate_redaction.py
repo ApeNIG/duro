@@ -7,6 +7,9 @@ Tests the security posture:
 3. False-positive text → ALLOW (no false positives)
 
 Run with: python -m pytest tests/test_gate_redaction.py -v
+
+NOTE: Token strings are generated at RUNTIME to avoid triggering gitleaks.
+Do NOT add literal token-shaped strings to this file.
 """
 
 import sys
@@ -24,13 +27,42 @@ from secrets_guard import (
 )
 
 
+# =============================================================================
+# Token generators - build at runtime to avoid gitleaks flagging source code
+# =============================================================================
+
+def make_github_pat() -> str:
+    """Generate a GitHub PAT (ghp_ + 36 chars)."""
+    return "ghp_" + ("a" * 26) + ("1" * 10)  # 36 chars total
+
+
+def make_anthropic_key() -> str:
+    """Generate an Anthropic key (sk-ant-api03- + 24+ chars)."""
+    return "sk-ant-api03-" + ("b" * 26)
+
+
+def make_openai_key() -> str:
+    """Generate an OpenAI key (sk-proj- + 20+ chars)."""
+    return "sk-proj-" + ("c" * 30)
+
+
+def make_aws_key() -> str:
+    """Generate an AWS access key (AKIA + 16 chars)."""
+    return "AKIA" + ("D" * 16)
+
+
+def make_short_github() -> str:
+    """Generate a too-short GitHub token (won't match strict pattern)."""
+    return "ghp_" + ("x" * 20)  # Only 20 chars, needs 36
+
+
 class TestGateRedaction:
     """Test that redaction and detection use the same patterns."""
 
     def test_sensitive_tool_with_github_pat_allows_and_redacts(self):
         """SENSITIVE_TOOL + GitHub PAT → should be redactable (same scanner)."""
-        # Exactly 36 chars after ghp_: abcdefghijklmnopqrstuvwxyz1234567890
-        args = {"content": "Token: ghp_abcdefghijklmnopqrstuvwxyz12345678907890"}
+        token = make_github_pat()
+        args = {"content": f"Token: {token}"}
 
         # Scan finds it
         scan_result = scan_arguments(args)
@@ -48,7 +80,8 @@ class TestGateRedaction:
 
     def test_sensitive_tool_with_anthropic_key_allows_and_redacts(self):
         """SENSITIVE_TOOL + Anthropic key → should be redactable."""
-        args = {"snippet": "Key: sk-ant-api03-abcdefghijklmnopqrstuvwxyz"}
+        token = make_anthropic_key()
+        args = {"snippet": f"Key: {token}"}
 
         scan_result = scan_arguments(args)
         assert scan_result.has_secrets, "Scanner should detect Anthropic key"
@@ -62,7 +95,8 @@ class TestGateRedaction:
 
     def test_sensitive_tool_with_aws_key_allows_and_redacts(self):
         """SENSITIVE_TOOL + AWS key → should be redactable."""
-        args = {"claim": "AWS: AKIAFAKE1234567890AB"}
+        token = make_aws_key()
+        args = {"claim": f"AWS: {token}"}
 
         scan_result = scan_arguments(args)
         assert scan_result.has_secrets, "Scanner should detect AWS key"
@@ -74,7 +108,8 @@ class TestGateRedaction:
 
     def test_bash_with_token_blocks(self):
         """Bash with token → BLOCK (non-sensitive tool)."""
-        args = {"command": "export TOKEN=ghp_abcdefghijklmnopqrstuvwxyz1234567890"}
+        token = make_github_pat()
+        args = {"command": f"export TOKEN={token}"}
 
         # check_secrets_policy should block for non-sensitive tools
         allowed, reason, scan_result = check_secrets_policy("bash_command", args)
@@ -100,8 +135,8 @@ class TestGateRedaction:
 
     def test_short_token_not_matched(self):
         """Token that's too short should NOT match strict patterns."""
-        # Only 20 chars after ghp_ (needs 36)
-        args = {"content": "ghp_12345678901234567890"}
+        token = make_short_github()
+        args = {"content": token}
 
         scan_result = scan_arguments(args)
         # The strict pattern shouldn't match
@@ -110,13 +145,10 @@ class TestGateRedaction:
 
     def test_multiple_secrets_all_redacted(self):
         """Multiple different secrets → all should be redacted."""
-        args = {
-            "content": (
-                "GitHub: ghp_abcdefghijklmnopqrstuvwxyz1234567890 "
-                "AWS: AKIAFAKE1234567890AB "
-                "Anthropic: sk-ant-api03-abcdefghijklmnopqrstuvwxyz"
-            )
-        }
+        gh = make_github_pat()
+        aws = make_aws_key()
+        ant = make_anthropic_key()
+        args = {"content": f"GitHub: {gh} AWS: {aws} Anthropic: {ant}"}
 
         scan_result = scan_arguments(args)
         assert scan_result.has_secrets
