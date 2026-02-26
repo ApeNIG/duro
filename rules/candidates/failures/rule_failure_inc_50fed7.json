@@ -1,0 +1,52 @@
+{
+  "id": "rule_failure_inc_50fed7",
+  "name": "--fix mode in code_pipeline corrupted Python files,...",
+  "category": "failures",
+  "type": "hard",
+  "priority": 1,
+  "trigger_keywords": [
+    "test"
+  ],
+  "failure_pattern": {
+    "symptom": "--fix mode in code_pipeline corrupted Python files, causing SyntaxError in 10+ files",
+    "root_cause": "Both remove_unused_imports and sort_imports don't properly handle multi-line imports. They read node.lineno but not node.end_lineno, causing partial line replacements that corrupt the import block.",
+    "detection": "code_refactor.py:remove_unused_imports and sort_imports functions - they replace lines[start_line-1:end_line] but don't properly calculate end_line for multi-line imports"
+  },
+  "prevention": {
+    "before_action": "Before enabling auto-refactoring tools, test on codebases with: 1) multi-line imports, 2) parenthesized imports, 3) imports with comments. Add specific unit tests for these cases.",
+    "avoid": "Both remove_unused_imports and sort_imports don't properly handle multi-line imports. They read node.lineno but not node.end_lineno, causing partial line replacements that corrupt the import block.",
+    "alternative": "Disabled fix operations by setting SAFE_FIX_OPERATIONS = []. Moved remove_unused_imports and sort_imports to UNSAFE_FIX_OPERATIONS with bug notes. Later fixed properly with AST-based DeadCodeFinder in commit dadcc6f."
+  },
+  "recovery": {
+    "if_detected": "Disabled fix operations by setting SAFE_FIX_OPERATIONS = []. Moved remove_unused_imports and sort_imports to UNSAFE_FIX_OPERATIONS with bug notes. Later fixed properly with AST-based DeadCodeFinder in commit dadcc6f.",
+    "cleanup": "Verify fix resolves the issue"
+  },
+  "examples": [
+    {
+      "scenario": "--fix mode in code_pipeline corrupted Python files, causing SyntaxError in 10+ files",
+      "outcome": "Both remove_unused_imports and sort_imports don't properly handle multi-line imports. They read node.lineno but not node.end_lineno, causing partial line replacements that corrupt the import block.",
+      "lesson": "Before enabling auto-refactoring tools, test on codebases with: 1) multi-line imports, 2) parenthesized imports, 3) imports with comments. Add specific unit tests for these cases."
+    }
+  ],
+  "repro_steps": [
+    "Run: python code_pipeline.py /path/to/project --stages fix --fix",
+    "Project has files with multi-line imports like: from X import (\\n    A,\\n    B,\\n)",
+    "Check resulting files for SyntaxError"
+  ],
+  "source_incident": "inc_20260220_112053_m8qp93",
+  "source_tags": [
+    "refactoring",
+    "ast",
+    "multi-line",
+    "imports",
+    "code-corruption",
+    "resolved",
+    "waived_gate"
+  ],
+  "confidence": 0.7,
+  "validations": 0,
+  "severity": "high",
+  "created": "2026-02-26",
+  "last_validated": null,
+  "status": "candidate"
+}

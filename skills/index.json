@@ -1454,6 +1454,51 @@
       ],
       "notes": "Reflective layer skill from Mac Duro. Scores facts by blast radius (30%), confidence mismatch (25%), age (20%), usage (20%), quick win bonus (5%). Tiers: critical, high, medium, low.",
       "last_used": "2026-02-26T13:40:39.729880"
+    },
+    {
+      "id": "skill_memory_012",
+      "name": "incident_to_rule",
+      "path": "memory/incident_to_rule.py",
+      "description": "Convert incident RCA prevention into candidate rules - closes the mistake\u2192law loop",
+      "tier": "tested",
+      "phase": "4.0",
+      "keywords": [
+        "incident",
+        "rule",
+        "prevention",
+        "promote",
+        "rca",
+        "law",
+        "candidate",
+        "failure",
+        "mistake",
+        "permanent",
+        "phase4"
+      ],
+      "triggers": [
+        "incident to rule",
+        "promote incident",
+        "mistake to law",
+        "prevention to rule",
+        "rca to rule"
+      ],
+      "usage_count": 3,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 60,
+      "expected_runtime_seconds": 15,
+      "dependencies": [],
+      "side_effects": [
+        "reads_database",
+        "writes_files"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "requires": [
+        "query_memory"
+      ],
+      "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations.",
+      "last_used": "2026-02-26T17:58:00.676292"
     }
   ],
   "selection_priority": [

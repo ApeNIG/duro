@@ -1,0 +1,54 @@
+{
+  "id": "rule_failure_inc_9ef1f3",
+  "name": "Security penetration test revealed multiple runtime bypass...",
+  "category": "failures",
+  "type": "hard",
+  "priority": 1,
+  "trigger_keywords": [
+    "immutable",
+    "test",
+    "security",
+    "env",
+    "cache"
+  ],
+  "failure_pattern": {
+    "symptom": "Security penetration test revealed multiple runtime bypass vulnerabilities",
+    "root_cause": "Mutable Python data structures (set, list) used for security-critical configs. Env vars read at runtime instead of cached. Some injection severities allowed through.",
+    "detection": "Module-level mutable constants (GATE_BYPASS_TOOLS, INJECTION_PATTERNS)"
+  },
+  "prevention": {
+    "before_action": "Always use immutable data structures (frozenset, tuple) for security configs. Cache security env vars at import. Defense in depth - block all detections.",
+    "avoid": "Mutable Python data structures (set, list) used for security-critical configs. Env vars read at runtime instead of cached. Some injection severities allowed through.",
+    "alternative": "Converted sets to frozensets, lists to tuples, cached env vars at import time, added missing detection patterns, all severities now block."
+  },
+  "recovery": {
+    "if_detected": "Converted sets to frozensets, lists to tuples, cached env vars at import time, added missing detection patterns, all severities now block.",
+    "cleanup": "Verify fix resolves the issue"
+  },
+  "examples": [
+    {
+      "scenario": "Security penetration test revealed multiple runtime bypass vulnerabilities",
+      "outcome": "Mutable Python data structures (set, list) used for security-critical configs. Env vars read at runtime instead of cached. Some injection severities allowed through.",
+      "lesson": "Always use immutable data structures (frozenset, tuple) for security configs. Cache security env vars at import. Defense in depth - block all detections."
+    }
+  ],
+  "repro_steps": [
+    "Import policy_gate module",
+    "GATE_BYPASS_TOOLS.add('duro_delete_artifact')",
+    "Tool now bypasses all security checks"
+  ],
+  "source_incident": "inc_20260222_111042_9qsopo",
+  "source_tags": [
+    "security",
+    "hardening",
+    "prompt-injection",
+    "policy-gate",
+    "pentest"
+  ],
+  "confidence": 0.7,
+  "validations": 0,
+  "severity": "critical",
+  "created": "2026-02-26",
+  "last_validated": null,
+  "status": "candidate"
+}
