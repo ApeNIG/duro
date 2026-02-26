@@ -146,6 +146,7 @@ class EventType:
     SECRETS_BLOCKED = "secrets.blocked"
     SECRETS_DETECTED = "secrets.detected"
     SECRETS_OUTPUT_REDACTED = "secrets.output_redacted"
+    SECRETS_INPUT_REDACTED = "secrets.input_redacted"
 
     # Workspace events
     WORKSPACE_VIOLATION = "workspace.violation"

@@ -494,7 +494,14 @@ def _log_secret_detection(tool_name: str, scan_result: Any, action: str, reason:
 
         # Use unified audit if available
         if UNIFIED_AUDIT_AVAILABLE:
-            event_type = EventType.SECRETS_BLOCKED if action == "blocked" else EventType.SECRETS_DETECTED
+            # Map action to appropriate event type
+            if action == "blocked":
+                event_type = EventType.SECRETS_BLOCKED
+            elif action == "redacted":
+                event_type = EventType.SECRETS_INPUT_REDACTED
+            else:
+                event_type = EventType.SECRETS_DETECTED
+
             event = build_secrets_event(
                 event_type=event_type,
                 tool_name=tool_name,
