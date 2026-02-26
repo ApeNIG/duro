@@ -7,7 +7,31 @@ on:
     branches: [master, main]
 
 jobs:
+  # Secret scanning - runs first, fast fail if secrets detected
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for scanning
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # Optional: for enterprise features
+
+      - name: Scan result
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "failure" ]; then
+            echo "::error::Secrets detected in repository! Review and remove before merging."
+            exit 1
+          fi
+          echo "No secrets detected"
+
   security-tests:
+    needs: secret-scan  # Don't run tests if secrets are found
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -37,6 +61,10 @@ jobs:
         working-directory: src
         # Test is self-contained: sets DURO_PROVENANCE_HMAC_KEYS dynamically in setup
         run: python test_provenance_signing.py
+        shell: bash
+
+      - name: Run gate redaction tests
+        run: python -m pytest tests/test_gate_redaction.py -v
         shell: bash
 
   # Ensure this workflow is a required check for branch protection
