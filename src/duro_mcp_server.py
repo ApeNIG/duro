@@ -485,9 +485,12 @@ def _run_orphan_cleanup_callable() -> dict:
         return {"error": str(e), "notable": False}
 
 
-def _build_skill_tools() -> dict:
+def _build_skill_tools(_running_skills=None) -> dict:
     """Build the tools dict that reflective skills need."""
     from embeddings import embed_text, is_embedding_available
+
+    # Shared call stack for recursion detection across nested skill calls
+    _running_skills = _running_skills or set()
 
     def _query_memory_wrapper(**kwargs):
         return artifact_store.query(**kwargs)
@@ -535,11 +538,41 @@ def _build_skill_tools() -> dict:
         )
         return {"success": ok, "artifact_id": aid, "path": path}
 
+    def _run_skill_wrapper(skill_name: str, args: dict = None):
+        """
+        Run a child skill from within a compound skill.
+        Enables skill composition - skills can call other skills.
+        """
+        # Prevent infinite/mutual recursion (A→B→A blocked by shared call stack)
+        if skill_name in _running_skills:
+            return {"success": False, "error": f"Recursive call detected: {skill_name} is already running"}
+
+        _running_skills.add(skill_name)
+        try:
+            # Pass the SAME set to child - this makes recursion detection work like a real call stack
+            child_tools = _build_skill_tools(_running_skills)
+            child_context = {"run_id": f"child_skill_{skill_name}", "timeout": 60}
+
+            success, result = skills.run_skill_with_tools(
+                skill_name, args or {}, child_tools, child_context
+            )
+
+            return {
+                "success": success,
+                "skill": skill_name,
+                "result": result
+            }
+        except Exception as e:
+            return {"success": False, "skill": skill_name, "error": str(e)}
+        finally:
+            _running_skills.discard(skill_name)
+
     return {
         "query_memory": _query_memory_wrapper,
         "semantic_search": _semantic_search_wrapper,
         "store_fact": _store_fact_wrapper,
         "store_decision": _store_decision_wrapper,
+        "run_skill": _run_skill_wrapper,
     }
 
 
