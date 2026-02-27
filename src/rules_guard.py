@@ -103,38 +103,67 @@ def load_rule_content(rule: Dict) -> Optional[Dict]:
         return None
 
 
-def increment_rule_validation(rule: Dict) -> bool:
+# Debounce cache: {rule_id: last_increment_date}
+_validation_debounce: Dict[str, str] = {}
+
+
+def increment_rule_validation(rule: Dict, force: bool = False) -> Tuple[bool, str]:
     """
     Increment the validation count for a matched rule.
-    This proves the rule is catching real cases.
+    Only increments once per rule per day (debounce).
+    Uses atomic writes to prevent corruption.
 
-    Returns True if successfully incremented, False otherwise.
+    Args:
+        rule: The rule dict from index
+        force: If True, bypass debounce (for testing)
+
+    Returns:
+        (success, message) tuple
     """
+    global _validation_debounce
+
     rules_dir = get_rules_dir()
     rule_file = rule.get("file", "")
+    rule_id = rule.get("id", "unknown")
+
     if not rule_file:
-        return False
+        return False, "No file path"
 
     filepath = os.path.join(rules_dir, rule_file)
     if not os.path.exists(filepath):
-        return False
+        return False, "File not found"
+
+    # Debounce: only increment once per rule per day
+    today = datetime.now().strftime("%Y-%m-%d")
+    debounce_key = f"{rule_id}:{today}"
+
+    if not force and debounce_key in _validation_debounce:
+        return False, "Already incremented today (debounced)"
 
     try:
+        # Read current content
         with open(filepath, "r", encoding="utf-8") as f:
             content = json.load(f)
 
         # Increment validations
         current = content.get("validations", 0)
         content["validations"] = current + 1
-        content["last_validated"] = datetime.now().strftime("%Y-%m-%d")
+        content["last_validated"] = today
 
-        # Write back
-        with open(filepath, "w", encoding="utf-8") as f:
+        # Atomic write: write to .tmp, then replace
+        tmp_path = filepath + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
             json.dump(content, f, indent=2)
 
-        return True
-    except Exception:
-        return False
+        # Atomic replace (works on Windows with os.replace)
+        os.replace(tmp_path, filepath)
+
+        # Mark as incremented for debounce
+        _validation_debounce[debounce_key] = today
+
+        return True, f"Incremented {rule_id} to {current + 1}"
+    except Exception as e:
+        return False, str(e)
 
 
 def extract_context_from_tool_call(tool_name: str, arguments: Dict) -> str:
@@ -201,9 +230,6 @@ def check_rules_for_tool(
             # Load full content for matched rule
             content = load_rule_content(rule)
 
-            # Auto-increment validation count (proves rule catches real cases)
-            increment_rule_validation(rule)
-
             match_info = {
                 "rule": rule,
                 "content": content,
@@ -225,6 +251,9 @@ def check_rules_for_tool(
         allowed = False
         violation_names = [v["rule"]["name"] for v in hard_violations]
         message = f"Blocked by rule(s): {', '.join(violation_names)}"
+        # Increment validations only on actual blocks (debounced, atomic)
+        for v in hard_violations:
+            increment_rule_validation(v["rule"])
     elif soft_warnings:
         warning_names = [w["rule"]["name"] for w in soft_warnings]
         message = f"Guidance: {', '.join(warning_names)}"
