@@ -104,6 +104,7 @@ def load_rule_content(rule: Dict) -> Optional[Dict]:
 
 
 # Debounce cache: {rule_id: last_increment_date}
+# Stores only rule_id -> date (not rule_id:date keys) to prevent unbounded growth
 _validation_debounce: Dict[str, str] = {}
 
 
@@ -134,10 +135,11 @@ def increment_rule_validation(rule: Dict, force: bool = False) -> Tuple[bool, st
         return False, "File not found"
 
     # Debounce: only increment once per rule per day
+    # Key is just rule_id (stable memory), value is last increment date
     today = datetime.now().strftime("%Y-%m-%d")
-    debounce_key = f"{rule_id}:{today}"
+    last_increment = _validation_debounce.get(rule_id)
 
-    if not force and debounce_key in _validation_debounce:
+    if not force and last_increment == today:
         return False, "Already incremented today (debounced)"
 
     try:
@@ -158,8 +160,8 @@ def increment_rule_validation(rule: Dict, force: bool = False) -> Tuple[bool, st
         # Atomic replace (works on Windows with os.replace)
         os.replace(tmp_path, filepath)
 
-        # Mark as incremented for debounce
-        _validation_debounce[debounce_key] = today
+        # Mark as incremented for debounce (rule_id -> today)
+        _validation_debounce[rule_id] = today
 
         return True, f"Incremented {rule_id} to {current + 1}"
     except Exception as e:

@@ -1,7 +1,7 @@
 """
 Skill: incident_to_rule
 Description: Convert incident RCA prevention into candidate rules - closes the mistake→law loop
-Version: 1.0.0
+Version: 1.1.0
 Tier: tested
 
 Phase 4 automation: every mistake becomes a permanent law.
@@ -34,7 +34,7 @@ SKILL_META = {
     "name": "incident_to_rule",
     "description": "Convert incident RCA prevention into candidate rules - closes the mistake→law loop",
     "tier": "tested",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "duro",
     "origin": "Phase 4 evolution - every mistake becomes a permanent law",
     "validated": "2026-02-26",
@@ -253,14 +253,55 @@ def incident_to_candidate_rule(incident: Dict) -> Dict:
     return candidate
 
 
-def check_existing_rules(prevention: str, rules_index: Dict) -> Optional[str]:
+def increment_candidate_validation(filepath: str, incident_id: str) -> Tuple[bool, int]:
+    """
+    Increment validation count on an existing candidate rule.
+    Called when a new incident matches an existing candidate (recurrence = validation).
+
+    Args:
+        filepath: Path to the candidate rule JSON file
+        incident_id: ID of the incident that validates this candidate
+
+    Returns:
+        (success, new_validation_count)
+    """
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            candidate = json.load(f)
+
+        # Increment validations
+        current = candidate.get("validations", 0)
+        candidate["validations"] = current + 1
+        candidate["last_validated"] = datetime.utcnow().strftime("%Y-%m-%d")
+
+        # Track which incidents validated this rule
+        seen_incidents = candidate.get("seen_incidents", [])
+        if incident_id not in seen_incidents:
+            seen_incidents.append(incident_id)
+            candidate["seen_incidents"] = seen_incidents[-10:]  # Keep last 10
+
+        # Atomic write
+        tmp_path = filepath + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(candidate, f, indent=2)
+        os.replace(tmp_path, filepath)
+
+        return True, candidate["validations"]
+    except Exception:
+        return False, 0
+
+
+def check_existing_rules(prevention: str, rules_index: Dict, incident_id: str = None) -> Tuple[Optional[str], bool]:
     """
     Check if a similar rule already exists.
-    Returns rule ID if found, None otherwise.
+    If a matching candidate is found and incident_id is provided, increments its validations.
+
+    Returns:
+        (rule_id or None, was_candidate_validated)
     """
     prevention_lower = prevention.lower()
 
-    # Check active rules
+    # Check active rules first
     for rule in rules_index.get("active_rules", []):
         rule_name = rule.get("name", "").lower()
         triggers = rule.get("trigger_keywords", [])
@@ -268,9 +309,9 @@ def check_existing_rules(prevention: str, rules_index: Dict) -> Optional[str]:
         # Check if any trigger keyword appears in prevention
         for trigger in triggers:
             if trigger.lower() in prevention_lower:
-                return rule.get("id")
+                return rule.get("id"), False  # Active rule exists, no validation needed
 
-    # Check candidates too
+    # Check candidates - and increment validation if match found
     candidates_dir = get_candidates_dir()
     if os.path.exists(candidates_dir):
         for filename in os.listdir(candidates_dir):
@@ -281,11 +322,17 @@ def check_existing_rules(prevention: str, rules_index: Dict) -> Optional[str]:
                 with open(filepath, "r", encoding="utf-8") as f:
                     candidate = json.load(f)
                     if candidate.get("prevention", {}).get("before_action", "").lower() == prevention_lower:
-                        return candidate.get("id")
+                        candidate_id = candidate.get("id")
+                        # Increment validation on recurrence
+                        validated = False
+                        if incident_id:
+                            success, new_count = increment_candidate_validation(filepath, incident_id)
+                            validated = success
+                        return candidate_id, validated
             except Exception:
                 continue
 
-    return None
+    return None, False
 
 
 def save_candidate_rule(rule: Dict, dry_run: bool = False) -> Tuple[bool, str]:
@@ -532,12 +579,13 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             })
             continue
 
-        # Check if rule already exists
-        existing_rule = check_existing_rules(prevention, rules_index)
+        # Check if rule already exists (and increment candidate validations on recurrence)
+        existing_rule, was_validated = check_existing_rules(prevention, rules_index, incident_id)
         if existing_rule:
+            validation_msg = " (candidate validation incremented)" if was_validated else ""
             skipped.append({
                 "incident_id": incident_id,
-                "reason": f"Rule already exists: {existing_rule}"
+                "reason": f"Rule already exists: {existing_rule}{validation_msg}"
             })
             continue
 
