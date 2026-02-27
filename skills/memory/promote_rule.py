@@ -225,7 +225,7 @@ def update_index(
             "file": rel_path.replace("\\", "/"),
             "type": rule.get("type", "hard"),
             "priority": rule.get("priority", 1),
-            "enforcement": "skill_runner",  # Default for promoted rules
+            "enforcement": "PreToolUse",  # Hard rules block at policy gate Layer 7
             "measurable": True,
             "trigger_keywords": rule.get("trigger_keywords", []),
         }
@@ -403,7 +403,11 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     # Check 2c: Age threshold (prevent instant law from bursty failures)
     if created_date and min_age_hours > 0 and not force:
         try:
-            created_dt = datetime.strptime(created_date, "%Y-%m-%d")
+            # Try ISO timestamp first, fall back to date-only for backwards compat
+            try:
+                created_dt = datetime.strptime(created_date, "%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                created_dt = datetime.strptime(created_date, "%Y-%m-%d")
             age_hours = (datetime.utcnow() - created_dt).total_seconds() / 3600
             if age_hours < min_age_hours:
                 messages.append(f"Candidate age {age_hours:.1f}h < {min_age_hours}h minimum")

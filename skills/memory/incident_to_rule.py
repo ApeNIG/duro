@@ -245,7 +245,7 @@ def incident_to_candidate_rule(incident: Dict) -> Dict:
         "confidence": 0.7 if severity in ("critical", "high") else 0.5,
         "validations": 0,
         "severity": severity,
-        "created": datetime.utcnow().strftime("%Y-%m-%d"),
+        "created": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),  # ISO timestamp for precise age check
         "last_validated": None,
         "status": "candidate",
     }
