@@ -1,0 +1,20 @@
+# Stub skill for selectivity testing
+id: stub_security_auth
+name: authentication
+version: "0.1.0"
+scope: core
+tier: untested
+
+triggers:
+  hard:
+    intents: ["implement auth", "add login"]
+  soft:
+    keywords: [auth, login, password, jwt, token, session, oauth, security]
+
+renderings:
+  minimal:
+    tokens: 50
+    content: "Auth patterns: hash passwords, short-lived tokens, secure cookies."
+  compact:
+    tokens: 100
+    content: "## Authentication\nBcrypt for passwords. JWT with refresh tokens. HttpOnly cookies."

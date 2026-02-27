@@ -1,0 +1,260 @@
+# Skill Schema v1.1 - Photography Lighting
+id: skill_photography_lighting
+name: photography_lighting
+version: "1.0.0"
+scope: core
+tier: core
+
+classification:
+  type: prompt
+  domain: [photography, lighting, visual, portrait, studio]
+  primary_action: design_lighting
+
+description:
+  short: "Photography lighting principles, setups, and equipment"
+  full: |
+    Comprehensive photography lighting knowledge covering the four properties
+    of light (direction, quality, color, intensity), classic portrait lighting
+    patterns, and equipment/modifiers for shaping light.
+
+triggers:
+  hard:
+    intents:
+      - "set up lighting"
+      - "photography lighting"
+      - "portrait lighting"
+      - "studio lighting"
+      - "light a subject"
+  soft:
+    keywords:
+      - lighting
+      - light
+      - softbox
+      - reflector
+      - portrait
+      - rembrandt
+      - butterfly
+      - shadow
+      - highlight
+      - strobe
+      - flash
+      - key light
+      - fill light
+      - backlight
+      - diffuser
+      - gel
+    embedding_threshold: 0.7
+  budget:
+    priority: 8
+    min_tokens: 100
+    max_tokens: 800
+
+renderings:
+  minimal:
+    tokens: 90
+    content: |
+      **Light Properties**: Direction (angle), Quality (hard/soft), Color (Kelvin temp), Intensity (brightness).
+      **Key Patterns**: Rembrandt (triangle shadow), Butterfly (shadow under nose), Loop (small nose shadow), Split (half-face shadow).
+      **3-Point Setup**: Key (main), Fill (shadows), Back/Rim (separation).
+
+  compact:
+    tokens: 350
+    content: |
+      ## Photography Lighting
+
+      ### Four Properties of Light
+      | Property | Description | Control |
+      |----------|-------------|---------|
+      | **Direction** | Angle of light hitting subject | Move light source position |
+      | **Quality** | Hard (sharp shadows) vs Soft (diffused) | Size of source relative to subject |
+      | **Color** | Temperature in Kelvin (warm to cool) | Gels, white balance, mixed sources |
+      | **Intensity** | Brightness/exposure | Distance, power, modifiers |
+
+      ### Classic Portrait Patterns
+      - **Rembrandt**: 45° side + above, triangle shadow on cheek
+      - **Butterfly/Paramount**: Directly above camera, butterfly shadow under nose
+      - **Loop**: 30-45° side, small nose shadow loops toward cheek
+      - **Split**: 90° side, half face in shadow
+      - **Broad**: Light hits side of face toward camera
+      - **Short**: Light hits side of face away from camera (more dramatic)
+
+      ### Three-Point Lighting
+      1. **Key Light**: Main light source, sets exposure and mood
+      2. **Fill Light**: Softens shadows from key, lower intensity
+      3. **Back/Rim Light**: Separates subject from background, creates edge highlight
+
+      ### Light Ratios
+      - 1:1 - Flat, even (beauty, fashion)
+      - 2:1 - Subtle dimension (corporate, editorial)
+      - 4:1 - Dramatic (cinematic, moody)
+      - 8:1 - High contrast (noir, artistic)
+
+      ### Key Modifiers
+      - **Softbox**: Soft, wrapping light
+      - **Umbrella**: Broad, soft fill
+      - **Beauty Dish**: Soft center, defined edges
+      - **Reflector**: Bounce fill light
+      - **Flag/Gobo**: Block/shape light
+      - **Grid/Snoot**: Focus light beam
+      - **Diffusion**: Soften any source
+      - **Gels**: Color correction/creative effects
+
+  full:
+    tokens: 750
+    content: |
+      ## Photography Lighting System (v1.0.0)
+
+      ### The Four Properties of Light
+
+      **1. Direction**
+      The angle at which light hits the subject determines shadow placement and mood.
+      - **Front**: Flat, minimal shadows (passports, documentation)
+      - **45° (Rembrandt angle)**: Classic portrait dimension
+      - **90° (Side)**: Dramatic, split lighting
+      - **Above**: Natural sun-like, butterfly patterns
+      - **Below**: Unnatural, horror effect
+      - **Behind**: Silhouettes, rim lighting
+
+      **2. Quality (Hard vs Soft)**
+      Determined by the SIZE of light source RELATIVE to subject.
+      - **Hard Light**: Small source (bare flash, sun), sharp shadows, high contrast
+      - **Soft Light**: Large source (softbox, cloudy sky), gradual falloff, wrapping
+      - Rule: Move source closer = effectively larger = softer
+      - Rule: Larger modifier = softer light
+
+      **3. Color Temperature**
+      Measured in Kelvin (K):
+      | Source | Temperature |
+      |--------|-------------|
+      | Candle | 1800K |
+      | Tungsten bulb | 2700-3200K |
+      | Halogen | 3200K |
+      | Daylight/Flash | 5500-5600K |
+      | Cloudy sky | 6500-7500K |
+      | Shade | 8000-10000K |
+
+      **4. Intensity**
+      Controls exposure and drama:
+      - Inverse Square Law: Double distance = 1/4 intensity
+      - Use power settings, distance, or ND gels
+      - Meter reading for consistent exposure
+
+      ---
+
+      ### Classic Portrait Lighting Patterns
+
+      **Rembrandt Lighting**
+      - Key at 45° to side, 45° above
+      - Creates triangle of light on shadow cheek
+      - Named after the painter's signature style
+      - Mood: Classic, artistic, dimensional
+
+      **Butterfly (Paramount) Lighting**
+      - Key directly in front, above camera
+      - Creates butterfly shadow under nose
+      - Flattering for symmetrical faces
+      - Mood: Glamour, beauty, fashion
+
+      **Loop Lighting**
+      - Key 30-45° to side, slightly above
+      - Small shadow loops from nose toward cheek
+      - Most versatile pattern
+      - Mood: Approachable, natural
+
+      **Split Lighting**
+      - Key at 90° to subject (direct side)
+      - Half face lit, half in shadow
+      - Mood: Dramatic, mysterious, edgy
+
+      **Broad vs Short Lighting**
+      - Broad: Light the side facing camera (wider face)
+      - Short: Light the side away from camera (slimming, dramatic)
+
+      ---
+
+      ### Three-Point Lighting System
+
+      **Key Light**
+      - Primary light source, sets overall exposure
+      - Position determines lighting pattern
+      - Usually brightest source in setup
+
+      **Fill Light**
+      - Softens shadows created by key
+      - Position opposite key or near camera
+      - Lower power than key (1-3 stops less)
+      - Can be reflector instead of active light
+
+      **Back/Rim/Hair Light**
+      - Separates subject from background
+      - Creates edge highlight/halo effect
+      - Position behind subject, aimed at head/shoulders
+      - Can use grid/snoot to control spill
+
+      **Background Light (optional 4th point)**
+      - Illuminates backdrop separately
+      - Controls background exposure/tone
+      - Can add color with gels
+
+      ---
+
+      ### Light Ratios
+
+      | Ratio | Stops | Look | Use Case |
+      |-------|-------|------|----------|
+      | 1:1 | 0 | Flat, even | Beauty, high-key |
+      | 2:1 | 1 | Subtle shadow | Corporate, editorial |
+      | 3:1 | 1.5 | Natural dimension | General portrait |
+      | 4:1 | 2 | Dramatic | Cinematic, moody |
+      | 8:1 | 3 | High contrast | Film noir, artistic |
+
+      ---
+
+      ### Equipment & Modifiers
+
+      **Light Sources**
+      - **Strobe/Flash**: High power, freeze motion, daylight balanced
+      - **Continuous (LED)**: WYSIWYG, video-friendly, lower power
+      - **Natural Light**: Free, soft near windows, variable
+
+      **Softening Modifiers**
+      - **Softbox**: Contained soft light, rectangular or octagonal
+      - **Umbrella**: Shoot-through (softer) or reflective (more punch)
+      - **Diffusion Panel**: Soften any source, outdoors or studio
+      - **Beauty Dish**: Soft center with defined falloff edges
+
+      **Shaping Modifiers**
+      - **Grid/Honeycomb**: Narrow beam, prevent spill
+      - **Snoot**: Tight spotlight effect
+      - **Barn Doors**: Adjustable light cutoff
+      - **Flag/Gobo**: Block light from areas
+
+      **Reflecting/Bouncing**
+      - **Reflector**: White (soft), silver (punch), gold (warm)
+      - **V-Flat**: Large bounce card, black side for negative fill
+      - **Ceiling/Wall Bounce**: Softest option for event/indoor
+
+      **Color Modifiers**
+      - **CTO (Color Temperature Orange)**: Warm daylight to tungsten
+      - **CTB (Color Temperature Blue)**: Cool tungsten to daylight
+      - **Creative Gels**: Any color for effect
+
+      ---
+
+      ### Quick Setup Recipes
+
+      **Natural Window Portrait**
+      Subject facing window, reflector opposite for fill. Simple, beautiful.
+
+      **One-Light Beauty**
+      Large softbox directly above camera, white reflector below chin.
+
+      **Dramatic Headshot**
+      Key at 45° with grid, no fill, subtle rim from behind.
+
+      **Clamshell (Beauty)**
+      Softbox above + reflector or second light below. Minimal shadows.
+
+lifecycle:
+  created_at: "2026-02-15T06:55:00Z"
+  provenance: ["user_teaching_session"]

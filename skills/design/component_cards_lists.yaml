@@ -1,0 +1,174 @@
+# Skill Schema v1.1 - Component Design (Cards & Lists)
+id: skill_design_components
+name: component_cards_lists
+version: "1.0.0"
+scope: core
+tier: core
+
+classification:
+  type: prompt
+  domain: [design, components, cards, lists, ui]
+  primary_action: design_components
+
+description:
+  short: "Design patterns for cards, lists, and common UI components"
+  full: |
+    Component design patterns: card anatomy, list item structure,
+    stat cards, navigation patterns, and reusable UI elements.
+
+triggers:
+  hard:
+    intents:
+      - "design a card"
+      - "create a list"
+      - "component design"
+  soft:
+    keywords:
+      - card
+      - list
+      - component
+      - item
+      - row
+      - stat
+      - widget
+      - tile
+    embedding_threshold: 0.7
+  budget:
+    priority: 8
+    min_tokens: 100
+    max_tokens: 500
+
+renderings:
+  minimal:
+    tokens: 80
+    content: |
+      **Components**: Cards: p-4, rounded-xl, subtle shadow. Lists: 48-56px row height, icon left, content center, action right. Stats: big number (28px), small label (12px), optional trend indicator.
+
+  compact:
+    tokens: 250
+    content: |
+      ## Component Patterns
+
+      **Card Anatomy**
+      - Container: p-4 (16px padding), rounded-xl (12-18px radius)
+      - Shadow: subtle (0 1px 3px rgba)
+      - Header: title + optional action button
+      - Body: content area
+      - Footer: metadata or actions (optional)
+
+      **List Item Pattern**
+      ```
+      [Icon/Avatar 36-40px] [Title + Subtitle] [Value/Action]
+      ```
+      - Height: 48-56px
+      - Padding: px-4 py-3
+      - Divider: 1px bottom, inset from left
+
+      **Stat Card Pattern**
+      ```
+      [Big Number 28px semibold]
+      [Label 12px muted]
+      [Optional trend +/-]
+      ```
+      - Container: p-4, same card styling
+      - Alignment: left or center
+
+      **Button Patterns**
+      - Primary: filled, primary color
+      - Secondary: outlined or ghost
+      - Icon button: 40x40px, rounded-full
+      - Sizes: sm (32px), md (40px), lg (48px)
+
+      **Navigation Patterns**
+      - Tab bar: fixed bottom, 56px + safe area
+      - Header: 56px height, title center, back/action sides
+
+  full:
+    tokens: 450
+    content: |
+      ## Component Design Patterns (v1.0.0)
+
+      ### Card Component
+
+      **Structure**
+      ```
+      +----------------------------------+
+      | Header (optional)                |
+      | [Icon] Title           [Action]  |
+      +----------------------------------+
+      | Body                             |
+      | Main content area                |
+      |                                  |
+      +----------------------------------+
+      | Footer (optional)                |
+      | Metadata              [Actions]  |
+      +----------------------------------+
+      ```
+
+      **Styling**
+      - Padding: 16px (p-4)
+      - Border radius: 12-18px (rounded-xl)
+      - Background: white or gray-50
+      - Shadow: 0 1px 3px rgba(0,0,0,0.1)
+      - Gap between cards: 12-16px
+
+      ### List Item Component
+
+      **Standard Pattern**
+      ```
+      | [40px] |    Content Area    | [Action] |
+      | Icon/  |  Title (16px 500)  | Value or |
+      | Avatar | Subtitle (14px 400)| Chevron  |
+      ```
+
+      **Sizing**
+      - Height: 48px (compact) to 72px (with subtitle)
+      - Icon area: 36-44px width
+      - Horizontal padding: 16px
+      - Vertical padding: 12-14px
+
+      **Variants**
+      - Simple: title only
+      - Two-line: title + subtitle
+      - Three-line: title + subtitle + description
+      - With badge: title + badge right
+
+      ### Stat Card Component
+
+      **Pattern**
+      ```
+      +------------------+
+      |      247         |  <- Value (28px semibold)
+      |   Total Swims    |  <- Label (12px muted)
+      |     +12%         |  <- Trend (optional, colored)
+      +------------------+
+      ```
+
+      **Responsive Grid**
+      - 2 columns on narrow screens
+      - 3-4 columns on wider screens
+      - Equal heights per row
+
+      ### Button Component
+
+      **Hierarchy**
+      1. Primary: filled, bold action
+      2. Secondary: outlined
+      3. Tertiary/Ghost: text only
+      4. Destructive: red variant
+
+      **Sizes**
+      | Size | Height | Padding | Font |
+      |------|--------|---------|------|
+      | sm | 32px | px-3 | 14px |
+      | md | 40px | px-4 | 16px |
+      | lg | 48px | px-6 | 18px |
+
+      ### Icon Patterns
+      - Size: 20-24px for UI, 16px inline
+      - Stroke: 1.5-2px
+      - Color: inherit or muted
+
+lifecycle:
+  created_at: "2026-02-15T12:00:00Z"
+  provenance: ["decision_20260215_cms_design_pack"]
