@@ -80,6 +80,7 @@ try:
     from audit_log import (
         append_event, build_gate_event, build_secrets_event, build_browser_event,
         build_workspace_event, build_intent_event, build_injection_event,
+        build_rules_event,
         EventType, Severity
     )
     UNIFIED_AUDIT_AVAILABLE = True
@@ -1104,6 +1105,10 @@ def policy_gate(
                 )
 
                 if not rules_allowed:
+                    # Extract rule details for audit
+                    rule_ids = [r["rule"]["id"] for r in matched_rules if "rule" in r]
+                    rule_names = [r["rule"]["name"] for r in matched_rules if "rule" in r]
+
                     # Hard rule violation - block
                     decision = GateDecision(
                         allowed=False,
@@ -1118,36 +1123,41 @@ def policy_gate(
                         error="rule_violation",
                     )
                     _log_gate_decision(decision, arguments)
-                    # Log to unified audit if available
+
+                    # Emit dedicated rules.violation event for ops queryability
                     if UNIFIED_AUDIT_AVAILABLE:
                         try:
-                            rule_event = {
-                                "event_type": "rules.violation",
-                                "severity": "warn",
-                                "tool_name": tool_name,
-                                "args_hash": args_hash,
-                                "message": rules_message,
-                                "matched_rules": [r["rule"]["id"] for r in matched_rules],
-                            }
+                            rule_event = build_rules_event(
+                                event_type=EventType.RULES_VIOLATION,
+                                tool_name=tool_name,
+                                args_hash=args_hash,
+                                matched_rules=rule_ids,
+                                rule_names=rule_names,
+                                message=rules_message,
+                                severity=Severity.WARN,
+                            )
                             append_event(rule_event)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            print(f"[WARN] Failed to log rules.violation event: {e}", file=sys.stderr)
                     return decision
                 elif matched_rules:
                     # Soft rules matched - log guidance but allow
                     if UNIFIED_AUDIT_AVAILABLE:
                         try:
-                            guidance_event = {
-                                "event_type": "rules.guidance",
-                                "severity": "info",
-                                "tool_name": tool_name,
-                                "args_hash": args_hash,
-                                "message": rules_message,
-                                "matched_rules": [r["rule"]["id"] for r in matched_rules],
-                            }
+                            rule_ids = [r["rule"]["id"] for r in matched_rules if "rule" in r]
+                            rule_names = [r["rule"]["name"] for r in matched_rules if "rule" in r]
+                            guidance_event = build_rules_event(
+                                event_type=EventType.RULES_GUIDANCE,
+                                tool_name=tool_name,
+                                args_hash=args_hash,
+                                matched_rules=rule_ids,
+                                rule_names=rule_names,
+                                message=rules_message,
+                                severity=Severity.INFO,
+                            )
                             append_event(guidance_event)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            print(f"[WARN] Failed to log rules.guidance event: {e}", file=sys.stderr)
             except Exception as e:
                 # Rules check error - FAIL CLOSED for hard rules enforcement
                 # If we can't verify rules compliance, we must block (security principle)

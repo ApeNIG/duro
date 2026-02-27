@@ -177,6 +177,10 @@ class EventType:
     APPROVAL_CONSUMED = "approval.consumed"
     APPROVAL_EXPIRED = "approval.expired"
 
+    # Rules events (Layer 7)
+    RULES_VIOLATION = "rules.violation"
+    RULES_GUIDANCE = "rules.guidance"
+
     # System events
     AUDIT_ROTATION = "audit.rotation"
     AUDIT_VERIFY = "audit.verify"
@@ -967,4 +971,49 @@ def build_untrusted_content_event(
             "content_hash": content_hash,
             "vault_stored": vault_stored,
         },
+    )
+
+
+def build_rules_event(
+    event_type: str,
+    tool_name: str,
+    args_hash: str,
+    matched_rules: List[str],
+    rule_names: Optional[List[str]] = None,
+    message: Optional[str] = None,
+    severity: str = Severity.WARN,
+) -> AuditEvent:
+    """
+    Build a rules guard audit event (Layer 7).
+
+    Used for:
+    - rules.violation: Hard rule blocked execution
+    - rules.guidance: Soft rule provided guidance (allowed)
+
+    Args:
+        event_type: RULES_VIOLATION or RULES_GUIDANCE
+        tool_name: The tool that was checked
+        args_hash: Hash of tool arguments
+        matched_rules: List of rule IDs that matched
+        rule_names: Optional list of rule names (for display)
+        message: The rules message/reason
+        severity: Event severity (warn for violations, info for guidance)
+    """
+    metadata = {
+        "matched_rules": matched_rules,
+        "rules_count": len(matched_rules),
+        "policy_gate_layer": 7,
+    }
+    if rule_names:
+        # Truncate names if too long
+        metadata["rule_names"] = [n[:50] for n in rule_names[:5]]
+
+    return AuditEvent(
+        event_type=event_type,
+        severity=severity,
+        tool=tool_name,
+        args_hash=args_hash,
+        reason=message,
+        tags=["rules", "layer7"],
+        metadata=metadata,
     )
