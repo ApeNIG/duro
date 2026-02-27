@@ -1608,6 +1608,47 @@
       "last_used": "2026-02-27T14:35:03.462993"
     },
     {
+      "id": "skill_memory_015",
+      "name": "promote_rule",
+      "path": "memory/promote_rule.py",
+      "description": "Promote a candidate rule to active status - closes the candidate\u2192active loop",
+      "tier": "tested",
+      "phase": "4.0",
+      "version": "1.0.0",
+      "keywords": [
+        "promote",
+        "rule",
+        "candidate",
+        "active",
+        "law",
+        "validation",
+        "enforcement",
+        "phase4"
+      ],
+      "triggers": [
+        "promote rule",
+        "activate rule",
+        "candidate to active",
+        "make rule active",
+        "enable rule"
+      ],
+      "usage_count": 2,
+      "success_rate": 0.5,
+      "requires_network": false,
+      "timeout_seconds": 30,
+      "expected_runtime_seconds": 2,
+      "dependencies": [],
+      "side_effects": [
+        "writes_file",
+        "modifies_index"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [],
+      "requires": [],
+      "notes": "Part of the memory\u2192rules loop closure. Takes candidate rules (from incident_to_rule) and promotes them to active after sufficient validations (default 3).",
+      "last_used": "2026-02-27T15:06:59.931455"
+    },
+    {
       "id": "skill_prod_003",
       "name": "product_visualize",
       "path": "production/product_visualize.py",

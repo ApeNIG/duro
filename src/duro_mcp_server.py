@@ -3566,6 +3566,43 @@ Contact the system administrator or check duro-mcp installation.""")]
                     # Non-fatal, log and continue
                     log_warn(f"Surfacing error in load_context: {e}")
 
+            # === CANDIDATE RULES ===
+            # Surface rules awaiting promotion (from incident_to_rule)
+            try:
+                candidates_dir = os.path.join(AGENT_HOME, "rules", "candidates", "failures")
+                if os.path.exists(candidates_dir):
+                    candidate_files = [f for f in os.listdir(candidates_dir) if f.endswith(".json")]
+                    if candidate_files:
+                        candidate_rules = []
+                        for filename in candidate_files[:5]:  # Max 5 candidates
+                            try:
+                                filepath = os.path.join(candidates_dir, filename)
+                                with open(filepath, "r", encoding="utf-8") as f:
+                                    rule = json.load(f)
+                                    candidate_rules.append({
+                                        "id": rule.get("id", filename.replace(".json", "")),
+                                        "name": rule.get("name", "Unnamed")[:50],
+                                        "severity": rule.get("severity", "medium"),
+                                        "validations": rule.get("validations", 0),
+                                        "source_incident": rule.get("source_incident", ""),
+                                    })
+                            except Exception:
+                                continue
+
+                        if candidate_rules:
+                            lines = ["## Candidate Rules (awaiting promotion)"]
+                            lines.append(f"*{len(candidate_files)} total candidates in queue*")
+                            for r in candidate_rules:
+                                val_str = f"{r['validations']}/3 validations"
+                                lines.append(f"- **{r['name']}** [{r['severity']}] ({val_str})")
+                            lines.append("*Run `promote_rule` after 3+ validations to activate*")
+                            candidate_section = "\n".join(lines)
+                            result.append(candidate_section)
+                            metrics["chars"] += len(candidate_section)
+                            metrics["candidate_rules"] = len(candidate_rules)
+            except Exception as e:
+                log_warn(f"Error loading candidate rules: {e}")
+
             # === FOOTER ===
             # Context footer with metrics
             footer_parts = [f"Context: {mode}"]
@@ -3576,6 +3613,8 @@ Contact the system administrator or check duro-mcp installation.""")]
                 footer_parts.append(f"{metrics['decisions']} decisions")
             if metrics["summaries"]:
                 footer_parts.append(f"{metrics['summaries']} summary" if metrics["summaries"] == 1 else f"{metrics['summaries']} summaries")
+            if metrics.get("candidate_rules"):
+                footer_parts.append(f"{metrics['candidate_rules']} candidate rules")
 
             footer = "\n---\n" + " | ".join(footer_parts)
             result.append(footer)

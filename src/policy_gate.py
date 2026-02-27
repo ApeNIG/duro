@@ -110,7 +110,18 @@ try:
     PROMPT_FIREWALL_AVAILABLE = True
 except ImportError as e:
     PROMPT_FIREWALL_ERROR = str(e)
-    print(f"[WARN] Prompt firewall not available: {e}", file=sys.stderr)
+
+# Rules Guard (Layer 7 - rule-based enforcement)
+RULES_GUARD_AVAILABLE = False
+RULES_GUARD_ERROR = None
+try:
+    from rules_guard import (
+        check_rules_layer, format_rule_guidance
+    )
+    RULES_GUARD_AVAILABLE = True
+except ImportError as e:
+    RULES_GUARD_ERROR = str(e)
+    print(f"[WARN] Rules guard not available: {e}", file=sys.stderr)
 
 
 # === CONFIGURATION ===
@@ -1082,6 +1093,64 @@ def policy_gate(
                     logged_at=timestamp,
                     error=f"intent_error: {e}",
                 )
+
+        # === RULES GUARD (Layer 7) ===
+        # Check if any active rules apply to this tool call
+        # Hard rules with PreToolUse enforcement can block execution
+        if decision.allowed and RULES_GUARD_AVAILABLE:
+            try:
+                rules_allowed, rules_message, matched_rules = check_rules_layer(
+                    tool_name, arguments, enforce=True
+                )
+
+                if not rules_allowed:
+                    # Hard rule violation - block
+                    decision = GateDecision(
+                        allowed=False,
+                        action_needed="downgrade",
+                        reason=f"Blocked by rule: {rules_message}",
+                        tool_name=tool_name,
+                        risk_level=risk_level,
+                        domain=domain,
+                        args_hash=args_hash,
+                        safe_summary=safe_summary,
+                        logged_at=timestamp,
+                        error="rule_violation",
+                    )
+                    _log_gate_decision(decision, arguments)
+                    # Log to unified audit if available
+                    if UNIFIED_AUDIT_AVAILABLE:
+                        try:
+                            rule_event = {
+                                "event_type": "rules.violation",
+                                "severity": "warn",
+                                "tool_name": tool_name,
+                                "args_hash": args_hash,
+                                "message": rules_message,
+                                "matched_rules": [r["rule"]["id"] for r in matched_rules],
+                            }
+                            append_event(rule_event)
+                        except Exception:
+                            pass
+                    return decision
+                elif matched_rules:
+                    # Soft rules matched - log guidance but allow
+                    if UNIFIED_AUDIT_AVAILABLE:
+                        try:
+                            guidance_event = {
+                                "event_type": "rules.guidance",
+                                "severity": "info",
+                                "tool_name": tool_name,
+                                "args_hash": args_hash,
+                                "message": rules_message,
+                                "matched_rules": [r["rule"]["id"] for r in matched_rules],
+                            }
+                            append_event(guidance_event)
+                        except Exception:
+                            pass
+            except Exception as e:
+                # Rules check error - log but don't block (fail-open for rules)
+                print(f"[WARN] Rules guard check error: {e}", file=sys.stderr)
 
         # === CONSUME APPROVAL TOKEN (only after ALL checks pass) ===
         # This is the fix for the bug where token was consumed before subsequent
