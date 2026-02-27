@@ -3574,32 +3574,46 @@ Contact the system administrator or check duro-mcp installation.""")]
                     candidate_files = [f for f in os.listdir(candidates_dir) if f.endswith(".json")]
                     if candidate_files:
                         candidate_rules = []
-                        for filename in candidate_files[:5]:  # Max 5 candidates
+                        ready_to_promote = 0
+                        for filename in candidate_files:
                             try:
                                 filepath = os.path.join(candidates_dir, filename)
                                 with open(filepath, "r", encoding="utf-8") as f:
                                     rule = json.load(f)
-                                    candidate_rules.append({
-                                        "id": rule.get("id", filename.replace(".json", "")),
-                                        "name": rule.get("name", "Unnamed")[:50],
-                                        "severity": rule.get("severity", "medium"),
-                                        "validations": rule.get("validations", 0),
-                                        "source_incident": rule.get("source_incident", ""),
-                                    })
+                                    validations = rule.get("validations", 0)
+                                    if validations >= 3:
+                                        ready_to_promote += 1
+                                    # Only collect first 5 for display
+                                    if len(candidate_rules) < 5:
+                                        candidate_rules.append({
+                                            "id": rule.get("id", filename.replace(".json", "")),
+                                            "name": rule.get("name", "Unnamed")[:50],
+                                            "severity": rule.get("severity", "medium"),
+                                            "validations": validations,
+                                            "source_incident": rule.get("source_incident", ""),
+                                        })
                             except Exception:
                                 continue
 
                         if candidate_rules:
                             lines = ["## Candidate Rules (awaiting promotion)"]
-                            lines.append(f"*{len(candidate_files)} total candidates in queue*")
+                            status_parts = [f"{len(candidate_files)} total"]
+                            if ready_to_promote > 0:
+                                status_parts.append(f"**{ready_to_promote} ready to promote**")
+                            lines.append(f"*{', '.join(status_parts)}*")
                             for r in candidate_rules:
                                 val_str = f"{r['validations']}/3 validations"
-                                lines.append(f"- **{r['name']}** [{r['severity']}] ({val_str})")
-                            lines.append("*Run `promote_rule` after 3+ validations to activate*")
+                                ready_marker = " [READY]" if r['validations'] >= 3 else ""
+                                lines.append(f"- **{r['name']}** [{r['severity']}] ({val_str}){ready_marker}")
+                            if len(candidate_files) > 5:
+                                lines.append(f"*... and {len(candidate_files) - 5} more*")
+                            if ready_to_promote > 0:
+                                lines.append("*Run `promote_rule` to activate ready candidates*")
                             candidate_section = "\n".join(lines)
                             result.append(candidate_section)
                             metrics["chars"] += len(candidate_section)
-                            metrics["candidate_rules"] = len(candidate_files)  # Total, not capped display count
+                            metrics["candidate_rules"] = len(candidate_files)
+                            metrics["ready_to_promote"] = ready_to_promote
             except Exception as e:
                 log_warn(f"Error loading candidate rules: {e}")
 
@@ -3614,7 +3628,10 @@ Contact the system administrator or check duro-mcp installation.""")]
             if metrics["summaries"]:
                 footer_parts.append(f"{metrics['summaries']} summary" if metrics["summaries"] == 1 else f"{metrics['summaries']} summaries")
             if metrics.get("candidate_rules"):
-                footer_parts.append(f"{metrics['candidate_rules']} candidate rules")
+                cand_str = f"{metrics['candidate_rules']} candidates"
+                if metrics.get("ready_to_promote"):
+                    cand_str += f" ({metrics['ready_to_promote']} ready)"
+                footer_parts.append(cand_str)
 
             footer = "\n---\n" + " | ".join(footer_parts)
             result.append(footer)

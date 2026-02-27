@@ -1498,7 +1498,8 @@
       "requires": [
         "query_memory"
       ],
-      "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations.",
+      "version": "1.2.0",
+      "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations. v1.2.0: dry_run-safe validation, de-dup by incident_id, validation report.",
       "last_used": "2026-02-27T14:35:03.540083"
     },
     {
@@ -1645,7 +1646,8 @@
       "fallback_skill": null,
       "pre_checks": [],
       "requires": [],
-      "notes": "Part of the memory\u2192rules loop closure. Takes candidate rules (from incident_to_rule) and promotes them to active after sufficient validations (default 3).",
+      "version": "1.1.0",
+      "notes": "Part of the memory->rules loop closure. Promotes candidates to active after 3 validations. v1.1.0: Safety latch (24h age, severity check) prevents instant law from bursty failures.",
       "last_used": "2026-02-27T15:06:59.931455"
     },
     {

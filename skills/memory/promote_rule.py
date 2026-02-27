@@ -1,7 +1,7 @@
 """
 Skill: promote_rule
 Description: Promote a candidate rule to active status - closes the candidate→active loop
-Version: 1.0.0
+Version: 1.1.0
 Tier: tested
 
 Phase 4 automation: validated candidates become active laws.
@@ -33,7 +33,7 @@ SKILL_META = {
     "name": "promote_rule",
     "description": "Promote a candidate rule to active status - closes the candidate→active loop",
     "tier": "tested",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "duro",
     "origin": "Phase 4 evolution - validated candidates become permanent laws",
     "validated": "2026-02-27",
@@ -51,8 +51,18 @@ SKILL_META = {
 # Default configuration
 DEFAULT_CONFIG = {
     "min_validations": 3,     # Validations needed before promotion
-    "force": False,           # Bypass validation check
+    "min_age_hours": 24,      # Candidate must exist for this long (prevents instant law)
+    "min_severity": "medium", # Minimum severity to auto-promote
+    "force": False,           # Bypass all safety checks
     "dry_run": False,         # If True, don't make changes
+}
+
+# Severity ranking for safety latch
+SEVERITY_RANK = {
+    "low": 0,
+    "medium": 1,
+    "high": 2,
+    "critical": 3,
 }
 
 # Required capabilities
@@ -348,10 +358,15 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     filepath, rule = result
 
     # ==============================
-    # Phase 2: Check validations
+    # Phase 2: Safety latch checks
     # ==============================
     validations = rule.get("validations", 0)
+    severity = rule.get("severity", "medium")
+    created_date = rule.get("created", "")
+    min_age_hours = args.get("min_age_hours", DEFAULT_CONFIG["min_age_hours"])
+    min_severity = args.get("min_severity", DEFAULT_CONFIG["min_severity"])
 
+    # Check 2a: Validations threshold
     if validations < min_validations and not force:
         messages.append(f"Insufficient validations: {validations}/{min_validations}")
         messages.append("Use force=True to bypass, or validate the rule more")
@@ -366,6 +381,45 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             "validations": validations,
             "elapsed_seconds": round(time.time() - start_time, 2),
         }
+
+    # Check 2b: Severity threshold (prevent low-severity auto-promotion)
+    severity_rank = SEVERITY_RANK.get(severity, 1)
+    min_severity_rank = SEVERITY_RANK.get(min_severity, 1)
+
+    if severity_rank < min_severity_rank and not force:
+        messages.append(f"Severity '{severity}' below threshold '{min_severity}'")
+        messages.append("Use force=True to bypass severity check")
+
+        report = format_report(rule_id, rule, False, "", False, messages, dry_run)
+        return {
+            "success": False,
+            "error": f"Severity '{severity}' too low for auto-promotion",
+            "report": report,
+            "promoted": False,
+            "rule_id": rule_id,
+            "elapsed_seconds": round(time.time() - start_time, 2),
+        }
+
+    # Check 2c: Age threshold (prevent instant law from bursty failures)
+    if created_date and min_age_hours > 0 and not force:
+        try:
+            created_dt = datetime.strptime(created_date, "%Y-%m-%d")
+            age_hours = (datetime.utcnow() - created_dt).total_seconds() / 3600
+            if age_hours < min_age_hours:
+                messages.append(f"Candidate age {age_hours:.1f}h < {min_age_hours}h minimum")
+                messages.append("Wait for candidate to mature, or use force=True")
+
+                report = format_report(rule_id, rule, False, "", False, messages, dry_run)
+                return {
+                    "success": False,
+                    "error": f"Candidate too young ({age_hours:.1f}h < {min_age_hours}h)",
+                    "report": report,
+                    "promoted": False,
+                    "rule_id": rule_id,
+                    "elapsed_seconds": round(time.time() - start_time, 2),
+                }
+        except ValueError:
+            pass  # Invalid date format, skip age check
 
     # ==============================
     # Phase 3: Promote
