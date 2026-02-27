@@ -1,7 +1,7 @@
 """
 Skill: daily_synthesis
 Description: Compound skill that chains reflection skills together for deeper insights
-Version: 1.1.0
+Version: 1.2.0
 Tier: tested
 
 This is a COMPOUND SKILL - it runs multiple skills in sequence and passes
@@ -10,10 +10,11 @@ outputs between them. The result is insights that no single skill could produce.
 Flow:
 0. stale_decision_surfacer → Surface decisions that need attention (foreman)
 1. graduate_logs → Promote today's learnings to permanent facts
-2. emerge → Find patterns across all artifacts (including new facts)
-3. idea_generation → Create actionable ideas from patterns
-4. connect_domains → Explore suggested domain connections
-5. Unified report → Everything in one place with clear actions
+2. incident_to_rule → Convert incidents to candidate rules (mistake→law loop)
+3. emerge → Find patterns across all artifacts (including new facts + rules)
+4. idea_generation → Create actionable ideas from patterns
+5. connect_domains → Explore suggested domain connections
+6. Unified report → Everything in one place with clear actions
 
 Why compound?
 - Single skills see one slice of knowledge
@@ -39,10 +40,10 @@ SKILL_META = {
     "name": "daily_synthesis",
     "description": "Compound skill that chains reflection skills for deeper insights",
     "tier": "tested",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "duro",
     "origin": "Built to close the skill compounding gap - skills should build on each other",
-    "validated": "2026-02-26",
+    "validated": "2026-02-27",
     "triggers": [
         "daily synthesis", "compound reflect", "deep reflection",
         "chain skills", "full analysis", "synthesize"
@@ -50,11 +51,11 @@ SKILL_META = {
     "keywords": [
         "compound", "synthesis", "chain", "reflect", "emerge",
         "graduate", "ideas", "connect", "daily", "session-end",
-        "stale", "decisions", "foreman"
+        "stale", "decisions", "foreman", "incident", "rule", "law"
     ],
     "phase": "4.0",
     "compound": True,  # Marks this as a compound skill
-    "chains": ["stale_decision_surfacer", "graduate_logs", "emerge", "idea_generation", "connect_domains"],
+    "chains": ["stale_decision_surfacer", "graduate_logs", "incident_to_rule", "emerge", "idea_generation", "connect_domains"],
 }
 
 # Default configuration
@@ -65,13 +66,14 @@ DEFAULT_CONFIG = {
     "max_ideas": 5,           # Ideas to generate
     "max_connections": 2,     # Domain connections to explore
     "dry_run": False,         # If True, don't make changes
+    "min_severity": "medium", # Minimum incident severity for incident_to_rule
 }
 
 # Required capabilities
 REQUIRES = ["run_skill", "query_memory"]
 
 # Default timeout (longer because we run multiple skills)
-DEFAULT_TIMEOUT = 180
+DEFAULT_TIMEOUT = 240  # Increased from 180 to accommodate incident_to_rule
 
 
 def run_child_skill(
@@ -136,6 +138,7 @@ def extract_domain_suggestions(idea_result: Dict) -> List[tuple]:
 def format_compound_report(
     surfacer_result: Dict,
     graduate_result: Dict,
+    incident_to_rule_result: Dict,
     emerge_result: Dict,
     idea_result: Dict,
     connection_results: List[Dict],
@@ -189,8 +192,37 @@ def format_compound_report(
         lines.append(f"⚠️ Could not run: {graduate_result.get('error', 'unknown error')}")
     lines.append("")
 
-    # Section 2: Patterns Found
-    lines.append("## 2. Patterns Discovered")
+    # Section 2: Incidents → Rules (mistake→law loop)
+    lines.append("## 2. Mistakes → Laws")
+    if incident_to_rule_result.get("success"):
+        result = incident_to_rule_result.get("result", {})
+        if isinstance(result, dict):
+            created = result.get("created_count", 0)
+            skipped = result.get("skipped_count", 0)
+            if created > 0:
+                lines.append(f"**{created}** candidate rules created from incidents")
+                # Show created rules
+                created_rules = result.get("created_rules", [])
+                for rule in created_rules[:3]:
+                    if isinstance(rule, dict):
+                        name = rule.get("name", "unnamed")[:50]
+                        lines.append(f"- {name}")
+            else:
+                lines.append(f"No new rules. {skipped} incidents skipped (already have rules or not actionable)")
+        elif isinstance(result, str):
+            # Parse summary from report string
+            if "Created:" in result:
+                summary_line = [l for l in result.split("\n") if "Created:" in l]
+                if summary_line:
+                    lines.append(summary_line[0])
+            else:
+                lines.append("Skill completed. Check output for details.")
+    else:
+        lines.append(f"*Skipped: {incident_to_rule_result.get('error', 'unknown error')}*")
+    lines.append("")
+
+    # Section 3: Patterns Found (renumbered from 2)
+    lines.append("## 3. Patterns Discovered")
     if emerge_result.get("success"):
         result = emerge_result.get("result", {})
         if isinstance(result, str):
@@ -215,8 +247,8 @@ def format_compound_report(
         lines.append(f"⚠️ Could not run: {emerge_result.get('error', 'unknown error')}")
     lines.append("")
 
-    # Section 3: Actionable Ideas
-    lines.append("## 3. Ideas to Act On")
+    # Section 4: Actionable Ideas
+    lines.append("## 4. Ideas to Act On")
     if idea_result.get("success"):
         result = idea_result.get("result", {})
         if isinstance(result, str):
@@ -239,8 +271,8 @@ def format_compound_report(
         lines.append(f"⚠️ Could not run: {idea_result.get('error', 'unknown error')}")
     lines.append("")
 
-    # Section 4: Domain Connections
-    lines.append("## 4. Connections Explored")
+    # Section 5: Domain Connections
+    lines.append("## 5. Connections Explored")
     if connection_results:
         for conn in connection_results:
             if conn.get("success"):
@@ -301,12 +333,13 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     """
     Main compound skill execution.
 
-    Runs 5 skills in sequence, passing insights between them:
+    Runs 6 skills in sequence, passing insights between them:
     0. stale_decision_surfacer - Surface decisions needing attention (foreman)
     1. graduate_logs - Promote learnings
-    2. emerge - Find patterns
-    3. idea_generation - Create ideas
-    4. connect_domains - Explore connections
+    2. incident_to_rule - Convert incidents to candidate rules (mistake→law loop)
+    3. emerge - Find patterns
+    4. idea_generation - Create ideas
+    5. connect_domains - Explore connections
 
     Args:
         args: {
@@ -318,8 +351,10 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             dry_run: bool (default False)
             skip_surfacer: bool (default False) - Skip stale decision surfacing
             skip_graduate: bool (default False) - Skip if already graduated
+            skip_incident_to_rule: bool (default False) - Skip incident→rule conversion
             skip_connections: bool (default False) - Skip domain exploration
             stale_days: int (default 7) - Threshold for stale decisions
+            min_severity: str (default "medium") - Min severity for incident_to_rule
         }
         tools: {
             run_skill: callable - Run child skills
@@ -349,8 +384,10 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     dry_run = args.get("dry_run", DEFAULT_CONFIG["dry_run"])
     skip_surfacer = args.get("skip_surfacer", False)
     skip_graduate = args.get("skip_graduate", False)
+    skip_incident_to_rule = args.get("skip_incident_to_rule", False)
     skip_connections = args.get("skip_connections", False)
     stale_days = args.get("stale_days", 7)
+    min_severity = args.get("min_severity", DEFAULT_CONFIG["min_severity"])
 
     run_skill = tools.get("run_skill")
     if not run_skill:
@@ -404,7 +441,28 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
                 steps_completed += 1
 
     # ================================================
-    # Step 2: Emerge → Find patterns (now including new facts)
+    # Step 2: Incident → Rule (mistake→law loop)
+    # ================================================
+    incident_to_rule_result = {"success": False, "error": "skipped"}
+
+    if not skip_incident_to_rule:
+        remaining = timeout - (time.time() - start_time)
+        if remaining > 25:
+            incident_to_rule_result = run_child_skill(
+                "incident_to_rule",
+                {
+                    "min_severity": min_severity,
+                    "dry_run": dry_run,
+                },
+                tools,
+                remaining
+            )
+            skills_run.append("incident_to_rule")
+            if incident_to_rule_result.get("success"):
+                steps_completed += 1
+
+    # ================================================
+    # Step 3: Emerge → Find patterns (now including new facts + candidate rules)
     # ================================================
     emerge_result = {"success": False, "error": "timeout"}
 
@@ -424,7 +482,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             steps_completed += 1
 
     # ================================================
-    # Step 3: Idea Generation → Create ideas from patterns
+    # Step 4: Idea Generation → Create ideas from patterns
     # ================================================
     idea_result = {"success": False, "error": "timeout"}
 
@@ -443,7 +501,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             steps_completed += 1
 
     # ================================================
-    # Step 4: Connect Domains → Explore suggested connections
+    # Step 5: Connect Domains → Explore suggested connections
     # ================================================
     connection_results = []
 
@@ -488,6 +546,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     report = format_compound_report(
         surfacer_result,
         graduate_result,
+        incident_to_rule_result,
         emerge_result,
         idea_result,
         connection_results,
@@ -503,6 +562,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         "child_results": {
             "stale_decision_surfacer": surfacer_result,
             "graduate_logs": graduate_result,
+            "incident_to_rule": incident_to_rule_result,
             "emerge": emerge_result,
             "idea_generation": idea_result,
             "connect_domains": connection_results,
@@ -512,7 +572,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
 
 # --- CLI Mode ---
 if __name__ == "__main__":
-    print("daily_synthesis - Compound Reflection Skill v1.1.0")
+    print("daily_synthesis - Compound Reflection Skill v1.2.0")
     print("=" * 50)
     print()
     print("This skill CHAINS multiple skills together:")
@@ -525,15 +585,19 @@ if __name__ == "__main__":
     print("     └─ Promotes learnings to permanent facts")
     print("         │")
     print("         ▼")
-    print("  2. emerge")
-    print("     └─ Finds patterns (now sees new facts)")
+    print("  2. incident_to_rule (MISTAKE→LAW LOOP)")
+    print("     └─ Converts incidents to candidate rules")
     print("         │")
     print("         ▼")
-    print("  3. idea_generation")
+    print("  3. emerge")
+    print("     └─ Finds patterns (now sees new facts + rules)")
+    print("         │")
+    print("         ▼")
+    print("  4. idea_generation")
     print("     └─ Creates ideas from patterns")
     print("         │")
     print("         ▼")
-    print("  4. connect_domains")
+    print("  5. connect_domains")
     print("     └─ Explores suggested connections")
     print("         │")
     print("         ▼")
@@ -541,3 +605,4 @@ if __name__ == "__main__":
     print()
     print("Each step builds on the previous.")
     print("Decisions must not be allowed to rot.")
+    print("Mistakes must become permanent laws.")
