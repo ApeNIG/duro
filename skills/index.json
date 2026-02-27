@@ -1606,6 +1606,52 @@
       ],
       "notes": "The decision foreman. Surfaces: (1) unreviewed decisions older than N days, (2) validated decisions with no linked work, (3) contradictions. Auto-logs tasks per stale decision. Run as step 0 in daily_synthesis.",
       "last_used": "2026-02-26T20:26:01.121385"
+    },
+    {
+      "id": "skill_prod_003",
+      "name": "product_visualize",
+      "path": "production/product_visualize.py",
+      "description": "Pencil to Blender pipeline - extract design specs and render 3D product shots",
+      "tier": "tested",
+      "phase": "3.3",
+      "version": "1.0.0",
+      "keywords": [
+        "pencil",
+        "blender",
+        "3d",
+        "render",
+        "product",
+        "visualization",
+        "design",
+        "asset",
+        "pipeline",
+        "mug",
+        "packaging"
+      ],
+      "triggers": [
+        "render product",
+        "3d visualization",
+        "pencil to blender",
+        "product shot"
+      ],
+      "usage_count": 1,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 120,
+      "expected_runtime_seconds": 30,
+      "dependencies": [
+        "blender"
+      ],
+      "side_effects": [
+        "writes_file",
+        "runs_subprocess"
+      ],
+      "fallback_skill": null,
+      "pre_checks": [
+        "blender_available"
+      ],
+      "notes": "Phase 3.3 skill. Pencil to Blender pipeline - extracts design specs (colors, materials, lighting) from Pencil designs and renders 3D product shots. Supports asset persistence via .blend files.",
+      "last_used": "2026-02-26T22:54:28.382100"
     }
   ],
   "selection_priority": [
