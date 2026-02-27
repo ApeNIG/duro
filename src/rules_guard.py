@@ -221,10 +221,13 @@ def check_rules_for_tool(
         rule_type = rule.get("type", "soft")
         enforcement = rule.get("enforcement", "none")
 
-        # Check if any keyword matches
+        # Check if any keyword matches (word boundary aware)
         matched_keyword = None
         for kw in keywords:
-            if kw.lower() in context:
+            # Use word boundary regex to avoid substring false positives
+            # e.g., "force" should not match "reinforce"
+            pattern = r'\b' + re.escape(kw.lower()) + r'\b'
+            if re.search(pattern, context):
                 matched_keyword = kw
                 break
 
