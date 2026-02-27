@@ -3599,7 +3599,7 @@ Contact the system administrator or check duro-mcp installation.""")]
                             candidate_section = "\n".join(lines)
                             result.append(candidate_section)
                             metrics["chars"] += len(candidate_section)
-                            metrics["candidate_rules"] = len(candidate_rules)
+                            metrics["candidate_rules"] = len(candidate_files)  # Total, not capped display count
             except Exception as e:
                 log_warn(f"Error loading candidate rules: {e}")
 

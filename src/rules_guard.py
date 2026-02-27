@@ -103,6 +103,40 @@ def load_rule_content(rule: Dict) -> Optional[Dict]:
         return None
 
 
+def increment_rule_validation(rule: Dict) -> bool:
+    """
+    Increment the validation count for a matched rule.
+    This proves the rule is catching real cases.
+
+    Returns True if successfully incremented, False otherwise.
+    """
+    rules_dir = get_rules_dir()
+    rule_file = rule.get("file", "")
+    if not rule_file:
+        return False
+
+    filepath = os.path.join(rules_dir, rule_file)
+    if not os.path.exists(filepath):
+        return False
+
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = json.load(f)
+
+        # Increment validations
+        current = content.get("validations", 0)
+        content["validations"] = current + 1
+        content["last_validated"] = datetime.now().strftime("%Y-%m-%d")
+
+        # Write back
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(content, f, indent=2)
+
+        return True
+    except Exception:
+        return False
+
+
 def extract_context_from_tool_call(tool_name: str, arguments: Dict) -> str:
     """
     Extract searchable context from a tool call.
@@ -166,6 +200,9 @@ def check_rules_for_tool(
         if matched_keyword:
             # Load full content for matched rule
             content = load_rule_content(rule)
+
+            # Auto-increment validation count (proves rule catches real cases)
+            increment_rule_validation(rule)
 
             match_info = {
                 "rule": rule,

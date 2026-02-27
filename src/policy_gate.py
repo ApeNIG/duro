@@ -1149,8 +1149,21 @@ def policy_gate(
                         except Exception:
                             pass
             except Exception as e:
-                # Rules check error - log but don't block (fail-open for rules)
-                print(f"[WARN] Rules guard check error: {e}", file=sys.stderr)
+                # Rules check error - FAIL CLOSED for hard rules enforcement
+                # If we can't verify rules compliance, we must block (security principle)
+                print(f"[WARN] Rules guard check error (failing closed): {e}", file=sys.stderr)
+                decision = GateDecision(
+                    allowed=False,
+                    action_needed="none",
+                    reason=f"Rules check failed (fail-closed): {e}",
+                    tool_name=tool_name,
+                    args_hash=args_hash,
+                    safe_summary=safe_summary,
+                    logged_at=timestamp,
+                    error="rules_check_failed",
+                )
+                _log_gate_decision(decision, arguments)
+                return decision
 
         # === CONSUME APPROVAL TOKEN (only after ALL checks pass) ===
         # This is the fix for the bug where token was consumed before subsequent
