@@ -1,7 +1,7 @@
 """
 Skill: incident_to_rule
 Description: Convert incident RCA prevention into candidate rules - closes the mistake→law loop
-Version: 1.1.0
+Version: 1.2.0
 Tier: tested
 
 Phase 4 automation: every mistake becomes a permanent law.
@@ -34,7 +34,7 @@ SKILL_META = {
     "name": "incident_to_rule",
     "description": "Convert incident RCA prevention into candidate rules - closes the mistake→law loop",
     "tier": "tested",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "duro",
     "origin": "Phase 4 evolution - every mistake becomes a permanent law",
     "validated": "2026-02-26",
@@ -253,32 +253,48 @@ def incident_to_candidate_rule(incident: Dict) -> Dict:
     return candidate
 
 
-def increment_candidate_validation(filepath: str, incident_id: str) -> Tuple[bool, int]:
+def increment_candidate_validation(
+    filepath: str,
+    incident_id: str,
+    dry_run: bool = False
+) -> Tuple[bool, int, str]:
     """
     Increment validation count on an existing candidate rule.
     Called when a new incident matches an existing candidate (recurrence = validation).
 
+    IMPORTANT: Only increments if incident_id is NEW evidence (not already seen).
+    dry_run=True returns what would happen without writing.
+
     Args:
         filepath: Path to the candidate rule JSON file
         incident_id: ID of the incident that validates this candidate
+        dry_run: If True, don't actually write (purely observational)
 
     Returns:
-        (success, new_validation_count)
+        (did_increment, validation_count, message)
     """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             candidate = json.load(f)
 
-        # Increment validations
         current = candidate.get("validations", 0)
-        candidate["validations"] = current + 1
-        candidate["last_validated"] = datetime.utcnow().strftime("%Y-%m-%d")
-
-        # Track which incidents validated this rule
         seen_incidents = candidate.get("seen_incidents", [])
-        if incident_id not in seen_incidents:
-            seen_incidents.append(incident_id)
-            candidate["seen_incidents"] = seen_incidents[-10:]  # Keep last 10
+
+        # Check if this incident is NEW evidence
+        if incident_id in seen_incidents:
+            return False, current, "already seen (no increment)"
+
+        # New evidence - would increment
+        new_count = current + 1
+
+        if dry_run:
+            return False, new_count, f"[DRY RUN] would increment to {new_count}"
+
+        # Actually increment
+        candidate["validations"] = new_count
+        candidate["last_validated"] = datetime.utcnow().strftime("%Y-%m-%d")
+        seen_incidents.append(incident_id)
+        candidate["seen_incidents"] = seen_incidents[-10:]  # Keep last 10
 
         # Atomic write
         tmp_path = filepath + ".tmp"
@@ -286,18 +302,29 @@ def increment_candidate_validation(filepath: str, incident_id: str) -> Tuple[boo
             json.dump(candidate, f, indent=2)
         os.replace(tmp_path, filepath)
 
-        return True, candidate["validations"]
-    except Exception:
-        return False, 0
+        return True, new_count, f"incremented to {new_count}"
+    except Exception as e:
+        return False, 0, str(e)
 
 
-def check_existing_rules(prevention: str, rules_index: Dict, incident_id: str = None) -> Tuple[Optional[str], bool]:
+def check_existing_rules(
+    prevention: str,
+    rules_index: Dict,
+    incident_id: str = None,
+    dry_run: bool = False
+) -> Tuple[Optional[str], bool, str]:
     """
     Check if a similar rule already exists.
     If a matching candidate is found and incident_id is provided, increments its validations.
 
+    Args:
+        prevention: The prevention text to check
+        rules_index: The loaded rules index
+        incident_id: ID of the incident (for validation tracking)
+        dry_run: If True, don't actually increment (purely observational)
+
     Returns:
-        (rule_id or None, was_candidate_validated)
+        (rule_id or None, was_candidate_validated, validation_message)
     """
     prevention_lower = prevention.lower()
 
@@ -309,7 +336,7 @@ def check_existing_rules(prevention: str, rules_index: Dict, incident_id: str = 
         # Check if any trigger keyword appears in prevention
         for trigger in triggers:
             if trigger.lower() in prevention_lower:
-                return rule.get("id"), False  # Active rule exists, no validation needed
+                return rule.get("id"), False, "active rule"  # Active rule exists
 
     # Check candidates - and increment validation if match found
     candidates_dir = get_candidates_dir()
@@ -323,16 +350,17 @@ def check_existing_rules(prevention: str, rules_index: Dict, incident_id: str = 
                     candidate = json.load(f)
                     if candidate.get("prevention", {}).get("before_action", "").lower() == prevention_lower:
                         candidate_id = candidate.get("id")
-                        # Increment validation on recurrence
-                        validated = False
+                        # Increment validation on recurrence (if new evidence)
                         if incident_id:
-                            success, new_count = increment_candidate_validation(filepath, incident_id)
-                            validated = success
-                        return candidate_id, validated
+                            did_increment, new_count, msg = increment_candidate_validation(
+                                filepath, incident_id, dry_run=dry_run
+                            )
+                            return candidate_id, did_increment, msg
+                        return candidate_id, False, "no incident_id"
             except Exception:
                 continue
 
-    return None, False
+    return None, False, ""
 
 
 def save_candidate_rule(rule: Dict, dry_run: bool = False) -> Tuple[bool, str]:
@@ -363,6 +391,7 @@ def format_report(
     processed: List[Dict],
     created: List[Dict],
     skipped: List[Dict],
+    validated: List[Dict],
     errors: List[Dict],
     dry_run: bool
 ) -> str:
@@ -374,10 +403,22 @@ def format_report(
     mode = "[DRY RUN] " if dry_run else ""
     lines.append(f"**{mode}Processed:** {len(processed)} incidents")
     lines.append(f"**Created:** {len(created)} candidate rules")
+    lines.append(f"**Validated:** {len(validated)} existing candidates")
     lines.append(f"**Skipped:** {len(skipped)} (already have rules or not actionable)")
     if errors:
         lines.append(f"**Errors:** {len(errors)}")
     lines.append("")
+
+    # Show validated candidates first (evidence of recurrence)
+    if validated:
+        lines.append("### Validated Candidates (recurrence detected)")
+        lines.append("")
+        for item in validated[:5]:  # Top 5
+            lines.append(f"- **{item['candidate_id']}**: {item['message']}")
+            lines.append(f"  - Evidence: `{item['incident_id']}`")
+        if len(validated) > 5:
+            lines.append(f"- ... and {len(validated) - 5} more")
+        lines.append("")
 
     if created:
         lines.append("### Created Candidate Rules")
@@ -548,6 +589,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     processed = []
     created = []
     skipped = []
+    validated = []  # Candidates that got validation incremented
     errors = []
 
     for incident in incidents:
@@ -580,13 +622,22 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
             continue
 
         # Check if rule already exists (and increment candidate validations on recurrence)
-        existing_rule, was_validated = check_existing_rules(prevention, rules_index, incident_id)
+        existing_rule, was_validated, val_msg = check_existing_rules(
+            prevention, rules_index, incident_id, dry_run=dry_run
+        )
         if existing_rule:
-            validation_msg = " (candidate validation incremented)" if was_validated else ""
+            validation_info = f" ({val_msg})" if val_msg else ""
             skipped.append({
                 "incident_id": incident_id,
-                "reason": f"Rule already exists: {existing_rule}{validation_msg}"
+                "reason": f"Rule already exists: {existing_rule}{validation_info}"
             })
+            # Track separately if validation was incremented
+            if was_validated:
+                validated.append({
+                    "incident_id": incident_id,
+                    "candidate_id": existing_rule,
+                    "message": val_msg,
+                })
             continue
 
         processed.append(incident)
@@ -618,7 +669,7 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
     # ==============================
     # Phase 3: Generate report
     # ==============================
-    report = format_report(processed, created, skipped, errors, dry_run)
+    report = format_report(processed, created, skipped, validated, errors, dry_run)
 
     elapsed = round(time.time() - start_time, 2)
 
@@ -626,9 +677,11 @@ def run(args: Dict[str, Any], tools: Dict[str, Any], context: Dict[str, Any]) ->
         "success": True,
         "report": report,
         "created_count": len(created),
+        "validated_count": len(validated),
         "skipped_count": len(skipped),
         "error_count": len(errors),
         "created_rules": [c["rule"] for c in created],
+        "validated_candidates": [v["candidate_id"] for v in validated],
         "elapsed_seconds": elapsed,
     }
 
