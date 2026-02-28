@@ -117,6 +117,21 @@ export interface EmbeddingStatus {
   timestamp: string
 }
 
+export interface DecayQueueItem {
+  id: string
+  claim: string
+  age_days: number
+  importance: number
+  reinforcement_count: number
+  decay_score: number
+}
+
+export interface DecayQueueResponse {
+  items: DecayQueueItem[]
+  total: number
+  timestamp: string
+}
+
 export const api = {
   health: () => fetchJSON<HealthResponse>('/health'),
   stats: () => fetchJSON<StatsResponse>('/stats'),
@@ -154,4 +169,5 @@ export const api = {
     return fetchJSON<DecisionsResponse>(`/decisions${query ? `?${query}` : ''}`)
   },
   insights: () => fetchJSON<InsightsResponse>('/insights'),
+  decayQueue: () => fetchJSON<DecayQueueResponse>('/health/decay-queue'),
 }

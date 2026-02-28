@@ -41,3 +41,19 @@ export function useEmbeddingStatus() {
     refetchInterval: 60000, // Refresh every minute
   })
 }
+
+export function useInsights() {
+  return useQuery({
+    queryKey: ['insights'],
+    queryFn: api.insights,
+    refetchInterval: 30000, // Refresh every 30s
+  })
+}
+
+export function useDecayQueue() {
+  return useQuery({
+    queryKey: ['decay-queue'],
+    queryFn: api.decayQueue,
+    refetchInterval: 60000, // Refresh every minute
+  })
+}

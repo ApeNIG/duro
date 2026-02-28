@@ -32,15 +32,26 @@ function formatAge(isoString: string): string {
   return `${Math.floor(days / 30)} months ago`
 }
 
+interface ReviewData {
+  status: 'validated' | 'partial' | 'reversed'
+  notes: string
+  expectedOutcome: string
+  actualOutcome: string
+  confidenceDelta: number
+}
+
 function DecisionCard({
   decision,
   onReview,
 }: {
   decision: Decision
-  onReview: (id: string, status: 'validated' | 'partial' | 'reversed', notes: string) => void
+  onReview: (id: string, data: ReviewData) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const [notes, setNotes] = useState('')
+  const [expectedOutcome, setExpectedOutcome] = useState('')
+  const [actualOutcome, setActualOutcome] = useState('')
+  const [confidenceDelta, setConfidenceDelta] = useState(0.1)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const status = decision.outcome_status || 'pending'
@@ -48,10 +59,25 @@ function DecisionCard({
 
   const handleReview = async (newStatus: 'validated' | 'partial' | 'reversed') => {
     setIsSubmitting(true)
-    await onReview(decision.id, newStatus, notes)
+    // Adjust delta based on status
+    const adjustedDelta = newStatus === 'validated'
+      ? confidenceDelta
+      : newStatus === 'reversed'
+        ? -confidenceDelta
+        : 0
+    await onReview(decision.id, {
+      status: newStatus,
+      notes,
+      expectedOutcome,
+      actualOutcome,
+      confidenceDelta: adjustedDelta,
+    })
     setIsSubmitting(false)
     setExpanded(false)
     setNotes('')
+    setExpectedOutcome('')
+    setActualOutcome('')
+    setConfidenceDelta(0.1)
   }
 
   return (
@@ -140,16 +166,63 @@ function DecisionCard({
 
           {/* Review Actions */}
           {status === 'pending' && (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* Expected vs Actual Outcome */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-text-secondary uppercase block mb-1">Expected Outcome</label>
+                  <input
+                    type="text"
+                    placeholder="What should have happened?"
+                    value={expectedOutcome}
+                    onChange={(e) => setExpectedOutcome(e.target.value)}
+                    className="w-full bg-card border border-border rounded px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/50 focus:border-accent/50 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-text-secondary uppercase block mb-1">Actual Outcome</label>
+                  <input
+                    type="text"
+                    placeholder="What actually happened?"
+                    value={actualOutcome}
+                    onChange={(e) => setActualOutcome(e.target.value)}
+                    className="w-full bg-card border border-border rounded px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/50 focus:border-accent/50 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
               <div className="relative">
                 <MessageSquare className="w-4 h-4 absolute left-3 top-3 text-text-secondary" />
                 <textarea
-                  placeholder="What was the outcome? (optional)"
+                  placeholder="Additional notes (optional)"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   className="w-full bg-card border border-border rounded pl-10 pr-4 py-2 text-sm text-text-primary placeholder:text-text-secondary/50 focus:border-accent/50 focus:outline-none resize-none"
                 />
+              </div>
+
+              {/* Confidence Delta Slider */}
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-text-secondary uppercase">Confidence Adjustment</span>
+                  <span className="text-accent font-mono">{(confidenceDelta * 100).toFixed(0)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="0.3"
+                  step="0.05"
+                  value={confidenceDelta}
+                  onChange={(e) => setConfidenceDelta(parseFloat(e.target.value))}
+                  className="w-full h-1 bg-border rounded-lg appearance-none cursor-pointer accent-accent"
+                />
+                <div className="flex justify-between text-[10px] text-text-muted mt-0.5">
+                  <span>5%</span>
+                  <span>15%</span>
+                  <span>30%</span>
+                </div>
               </div>
 
               <div className="flex gap-2">
@@ -166,7 +239,7 @@ function DecisionCard({
                     )}
                     Worked
                   </span>
-                  <span className="text-xs opacity-70">+10% confidence</span>
+                  <span className="text-xs opacity-70">+{(confidenceDelta * 100).toFixed(0)}% confidence</span>
                 </button>
 
                 <button
@@ -198,7 +271,7 @@ function DecisionCard({
                     )}
                     Didn't work
                   </span>
-                  <span className="text-xs opacity-70">-10% confidence</span>
+                  <span className="text-xs opacity-70">-{(confidenceDelta * 100).toFixed(0)}% confidence</span>
                 </button>
               </div>
             </div>
@@ -243,13 +316,20 @@ export default function Reviews() {
     loadDecisions()
   }, [])
 
-  const handleReview = async (id: string, status: 'validated' | 'partial' | 'reversed', notes: string) => {
+  const handleReview = async (id: string, data: ReviewData) => {
     // Call the backend to record the validation
     try {
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision_id: id, status, notes }),
+        body: JSON.stringify({
+          decision_id: id,
+          status: data.status,
+          notes: data.notes,
+          expected_outcome: data.expectedOutcome,
+          actual_outcome: data.actualOutcome,
+          confidence_delta: data.confidenceDelta,
+        }),
       })
 
       if (!response.ok) {

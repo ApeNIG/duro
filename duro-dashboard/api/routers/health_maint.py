@@ -87,7 +87,7 @@ async def get_decay_queue(
         conn.close()
 
         return {
-            "queue": facts,
+            "items": facts,
             "total": len(facts),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }

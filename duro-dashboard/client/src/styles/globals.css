@@ -3,15 +3,16 @@
 @tailwind utilities;
 
 /* ============================================
-   DURO v2 - TERMINAL MINIMAL DESIGN SYSTEM
+   DURO v2 - TERMINAL AUSTERE DESIGN SYSTEM
+   Single font. Single accent. Maximum restraint.
    ============================================ */
 
 :root {
-  /* Backgrounds - darker, flatter */
+  /* Backgrounds - unified deep black */
   --bg-void: #050708;
-  --bg-panel: #0a0d12;
-  --bg-card: #0f1318;
-  --bg-elevated: #151a21;
+  --bg-panel: #050708;
+  --bg-card: #050708;
+  --bg-elevated: #0a0d10;
   --bg-active: #0f1318;
 
   /* Legacy mappings */
@@ -85,22 +86,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle scanline effect - terminal feel */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.1) 2px,
-    rgba(0, 0, 0, 0.1) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.3;
-}
+/* No decorative effects - Terminal Austere is pure */
 
 /* ============================================
    SCROLLBAR

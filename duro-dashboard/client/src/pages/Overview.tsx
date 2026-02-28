@@ -2,6 +2,7 @@ import { useState } from 'react'
 import StatsGrid from '@/components/StatsGrid'
 import ActivityFeed from '@/components/ActivityFeed'
 import HealthPanel from '@/components/HealthPanel'
+import AlertsPanel from '@/components/AlertsPanel'
 import ArtifactModal from '@/components/ArtifactModal'
 import { useHealth } from '@/hooks/useStats'
 
@@ -13,11 +14,11 @@ export default function Overview() {
     <div className="h-full flex flex-col gap-6 min-h-0">
       {/* Terminal Header */}
       <div className="flex items-center justify-between">
-        <div className="font-mono text-sm text-text-secondary">
+        <div className="font-mono text-[13px] text-text-secondary">
           <span className="text-text-muted">$ </span>
           <span>duro status --overview</span>
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs">
+        <div className="flex items-center gap-2 font-mono text-[11px]">
           <span className={`w-1.5 h-1.5 rounded-full ${
             health?.database === 'connected' ? 'bg-accent' : 'bg-error'
           }`} />
@@ -34,9 +35,17 @@ export default function Overview() {
       <div className="h-px bg-border" />
 
       {/* Main Content */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 min-h-0">
-        <ActivityFeed />
-        <HealthPanel />
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 min-h-0">
+        {/* Activity Feed - Left Column */}
+        <div className="min-h-0 overflow-hidden">
+          <ActivityFeed />
+        </div>
+
+        {/* Right Column - Alerts + Health */}
+        <div className="flex flex-col gap-6 min-h-0 overflow-y-auto">
+          <AlertsPanel />
+          <HealthPanel />
+        </div>
       </div>
 
       {/* Artifact Modal */}

@@ -17,6 +17,9 @@ class ReviewRequest(BaseModel):
     decision_id: str
     status: str  # 'validated', 'partial', or 'reversed'
     notes: Optional[str] = None
+    expected_outcome: Optional[str] = None
+    actual_outcome: Optional[str] = None
+    confidence_delta: Optional[float] = None
 
 
 class ReviewResponse(BaseModel):
@@ -59,7 +62,9 @@ async def create_review(request: ReviewRequest):
                 "decision_id": request.decision_id,
                 "status": request.status,
                 "result": "success" if request.status == "validated" else ("partial" if request.status == "partial" else "failed"),
-                "confidence_delta": 0.1 if request.status == "validated" else (0.0 if request.status == "partial" else -0.1),
+                "expected_outcome": request.expected_outcome,
+                "actual_outcome": request.actual_outcome,
+                "confidence_delta": request.confidence_delta if request.confidence_delta is not None else (0.1 if request.status == "validated" else (0.0 if request.status == "partial" else -0.1)),
                 "confidence_after": None,
                 "notes": request.notes or f"Marked as {request.status} via dashboard"
             }
@@ -82,16 +87,32 @@ async def create_review(request: ReviewRequest):
                 with open(decision_file, "r", encoding="utf-8") as f:
                     decision_data = json.load(f)
 
-                # Update outcome_status in the decision file
-                if "data" in decision_data:
-                    decision_data["data"]["outcome_status"] = request.status
-                else:
-                    decision_data["outcome_status"] = request.status
+                # Calculate confidence delta
+                conf_delta = request.confidence_delta if request.confidence_delta is not None else (0.1 if request.status == "validated" else (0.0 if request.status == "partial" else -0.1))
 
+                # Update outcome_status in the decision file
+                data_section = decision_data.get("data", decision_data)
+                data_section["outcome_status"] = request.status
+                data_section["last_validated"] = now.isoformat() + "Z"
+                data_section["validation_count"] = data_section.get("validation_count", 0) + 1
+
+                # Update confidence
+                current_confidence = data_section.get("confidence", 0.5)
+                new_confidence = max(0.05, min(0.99, current_confidence + conf_delta))
+                data_section["confidence"] = round(new_confidence, 2)
+
+                # Update the artifact
+                if "data" in decision_data:
+                    decision_data["data"] = data_section
+                else:
+                    decision_data = data_section
                 decision_data["updated_at"] = now.isoformat() + "Z"
 
                 with open(decision_file, "w", encoding="utf-8") as f:
                     json.dump(decision_data, f, indent=2)
+
+                # Store confidence_after in the validation artifact
+                artifact["data"]["confidence_after"] = new_confidence
             except (json.JSONDecodeError, OSError) as e:
                 print(f"Warning: Could not update decision file: {e}")
 

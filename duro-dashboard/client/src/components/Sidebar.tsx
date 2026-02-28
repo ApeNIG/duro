@@ -1,39 +1,66 @@
 import { NavLink } from 'react-router-dom'
-import { X } from 'lucide-react'
+import {
+  X,
+  LayoutDashboard,
+  Activity,
+  Lightbulb,
+  Database,
+  Search,
+  GitBranch,
+  PlayCircle,
+  CheckSquare,
+  TrendingUp,
+  HeartPulse,
+  Shield,
+  AlertTriangle,
+  Clock,
+  Zap,
+  Settings,
+  LucideIcon
+} from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
   to: string
   label: string
+  icon: LucideIcon
   badge?: number
   onClick?: () => void
 }
 
-function NavItem({ to, label, badge, onClick }: NavItemProps) {
+function NavItem({ to, label, icon: Icon, badge, onClick }: NavItemProps) {
   return (
     <NavLink
       to={to}
       onClick={onClick}
       className={({ isActive }) =>
-        `w-full flex items-center gap-3 px-2.5 py-2 text-[13px] font-mono transition-colors ${
+        `w-full flex items-center gap-2.5 px-2 py-1.5 text-xs font-mono transition-all ${
           isActive
-            ? 'bg-bg-active text-accent'
-            : 'text-text-secondary hover:text-text-primary'
+            ? 'bg-accent/10 text-accent border-l-2 border-accent -ml-[2px] pl-[10px]'
+            : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
         }`
       }
     >
       {({ isActive }) => (
         <>
-          <span className={`w-3 ${isActive ? 'text-accent' : 'text-text-muted'}`}>
-            {isActive ? '>' : ' '}
-          </span>
+          <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-accent' : 'text-text-muted'}`} />
           <span>{label}</span>
           {badge !== undefined && badge > 0 && (
-            <span className="ml-auto text-xs text-tag-episode">{badge}</span>
+            <span className="ml-auto px-1.5 py-0.5 text-[10px] bg-warning/20 text-warning rounded-full font-medium">
+              {badge}
+            </span>
           )}
         </>
       )}
     </NavLink>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-2 py-2 text-[10px] font-mono text-text-muted">
+      {children}
+    </div>
   )
 }
 
@@ -46,67 +73,56 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const { data: pendingCount } = usePendingReviews()
 
   return (
-    <aside className="w-[220px] h-full bg-[#050708] flex flex-col border-r border-border">
-      {/* Logo */}
-      <div className="h-14 px-4 flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <span className="font-mono font-bold text-lg tracking-[4px] text-accent">DURO</span>
-          <span className="font-mono text-[10px] text-text-muted">v2.0</span>
-        </div>
+    <aside className="w-[200px] h-full bg-bg-void flex flex-col border-r border-border">
+      {/* Logo - lowercase, minimal */}
+      <div className="h-12 px-4 flex items-center justify-between">
+        <span className="font-mono text-sm font-medium text-accent">duro</span>
         {/* Close button - mobile only */}
         <button
           onClick={onClose}
-          className="lg:hidden p-1.5 hover:bg-white/10 rounded transition-colors"
+          className="lg:hidden p-1 hover:bg-white/10 transition-colors"
         >
-          <X className="w-5 h-5 text-text-secondary" />
+          <X className="w-4 h-4 text-text-secondary" />
         </button>
       </div>
 
-      {/* Divider */}
-      <div className="mx-4 h-px bg-border" />
-
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-4 overflow-y-auto">
+      <nav className="flex-1 px-2 py-2 overflow-y-auto">
+        <SectionLabel># command</SectionLabel>
         <div className="space-y-0.5">
-          <NavItem to="/overview" label="overview" onClick={onClose} />
-          <NavItem to="/activity" label="activity" onClick={onClose} />
+          <NavItem to="/overview" label="overview" icon={LayoutDashboard} onClick={onClose} />
+          <NavItem to="/activity" label="activity" icon={Activity} onClick={onClose} />
+          <NavItem to="/insights" label="insights" icon={Lightbulb} onClick={onClose} />
         </div>
 
-        <div className="my-4 mx-2 h-px bg-border" />
-
+        <SectionLabel># knowledge</SectionLabel>
         <div className="space-y-0.5">
-          <NavItem to="/memory" label="memory" onClick={onClose} />
-          <NavItem to="/relationships" label="graph" onClick={onClose} />
-          <NavItem to="/search" label="search" onClick={onClose} />
+          <NavItem to="/memory" label="memory" icon={Database} onClick={onClose} />
+          <NavItem to="/search" label="search" icon={Search} onClick={onClose} />
+          <NavItem to="/relationships" label="graph" icon={GitBranch} onClick={onClose} />
         </div>
 
-        <div className="my-4 mx-2 h-px bg-border" />
-
+        <SectionLabel># workflows</SectionLabel>
         <div className="space-y-0.5">
-          <NavItem to="/security" label="security" onClick={onClose} />
-          <NavItem to="/health" label="health" onClick={onClose} />
+          <NavItem to="/episodes" label="episodes" icon={PlayCircle} onClick={onClose} />
+          <NavItem to="/reviews" label="reviews" icon={CheckSquare} badge={pendingCount} onClick={onClose} />
+          <NavItem to="/promotions" label="promotions" icon={TrendingUp} onClick={onClose} />
         </div>
 
-        <div className="my-4 mx-2 h-px bg-border" />
-
+        <SectionLabel># system</SectionLabel>
         <div className="space-y-0.5">
-          <NavItem to="/reviews" label="reviews" badge={pendingCount} onClick={onClose} />
-          <NavItem to="/incidents" label="incidents" onClick={onClose} />
-          <NavItem to="/changes" label="changes" onClick={onClose} />
-        </div>
-
-        <div className="my-4 mx-2 h-px bg-border" />
-
-        <div className="space-y-0.5">
-          <NavItem to="/episodes" label="episodes" onClick={onClose} />
-          <NavItem to="/skills" label="skills" onClick={onClose} />
-          <NavItem to="/settings" label="settings" onClick={onClose} />
+          <NavItem to="/health" label="health" icon={HeartPulse} onClick={onClose} />
+          <NavItem to="/security" label="security" icon={Shield} onClick={onClose} />
+          <NavItem to="/incidents" label="incidents" icon={AlertTriangle} onClick={onClose} />
+          <NavItem to="/changes" label="changes" icon={Clock} onClick={onClose} />
+          <NavItem to="/skills" label="skills" icon={Zap} onClick={onClose} />
+          <NavItem to="/settings" label="settings" icon={Settings} onClick={onClose} />
         </div>
       </nav>
 
       {/* System Status - minimal */}
-      <div className="hidden sm:block px-4 py-3 border-t border-border">
-        <div className="flex items-center gap-2 text-xs font-mono">
+      <div className="px-4 py-3 border-t border-border">
+        <div className="flex items-center gap-2 text-[10px] font-mono">
           <span className={`w-1.5 h-1.5 rounded-full ${
             health?.database === 'connected' ? 'bg-accent' : 'bg-error'
           }`} />

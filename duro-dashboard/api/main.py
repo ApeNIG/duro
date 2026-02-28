@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents, search, graph, promotions, suggestions, security, health_maint, changes
+from routers import stats, artifacts, stream, reviews, actions, insights, episodes, skills, incidents, search, graph, promotions, suggestions, security, health_maint, changes, emergence
 
 
 @asynccontextmanager
@@ -31,10 +31,14 @@ app.add_middleware(
         "http://localhost:5174",
         "http://localhost:5175",
         "http://localhost:5176",
+        "http://localhost:5177",
+        "http://localhost:5178",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
         "http://127.0.0.1:5175",
         "http://127.0.0.1:5176",
+        "http://127.0.0.1:5177",
+        "http://127.0.0.1:5178",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -58,6 +62,7 @@ app.include_router(suggestions.router, prefix="/api", tags=["suggestions"])
 app.include_router(security.router, prefix="/api", tags=["security"])
 app.include_router(health_maint.router, prefix="/api", tags=["health"])
 app.include_router(changes.router, prefix="/api", tags=["changes"])
+app.include_router(emergence.router, prefix="/api", tags=["emergence"])
 
 
 @app.get("/")

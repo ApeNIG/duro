@@ -5,23 +5,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Backgrounds - Terminal Minimal
+        // Backgrounds - Terminal Austere (single deep black)
         'bg-void': '#050708',
-        'bg-panel': '#0a0d12',
-        'bg-card': '#0f1318',
-        'bg-elevated': '#151a21',
+        'bg-panel': '#050708',
+        'bg-card': '#050708',
+        'bg-elevated': '#0a0d10',
         'bg-active': '#0f1318',
 
         // Legacy compatibility
         page: '#050708',
         sidebar: '#050708',
-        card: '#0f1318',
+        card: '#050708',
 
-        // Single accent - cyan only
+        // Single accent - cyan only (restraint principle)
         accent: '#00FFE5',
-        'accent-dim': 'rgba(0, 255, 229, 0.1)',
+        'accent-dim': 'rgba(0, 255, 229, 0.08)',
 
-        // Type tags (minimal color use)
+        // Type tags - semantic colors only
         'tag-fact': '#00FFE5',
         'tag-decision': '#B14EFF',
         'tag-episode': '#FF6B00',
@@ -33,24 +33,24 @@ export default {
         warning: '#FF6B00',
         success: '#00FFE5',
 
-        // Text - high contrast
+        // Text - high contrast, minimal palette
         'text-primary': '#e2e8f0',
         'text-secondary': '#8a9199',
         'text-muted': '#4a5568',
         'text-dim': '#2d3748',
 
-        // Borders - subtle
+        // Borders - visible, structural
         border: '#1a1f26',
         'border-active': 'rgba(0, 255, 229, 0.3)',
 
-        // Legacy neon colors (for backwards compat)
+        // Legacy neon colors (for type tags)
         'neon-cyan': '#00FFE5',
         'neon-purple': '#B14EFF',
         'neon-green': '#39FF14',
         'neon-orange': '#FF6B00',
         'neon-red': '#FF2D55',
 
-        // Glass (minimal use)
+        // Glass (not used in Terminal Austere)
         'glass-border': '#1a1f26',
       },
       fontFamily: {

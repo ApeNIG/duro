@@ -35,56 +35,43 @@ interface CrossConnection {
 }
 
 export default function Emergence() {
-  // These would connect to real API endpoints
-  const { data: orphans } = useQuery({
+  // Connect to real API endpoints
+  const { data: orphans, isLoading: orphansLoading } = useQuery({
     queryKey: ['emergence-orphans'],
     queryFn: async () => {
-      // Mock data for now - would call /api/emergence/orphans
-      return {
-        artifacts: [
-          { id: '1', title: 'Unconnected learning about Redis caching', type: 'fact', connection_count: 0, created_at: '2024-02-20' },
-          { id: '2', title: 'Isolated decision on API versioning', type: 'decision', connection_count: 1, created_at: '2024-02-19' },
-        ] as OrphanArtifact[],
-      }
+      const res = await fetch('/api/emergence/orphans')
+      if (!res.ok) throw new Error('Failed to fetch orphans')
+      return res.json()
     },
     refetchInterval: 60000,
   })
 
-  const { data: driftReport } = useQuery({
+  const { data: driftReport, isLoading: driftLoading } = useQuery({
     queryKey: ['emergence-drift'],
     queryFn: async () => {
-      return {
-        items: [
-          { stated: 'Always use TypeScript strict mode', observed: '3 files with implicit any', severity: 'medium' },
-          { stated: 'Max 200 lines per file', observed: 'utils.ts has 342 lines', severity: 'low' },
-        ] as DriftItem[],
-      }
+      const res = await fetch('/api/emergence/drift')
+      if (!res.ok) throw new Error('Failed to fetch drift report')
+      return res.json()
     },
     refetchInterval: 60000,
   })
 
-  const { data: ideas } = useQuery({
+  const { data: ideas, isLoading: ideasLoading } = useQuery({
     queryKey: ['emergence-ideas'],
     queryFn: async () => {
-      return {
-        items: [
-          { id: '1', title: 'Auto-generate test cases from episode failures', description: 'Failures in episodes often reveal edge cases worth testing', source: 'episode_analysis', potential: 0.85 },
-          { id: '2', title: 'Combine property scraper with market analysis', description: 'Cross-reference property data with economic indicators', source: 'cross_domain', potential: 0.72 },
-        ] as Idea[],
-      }
+      const res = await fetch('/api/emergence/ideas')
+      if (!res.ok) throw new Error('Failed to fetch ideas')
+      return res.json()
     },
     refetchInterval: 60000,
   })
 
-  const { data: connections } = useQuery({
+  const { data: connections, isLoading: connectionsLoading } = useQuery({
     queryKey: ['emergence-connections'],
     queryFn: async () => {
-      return {
-        items: [
-          { from_domain: 'Duro Memory', to_domain: 'Property Search', concept: 'Preference learning', strength: 0.8 },
-          { from_domain: 'Stride Family', to_domain: 'Marketing', concept: 'User engagement patterns', strength: 0.65 },
-        ] as CrossConnection[],
-      }
+      const res = await fetch('/api/emergence/connections')
+      if (!res.ok) throw new Error('Failed to fetch connections')
+      return res.json()
     },
     refetchInterval: 60000,
   })

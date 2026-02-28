@@ -12,16 +12,16 @@ interface QuickActionModalProps {
 
 function QuickActionModal({ title, icon, onClose, children }: QuickActionModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-card border border-border rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+      <div className="bg-bg-void border border-border w-full max-w-md mx-4">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2 font-mono text-sm">
             {icon}
-            <h3 className="font-medium">{title}</h3>
+            <span className="text-text-secondary">{title}</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded transition-colors"
+            className="p-1 hover:bg-bg-active transition-colors text-text-muted hover:text-text-secondary"
           >
             <X className="w-4 h-4" />
           </button>
@@ -45,10 +45,10 @@ function ActionButton({ icon, label, onClick, color = 'bg-accent' }: ActionButto
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-3 px-5 py-3 ${color} text-white rounded-xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all border border-white/20`}
+      className={`flex items-center gap-2 px-3 py-2 ${color} text-bg-void font-mono text-xs hover:opacity-90 transition-opacity`}
     >
       {icon}
-      <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
+      <span className="whitespace-nowrap">{label}</span>
     </button>
   )
 }
@@ -211,9 +211,9 @@ export default function QuickActions() {
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-12 h-12 rounded-full bg-gradient-to-br from-accent to-purple-600 text-white shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-110 hover:shadow-accent/50 border-2 border-white/20 ${isOpen ? 'rotate-45 bg-red-500' : ''}`}
+          className={`w-10 h-10 bg-bg-elevated border border-border text-accent flex items-center justify-center transition-all duration-150 hover:border-accent hover:bg-bg-active ${isOpen ? 'rotate-45 text-error border-error' : ''}`}
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
         </button>
       </div>
 
