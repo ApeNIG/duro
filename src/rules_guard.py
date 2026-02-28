@@ -220,6 +220,11 @@ def check_rules_for_tool(
         keywords = rule.get("trigger_keywords", [])
         rule_type = rule.get("type", "soft")
         enforcement = rule.get("enforcement", "none")
+        allowed_tools = rule.get("tools", None)  # None = all tools
+
+        # Skip if rule is scoped to specific tools and this tool isn't in the list
+        if allowed_tools is not None and tool_name not in allowed_tools:
+            continue
 
         # Check if any keyword matches (word boundary aware)
         matched_keyword = None
