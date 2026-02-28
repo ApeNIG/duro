@@ -18,7 +18,7 @@
     "on_violation": "block"
   },
   "confidence": 0.95,
-  "validations": 12,
+  "validations": 13,
   "created": "2026-02-15",
   "last_validated": "2026-02-28"
 }
