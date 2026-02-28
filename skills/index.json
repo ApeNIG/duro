@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 11,
+      "usage_count": 13,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1042,7 +1042,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
-      "last_used": "2026-02-27T14:35:03.520178"
+      "last_used": "2026-02-28T05:36:32.483222"
     },
     {
       "id": "skill_memory_002",
@@ -1068,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 11,
+      "usage_count": 13,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1080,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-02-27T14:35:03.945730"
+      "last_used": "2026-02-28T05:36:38.846409"
     },
     {
       "id": "skill_memory_003",
@@ -1140,7 +1140,7 @@
         "accountability",
         "decision drift"
       ],
-      "usage_count": 3,
+      "usage_count": 4,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1152,7 +1152,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Surfaces decisions with no follow-up, contradicting follow-up, or active themes without decisions. Scheduled every 7 days.",
-      "last_used": "2026-02-26T19:26:23.523210"
+      "last_used": "2026-02-28T00:38:27.221852"
     },
     {
       "id": "skill_memory_005",
@@ -1176,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 14,
-      "success_rate": 0.7857142857142857,
+      "usage_count": 19,
+      "success_rate": 0.7368421052631579,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1188,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-02-27T09:11:50.218542"
+      "last_used": "2026-02-28T05:36:58.021110"
     },
     {
       "id": "skill_memory_006",
@@ -1217,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 11,
+      "usage_count": 13,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1229,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-02-27T14:35:03.998038"
+      "last_used": "2026-02-28T05:36:44.622221"
     },
     {
       "id": "skill_memory_007",
@@ -1255,7 +1255,7 @@
         "duplicates",
         "cleanup"
       ],
-      "usage_count": 2,
+      "usage_count": 3,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1267,7 +1267,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds untagged items, rarely-tagged isolates, stale entries (21+ days), and duplicates. Scheduled every 3 days.",
-      "last_used": "2026-02-24T21:35:39.513803"
+      "last_used": "2026-02-27T22:35:24.360083"
     },
     {
       "id": "skill_memory_008",
@@ -1483,7 +1483,7 @@
         "prevention to rule",
         "rca to rule"
       ],
-      "usage_count": 5,
+      "usage_count": 6,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1500,7 +1500,7 @@
       ],
       "version": "1.2.0",
       "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations. v1.2.0: dry_run-safe validation, de-dup by incident_id, validation report.",
-      "last_used": "2026-02-27T14:35:03.540083"
+      "last_used": "2026-02-28T04:45:28.926943"
     },
     {
       "id": "skill_memory_013",
@@ -1615,7 +1615,7 @@
       "description": "Promote a candidate rule to active status - closes the candidate\u2192active loop",
       "tier": "tested",
       "phase": "4.0",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "keywords": [
         "promote",
         "rule",
@@ -1646,7 +1646,6 @@
       "fallback_skill": null,
       "pre_checks": [],
       "requires": [],
-      "version": "1.1.0",
       "notes": "Part of the memory->rules loop closure. Promotes candidates to active after 3 validations. v1.1.0: Safety latch (24h age, severity check) prevents instant law from bursty failures.",
       "last_used": "2026-02-27T15:06:59.931455"
     },
