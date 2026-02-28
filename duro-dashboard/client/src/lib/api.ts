@@ -94,9 +94,34 @@ export interface BulkDeleteResponse {
   failed: Array<{ id: string; reason: string }>
 }
 
+export interface MaintenanceReport {
+  facts: {
+    total: number
+    pinned: number
+    pinned_pct: number
+    stale: number
+    stale_pct: number
+    unverified: number
+    low_confidence: number
+  }
+  artifact_counts: Record<string, number>
+  health_score: number
+  timestamp: string
+}
+
+export interface EmbeddingStatus {
+  total_artifacts: number
+  embedded: number
+  coverage_pct: number
+  missing: number
+  timestamp: string
+}
+
 export const api = {
   health: () => fetchJSON<HealthResponse>('/health'),
   stats: () => fetchJSON<StatsResponse>('/stats'),
+  maintenanceReport: () => fetchJSON<MaintenanceReport>('/health/maintenance'),
+  embeddingStatus: () => fetchJSON<EmbeddingStatus>('/health/embedding-status'),
   artifacts: (params?: { type?: string; limit?: number; offset?: number; search?: string }) => {
     const searchParams = new URLSearchParams()
     if (params?.type) searchParams.set('type', params.type)

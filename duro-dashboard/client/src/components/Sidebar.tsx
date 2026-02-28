@@ -1,36 +1,37 @@
 import { NavLink } from 'react-router-dom'
-import { Database, Activity, Settings, Zap, CheckCircle, GitBranch, Target, Layers, AlertTriangle, Sparkles, Lightbulb, ArrowUpCircle, Link2, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useHealth, usePendingReviews } from '@/hooks/useStats'
 
 interface NavItemProps {
   to: string
-  icon: React.ReactNode
   label: string
   badge?: number
   onClick?: () => void
 }
 
-function NavItem({ to, icon, label, badge, onClick }: NavItemProps) {
+function NavItem({ to, label, badge, onClick }: NavItemProps) {
   return (
     <NavLink
       to={to}
       onClick={onClick}
       className={({ isActive }) =>
-        `w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded text-sm transition-colors ${
+        `w-full flex items-center gap-3 px-2.5 py-2 text-[13px] font-mono transition-colors ${
           isActive
-            ? 'bg-accent-dim text-accent'
-            : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+            ? 'bg-bg-active text-accent'
+            : 'text-text-secondary hover:text-text-primary'
         }`
       }
     >
-      <div className="flex items-center gap-3">
-        {icon}
-        <span>{label}</span>
-      </div>
-      {badge !== undefined && badge > 0 && (
-        <span className="px-1.5 py-0.5 text-xs bg-warning/20 text-warning rounded-full">
-          {badge}
-        </span>
+      {({ isActive }) => (
+        <>
+          <span className={`w-3 ${isActive ? 'text-accent' : 'text-text-muted'}`}>
+            {isActive ? '>' : ' '}
+          </span>
+          <span>{label}</span>
+          {badge !== undefined && badge > 0 && (
+            <span className="ml-auto text-xs text-tag-episode">{badge}</span>
+          )}
+        </>
       )}
     </NavLink>
   )
@@ -45,12 +46,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const { data: pendingCount } = usePendingReviews()
 
   return (
-    <aside className="w-64 lg:w-56 h-full bg-sidebar border-r border-border flex flex-col">
+    <aside className="w-[220px] h-full bg-[#050708] flex flex-col border-r border-border">
       {/* Logo */}
-      <div className="h-14 px-4 flex items-center justify-between border-b border-border">
-        <div className="flex items-baseline gap-0.5">
-          <span className="font-display font-bold text-lg tracking-tight">duro</span>
-          <span className="w-2 h-2 rounded-full bg-violet -translate-y-2"></span>
+      <div className="h-14 px-4 flex items-center justify-between">
+        <div className="flex items-baseline gap-2">
+          <span className="font-mono font-bold text-lg tracking-[4px] text-accent">DURO</span>
+          <span className="font-mono text-[10px] text-text-muted">v2.0</span>
         </div>
         {/* Close button - mobile only */}
         <button
@@ -61,41 +62,57 @@ export default function Sidebar({ onClose }: SidebarProps) {
         </button>
       </div>
 
+      {/* Divider */}
+      <div className="mx-4 h-px bg-border" />
+
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        <NavItem to="/overview" icon={<Activity className="w-4 h-4" />} label="Overview" onClick={onClose} />
-        <NavItem to="/search" icon={<Sparkles className="w-4 h-4" />} label="Search" onClick={onClose} />
-        <NavItem to="/memory" icon={<Database className="w-4 h-4" />} label="Memory" onClick={onClose} />
-        <NavItem to="/activity" icon={<Zap className="w-4 h-4" />} label="Activity" onClick={onClose} />
-        <NavItem to="/reviews" icon={<CheckCircle className="w-4 h-4" />} label="Reviews" badge={pendingCount} onClick={onClose} />
-        <NavItem to="/promotions" icon={<ArrowUpCircle className="w-4 h-4" />} label="Promotions" onClick={onClose} />
-        <NavItem to="/episodes" icon={<Target className="w-4 h-4" />} label="Episodes" onClick={onClose} />
-        <NavItem to="/skills" icon={<Layers className="w-4 h-4" />} label="Skills" onClick={onClose} />
-        <NavItem to="/incidents" icon={<AlertTriangle className="w-4 h-4" />} label="Incidents" onClick={onClose} />
-        <NavItem to="/insights" icon={<Lightbulb className="w-4 h-4" />} label="Insights" onClick={onClose} />
-        <NavItem to="/suggestions" icon={<Link2 className="w-4 h-4" />} label="Suggestions" onClick={onClose} />
-        <NavItem to="/relationships" icon={<GitBranch className="w-4 h-4" />} label="Graph" onClick={onClose} />
-        <NavItem to="/settings" icon={<Settings className="w-4 h-4" />} label="Settings" onClick={onClose} />
+      <nav className="flex-1 px-2 py-4 overflow-y-auto">
+        <div className="space-y-0.5">
+          <NavItem to="/overview" label="overview" onClick={onClose} />
+          <NavItem to="/activity" label="activity" onClick={onClose} />
+        </div>
+
+        <div className="my-4 mx-2 h-px bg-border" />
+
+        <div className="space-y-0.5">
+          <NavItem to="/memory" label="memory" onClick={onClose} />
+          <NavItem to="/relationships" label="graph" onClick={onClose} />
+          <NavItem to="/search" label="search" onClick={onClose} />
+        </div>
+
+        <div className="my-4 mx-2 h-px bg-border" />
+
+        <div className="space-y-0.5">
+          <NavItem to="/security" label="security" onClick={onClose} />
+          <NavItem to="/health" label="health" onClick={onClose} />
+        </div>
+
+        <div className="my-4 mx-2 h-px bg-border" />
+
+        <div className="space-y-0.5">
+          <NavItem to="/reviews" label="reviews" badge={pendingCount} onClick={onClose} />
+          <NavItem to="/incidents" label="incidents" onClick={onClose} />
+          <NavItem to="/changes" label="changes" onClick={onClose} />
+        </div>
+
+        <div className="my-4 mx-2 h-px bg-border" />
+
+        <div className="space-y-0.5">
+          <NavItem to="/episodes" label="episodes" onClick={onClose} />
+          <NavItem to="/skills" label="skills" onClick={onClose} />
+          <NavItem to="/settings" label="settings" onClick={onClose} />
+        </div>
       </nav>
 
-      {/* System Status - hidden on mobile to save space */}
-      <div className="hidden sm:block p-3 border-t border-border">
-        <div className="bg-card rounded p-3 space-y-2">
-          <div className="text-xs text-text-secondary uppercase tracking-wider">System</div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-text-secondary">Database</span>
-              <span className={health?.database === 'connected' ? 'text-accent' : 'text-error'}>
-                {health?.database || 'unknown'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-text-secondary">Artifacts</span>
-              <span className="text-text-primary font-mono">
-                {health?.artifact_count?.toLocaleString() || '-'}
-              </span>
-            </div>
-          </div>
+      {/* System Status - minimal */}
+      <div className="hidden sm:block px-4 py-3 border-t border-border">
+        <div className="flex items-center gap-2 text-xs font-mono">
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            health?.database === 'connected' ? 'bg-accent' : 'bg-error'
+          }`} />
+          <span className={health?.database === 'connected' ? 'text-accent' : 'text-error'}>
+            {health?.database === 'connected' ? 'connected' : 'disconnected'}
+          </span>
         </div>
       </div>
     </aside>

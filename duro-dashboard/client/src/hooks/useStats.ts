@@ -25,3 +25,19 @@ export function usePendingReviews() {
     select: (data) => data.decisions.length,
   })
 }
+
+export function useMaintenanceReport() {
+  return useQuery({
+    queryKey: ['health', 'maintenance'],
+    queryFn: api.maintenanceReport,
+    refetchInterval: 60000, // Refresh every minute
+  })
+}
+
+export function useEmbeddingStatus() {
+  return useQuery({
+    queryKey: ['health', 'embedding'],
+    queryFn: api.embeddingStatus,
+    refetchInterval: 60000, // Refresh every minute
+  })
+}
