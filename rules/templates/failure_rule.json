@@ -1,0 +1,39 @@
+{
+  "$schema": "rule_template",
+  "template_type": "failure",
+  "description": "Template for known failure pattern rules",
+  "fields": {
+    "id": "rule_failure_XXX",
+    "name": "Failure Pattern Name",
+    "category": "failures",
+    "type": "hard",
+    "priority": 1,
+    "trigger_keywords": ["failure-specific", "keywords"],
+    "failure_pattern": {
+      "symptom": "What the failure looks like",
+      "root_cause": "Why it happens",
+      "detection": "How to detect it"
+    },
+    "prevention": {
+      "before_action": "What to check before",
+      "avoid": "What to avoid doing",
+      "alternative": "What to do instead"
+    },
+    "recovery": {
+      "if_detected": "How to recover",
+      "cleanup": "What to clean up"
+    },
+    "examples": [
+      {
+        "scenario": "When this happened",
+        "outcome": "What went wrong",
+        "lesson": "What we learned"
+      }
+    ],
+    "source_episode": null,
+    "confidence": 0.8,
+    "validations": 1,
+    "created": "2026-02-15",
+    "last_validated": null
+  }
+}

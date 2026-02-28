@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_007",
+  "name": "Video Output Quality",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["video"],
+    "contexts": ["production"]
+  },
+  "standards": {
+    "must_have": ["playable video file", "audio sync", "proper resolution"],
+    "should_have": ["subtitles if dialogue", "consistent framerate"],
+    "must_not_have": ["black frames", "missing audio"]
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_006",
+  "name": "Audio Generation Tool Selection",
+  "category": "tools",
+  "type": "soft",
+  "description": "Choose appropriate audio generation method",
+  "condition": {
+    "when": "Generating audio content",
+    "task_patterns": ["generate audio", "text to speech", "tts", "voice", "dialogue"]
+  },
+  "action": {
+    "for_tts": "Use edge-tts skill with appropriate voice",
+    "voice_selection": "Match voice to character (age, gender, accent)",
+    "for_music": "Use external APIs or stock audio",
+    "output_format": "Prefer MP3 for compatibility"
+  },
+  "linked_rules": ["rule_002"],
+  "confidence": 0.85,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

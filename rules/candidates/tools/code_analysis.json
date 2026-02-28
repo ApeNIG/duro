@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_002",
+  "name": "Code Analysis Tool Selection",
+  "category": "tools",
+  "type": "soft",
+  "description": "Choose appropriate tool for code analysis tasks",
+  "condition": {
+    "when": "Analyzing or understanding code",
+    "task_patterns": ["analyze code", "review code", "understand code", "find bugs"]
+  },
+  "action": {
+    "for_search": "Use Grep for pattern matching, Glob for file finding",
+    "for_reading": "Use Read tool, not cat/head/tail",
+    "for_exploration": "Use Task with Explore agent for open-ended search",
+    "for_structure": "Use tree command or directory listing"
+  },
+  "rationale": "Dedicated tools provide better output formatting and context",
+  "confidence": 0.85,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

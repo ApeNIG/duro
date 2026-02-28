@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_006",
+  "name": "Edit Context Mismatch",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "Edit tool fails - old_string not found",
+    "root_cause": "File changed since last read, or wrong context",
+    "detection": "Edit returns 'old_string not unique' or 'not found'"
+  },
+  "prevention": {
+    "before_action": "Read file immediately before editing",
+    "avoid": "Editing based on stale file content",
+    "alternative": "Re-read and retry edit"
+  },
+  "recovery": {
+    "if_detected": "Re-read file, find correct context, retry",
+    "cleanup": "None needed"
+  },
+  "confidence": 0.95,
+  "validations": 5,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

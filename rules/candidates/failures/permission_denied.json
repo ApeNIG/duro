@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_004",
+  "name": "Permission Denied",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "PermissionError, Access denied",
+    "root_cause": "Insufficient permissions for operation",
+    "detection": "Permission or access error in output"
+  },
+  "prevention": {
+    "before_action": "Check if operation requires elevated permissions",
+    "avoid": "Operations on system files without confirmation",
+    "alternative": "Request user to run with elevated permissions"
+  },
+  "recovery": {
+    "if_detected": "Explain permission issue, suggest alternatives",
+    "cleanup": "None needed"
+  },
+  "confidence": 0.9,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

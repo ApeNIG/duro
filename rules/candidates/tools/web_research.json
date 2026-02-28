@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_004",
+  "name": "Web Research Tool Selection",
+  "category": "tools",
+  "type": "soft",
+  "description": "Choose appropriate tool for web research",
+  "condition": {
+    "when": "Researching information from the web",
+    "task_patterns": ["search web", "find information", "research", "look up"]
+  },
+  "action": {
+    "for_search": "Use WebSearch for finding sources",
+    "for_content": "Use WebFetch to read specific pages",
+    "for_verification": "Use multiple sources, cite URLs",
+    "for_recent": "Include current year in search queries"
+  },
+  "rationale": "Structured web tools provide better results than manual browsing",
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "rule_failure_inc_328395",
+  "name": "duro_validate_decision blocked by rules_guard when...",
+  "category": "failures",
+  "type": "hard",
+  "priority": 2,
+  "trigger_keywords": [
+    "rules_guard false positive",
+    "unscoped rule",
+    "keyword trigger global"
+  ],
+  "failure_pattern": {
+    "symptom": "duro_validate_decision blocked by rules_guard when validation notes contained common action verb",
+    "root_cause": "rule_safety_002 in index.json had no tools field, so keyword matching applied to ALL tools. A common action verb in actual_outcome text triggered the rule even though duro_validate_decision is a non-harmful annotation tool.",
+    "detection": "rules_guard.py check_rules_for_tool() - no tool scope check before keyword matching"
+  },
+  "prevention": {
+    "before_action": "Add tools field to ALL keyword-based rules in index.json that should only apply to specific tools. Audit all rules with common English words as triggers.",
+    "avoid": "rule_safety_002 in index.json had no tools field, so keyword matching applied to ALL tools. A common action verb in actual_outcome text triggered the rule even though duro_validate_decision is a non-harmful annotation tool.",
+    "alternative": "Added tools field to rule_safety_002 scoping it to specific destructive tools only. Updated rules_guard.py check_rules_for_tool() to skip rules when tool_name not in allowed_tools list."
+  },
+  "recovery": {
+    "if_detected": "Added tools field to rule_safety_002 scoping it to specific destructive tools only. Updated rules_guard.py check_rules_for_tool() to skip rules when tool_name not in allowed_tools list.",
+    "cleanup": "Verify fix resolves the issue"
+  },
+  "examples": [
+    {
+      "scenario": "duro_validate_decision blocked by rules_guard when validation notes contained common action verb",
+      "outcome": "rule_safety_002 in index.json had no tools field, so keyword matching applied to ALL tools. A common action verb in actual_outcome text triggered the rule even though duro_validate_decision is a non-harmful annotation tool.",
+      "lesson": "Add tools field to ALL keyword-based rules in index.json that should only apply to specific tools. Audit all rules with common English words as triggers."
+    }
+  ],
+  "repro_steps": [
+    "Call duro_validate_decision with status validated",
+    "Include trigger keyword anywhere in actual_outcome or notes",
+    "Observe policy gate blocks unexpectedly"
+  ],
+  "source_incident": "inc_20260228_044446_sgtt28",
+  "source_tags": [
+    "rules-guard",
+    "false-positive",
+    "config",
+    "layer-7",
+    "duro"
+  ],
+  "confidence": 0.5,
+  "validations": 0,
+  "severity": "medium",
+  "created": "2026-02-28T04:45:28Z",
+  "last_validated": null,
+  "status": "candidate"
+}

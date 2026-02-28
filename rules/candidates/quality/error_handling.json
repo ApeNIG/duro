@@ -1,0 +1,19 @@
+{
+  "id": "rule_quality_003",
+  "name": "Error Handling Quality",
+  "category": "quality",
+  "type": "soft",
+  "applies_to": {
+    "output_types": ["code"],
+    "contexts": ["production"]
+  },
+  "standards": {
+    "must_have": ["specific exception handling", "useful error messages"],
+    "should_have": ["logging of errors", "graceful degradation"],
+    "must_not_have": ["bare except clauses", "swallowed exceptions"]
+  },
+  "confidence": 0.85,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

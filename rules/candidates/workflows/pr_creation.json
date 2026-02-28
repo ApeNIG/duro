@@ -1,0 +1,24 @@
+{
+  "id": "rule_workflow_007",
+  "name": "Pull Request Creation Workflow",
+  "category": "workflows",
+  "type": "hard",
+  "description": "Standard workflow for creating pull requests",
+  "condition": {
+    "when": "Creating a pull request",
+    "task_patterns": ["create pr", "pull request", "gh pr"]
+  },
+  "steps": {
+    "required_order": [
+      "check git status",
+      "review all commits in branch",
+      "push branch if needed",
+      "create PR with summary and test plan"
+    ],
+    "checkpoints": ["all changes committed", "PR created"]
+  },
+  "confidence": 0.9,
+  "validations": 3,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

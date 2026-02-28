@@ -1,0 +1,22 @@
+{
+  "id": "rule_tool_001",
+  "name": "Image Generation Tool Selection",
+  "category": "tools",
+  "type": "soft",
+  "description": "Choose appropriate image generation method based on content type",
+  "condition": {
+    "when": "Generating images for any purpose",
+    "task_patterns": ["generate image", "create image", "make image"]
+  },
+  "action": {
+    "for_faces": "Use web search or stock photos - avoid AI generation",
+    "for_scenes": "Use Pollinations API with detailed prompts",
+    "for_icons": "Use SVG or icon fonts",
+    "for_photos": "Use Unsplash/stock photo APIs"
+  },
+  "rationale": "AI image generation often distorts faces; stock photos are more reliable for human subjects",
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

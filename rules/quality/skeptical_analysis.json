@@ -1,0 +1,52 @@
+{
+  "id": "rule_quality_003",
+  "name": "Skeptical Mode for Market Analysis",
+  "description": "Default to skeptical mode rather than optimistic mode when producing market analysis, competitive positioning, or strategic documents",
+  "category": "quality",
+  "type": "soft",
+  "priority": 2,
+  "enforcement": "manual",
+  "measurable": false,
+  "trigger_keywords": [
+    "market analysis",
+    "competitive positioning",
+    "strategic document",
+    "market research",
+    "competitor analysis",
+    "TAM",
+    "market size",
+    "growth projections"
+  ],
+  "applies_to": {
+    "output_types": ["text", "analysis", "strategy"],
+    "contexts": ["market-analysis", "business-planning", "pitch"]
+  },
+  "standards": {
+    "must_have": [
+      "Evidence-backed claims with sources",
+      "Acknowledgment of uncertainties and risks",
+      "Conservative estimates as baseline"
+    ],
+    "should_have": [
+      "Bear case scenario alongside bull case",
+      "Explicit assumptions stated",
+      "Comparison to failed competitors"
+    ],
+    "must_not_have": [
+      "Self-rating bias (rating own product highly without evidence)",
+      "Fabricated-sounding statistics",
+      "Unrealistic timelines",
+      "Pitch deck language that obscures reality"
+    ]
+  },
+  "rationale": "Market-analysis.md contained multiple patterns of startup fantasy thinking: self-rating bias, fabricated statistics, optimistic timelines, and pitch deck language. Skeptical mode prevents these anti-patterns.",
+  "origin": {
+    "type": "decision",
+    "decision_id": "decision_20260211_082257_syqpts",
+    "promoted_date": "2026-02-28"
+  },
+  "confidence": 0.65,
+  "validations": 1,
+  "created": "2026-02-28",
+  "last_validated": "2026-02-26"
+}

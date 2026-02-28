@@ -1,0 +1,24 @@
+{
+  "id": "rule_failure_005",
+  "name": "JSON Parse Error",
+  "category": "failures",
+  "type": "hard",
+  "failure_pattern": {
+    "symptom": "JSONDecodeError, Invalid JSON",
+    "root_cause": "Malformed JSON content or wrong encoding",
+    "detection": "JSON parsing fails"
+  },
+  "prevention": {
+    "before_action": "Validate JSON structure before parsing",
+    "avoid": "Assuming all JSON files are valid",
+    "alternative": "Use try/except with helpful error messages"
+  },
+  "recovery": {
+    "if_detected": "Show location of error, suggest fix",
+    "cleanup": "None needed"
+  },
+  "confidence": 0.85,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}

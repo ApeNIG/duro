@@ -1,6 +1,6 @@
 # Internal directories (keep in duro-private)
 memory/
-rules/
+# rules/ - NOW TRACKED (rules are behavioral code, they belong in version control)
 # skills/ - NOW TRACKED (skills are code, they belong in version control)
 projects/
 evals/

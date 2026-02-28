@@ -1,0 +1,36 @@
+{
+  "$schema": "rule_template",
+  "template_type": "safety",
+  "description": "Template for guardrail and constraint rules",
+  "fields": {
+    "id": "rule_safety_XXX",
+    "name": "Safety Rule Name",
+    "category": "safety",
+    "type": "hard",
+    "priority": 0,
+    "trigger_keywords": ["safety-specific", "keywords"],
+    "constraint": {
+      "never_do": "What must never happen",
+      "always_do": "What must always happen",
+      "scope": "Where this applies"
+    },
+    "rationale": {
+      "risk": "What could go wrong",
+      "impact": "low|medium|high|critical",
+      "reversible": true
+    },
+    "enforcement": {
+      "check_before": "Pre-action validation",
+      "check_after": "Post-action validation",
+      "on_violation": "block|warn|log"
+    },
+    "exceptions": {
+      "allowed_when": "Conditions where rule can be bypassed",
+      "requires_approval": true
+    },
+    "confidence": 0.9,
+    "validations": 0,
+    "created": "2026-02-15",
+    "last_validated": null
+  }
+}

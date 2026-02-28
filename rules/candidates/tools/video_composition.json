@@ -1,0 +1,21 @@
+{
+  "id": "rule_tool_007",
+  "name": "Video Composition Guidelines",
+  "category": "tools",
+  "type": "soft",
+  "description": "Video composition tool selection and usage",
+  "condition": {
+    "when": "Creating or editing video",
+    "task_patterns": ["video", "compose video", "edit video", "ffmpeg"]
+  },
+  "action": {
+    "tool": "Use ffmpeg via Bash with explicit parameters",
+    "subtitles": "Embed ASS subtitles for styling control",
+    "format": "Output MP4 with H.264 for compatibility",
+    "verification": "Always verify output file exists and has size > 0"
+  },
+  "confidence": 0.8,
+  "validations": 2,
+  "created": "2026-02-15",
+  "last_validated": "2026-02-15"
+}
