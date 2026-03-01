@@ -1212,3 +1212,75 @@
 2026-03-01 02:09:48 - INFO - Deferred startup: embedding model preloaded and warmed
 2026-03-01 02:09:48 - INFO - Deferred startup complete
 2026-03-01 02:10:02 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 02:11:29 - INFO - Startup health check passed
+2026-03-01 02:11:29 - INFO - Autonomy scheduler initialized (with reflective skills)
+2026-03-01 02:11:30 - INFO - Running deferred startup consistency check...
+2026-03-01 02:11:56 - INFO - Deferred startup: consistency check complete
+2026-03-01 02:11:56 - INFO - Preloading embedding model...
+2026-03-01 02:11:57 - INFO - Loading embedding model 'BAAI/bge-small-en-v1.5' (may download on first run)...
+2026-03-01 02:11:58 - INFO - Embedding model loaded in 0.2s
+2026-03-01 02:11:58 - INFO - Warming up embedding model...
+2026-03-01 02:11:58 - INFO - Embedding model warmed up in 0.01s
+2026-03-01 02:11:58 - INFO - Deferred startup: embedding model preloaded and warmed
+2026-03-01 02:11:58 - INFO - Deferred startup complete
+2026-03-01 02:13:10 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 03:38:56 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 04:49:28 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 04:49:28 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 04:57:44 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 05:10:15 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 12:11:16 - WARNING - Startup health check found issues:
+2026-03-01 12:11:16 - WARNING -   - FTS has 3 rows missing semantic text (99.9% coverage)
+2026-03-01 12:11:16 - INFO - Autonomy scheduler initialized (with reflective skills)
+2026-03-01 12:11:17 - INFO - Running deferred startup consistency check...
+2026-03-01 12:12:06 - INFO - Deferred startup: consistency check complete
+2026-03-01 12:12:06 - INFO - Preloading embedding model...
+2026-03-01 12:12:06 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 12:12:08 - INFO - Loading embedding model 'BAAI/bge-small-en-v1.5' (may download on first run)...
+2026-03-01 12:12:08 - INFO - Embedding model loaded in 0.4s
+2026-03-01 12:12:08 - INFO - Warming up embedding model...
+2026-03-01 12:12:08 - INFO - Embedding model warmed up in 0.01s
+2026-03-01 12:12:08 - INFO - Deferred startup: embedding model preloaded and warmed
+2026-03-01 12:12:08 - INFO - Deferred startup complete
+2026-03-01 14:29:51 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 14:54:58 - WARNING - Startup health check found issues:
+2026-03-01 14:54:58 - WARNING -   - FTS has 8 rows missing semantic text (99.7% coverage)
+2026-03-01 14:54:58 - INFO - Autonomy scheduler initialized (with reflective skills)
+2026-03-01 14:54:58 - INFO - Running deferred startup consistency check...
+2026-03-01 14:55:28 - INFO - Deferred startup: consistency check complete
+2026-03-01 14:55:28 - INFO - Preloading embedding model...
+2026-03-01 14:55:29 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 14:55:30 - INFO - Loading embedding model 'BAAI/bge-small-en-v1.5' (may download on first run)...
+2026-03-01 14:55:30 - INFO - Embedding model loaded in 0.4s
+2026-03-01 14:55:30 - INFO - Warming up embedding model...
+2026-03-01 14:55:30 - INFO - Embedding model warmed up in 0.01s
+2026-03-01 14:55:30 - INFO - Deferred startup: embedding model preloaded and warmed
+2026-03-01 14:55:30 - INFO - Deferred startup complete
+2026-03-01 18:36:00 - WARNING - Startup health check found issues:
+2026-03-01 18:36:00 - WARNING -   - FTS has 81 rows missing semantic text (97.0% coverage)
+2026-03-01 18:36:00 - WARNING -   - 95 orphan embedding(s): [fact_20260211_123748_6kzpgo, fact_20260211_123748_nbij54, fact_20260211_123908_gqj8xe, fact_20260211_124303_otkphr, fact_20260211_124305_kl8x5k] - run duro_prune_orphans
+2026-03-01 18:36:00 - INFO - Autonomy scheduler initialized (with reflective skills)
+2026-03-01 18:36:01 - INFO - Running deferred startup consistency check...
+2026-03-01 18:36:45 - INFO - Deferred startup: consistency check complete
+2026-03-01 18:36:45 - INFO - Preloading embedding model...
+2026-03-01 18:36:45 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
+2026-03-01 18:36:47 - INFO - Loading embedding model 'BAAI/bge-small-en-v1.5' (may download on first run)...
+2026-03-01 18:36:47 - INFO - Embedding model loaded in 0.4s
+2026-03-01 18:36:47 - INFO - Warming up embedding model...
+2026-03-01 18:36:47 - INFO - Embedding model warmed up in 0.01s
+2026-03-01 18:36:47 - INFO - Deferred startup: embedding model preloaded and warmed
+2026-03-01 18:36:47 - INFO - Deferred startup complete
+2026-03-01 18:45:49 - WARNING - Tool 'duro_prune_orphans' timed out after 30s
+2026-03-01 18:46:24 - WARNING - Tool 'duro_prune_orphans' timed out after 30s
+2026-03-01 18:56:41 - INFO - Startup health check passed
+2026-03-01 18:56:41 - INFO - Autonomy scheduler initialized (with reflective skills)
+2026-03-01 18:56:42 - INFO - Running deferred startup consistency check...
+2026-03-01 18:57:06 - INFO - Deferred startup: consistency check complete
+2026-03-01 18:57:06 - INFO - Preloading embedding model...
+2026-03-01 18:57:07 - INFO - Loading embedding model 'BAAI/bge-small-en-v1.5' (may download on first run)...
+2026-03-01 18:57:07 - INFO - Embedding model loaded in 0.3s
+2026-03-01 18:57:07 - INFO - Warming up embedding model...
+2026-03-01 18:57:07 - INFO - Embedding model warmed up in 0.01s
+2026-03-01 18:57:07 - INFO - Deferred startup: embedding model preloaded and warmed
+2026-03-01 18:57:07 - INFO - Deferred startup complete
+2026-03-01 19:00:51 - WARNING - Error loading candidate rules: cannot access local variable 'os' where it is not associated with a value
