@@ -1,6 +1,3 @@
-Added session_start
-Added session_end
-Added decision_accountability
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
@@ -1713,6 +1710,12 @@ Added decision_accountability
     {
       "name": "decision_accountability",
       "file": "compound/decision_accountability.py",
+      "tier": "tested",
+      "category": "compound"
+    },
+    {
+      "name": "design_qa_verify",
+      "file": "compound/design_qa_verify.py",
       "tier": "tested",
       "category": "compound"
     }
