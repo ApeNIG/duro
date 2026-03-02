@@ -1,0 +1,20 @@
+{
+  "id": "rule_session_episode_habit_001",
+  "name": "Session Episode Habit",
+  "description": "At session end, if tools were used or artifacts produced, create and close an episode capturing the session goal and outcome",
+  "category": "workflows",
+  "type": "soft",
+  "status": "candidate",
+  "severity": "medium",
+  "created": "2026-03-02T17:15:00Z",
+  "trigger_keywords": [
+    "learn and log", "end session", "session end", "wrapping up",
+    "that's all", "done for now", "signing off"
+  ],
+  "prevention": {
+    "before_action": "Before ending session, call duro_suggest_episode() - if suggested, create_episode with goal, add key actions, close_episode with outcome",
+    "rationale": "Episodes capture goal→action→outcome for the feedback loop. Without episodes, learnings don't compound."
+  },
+  "validations": 0,
+  "source_decision": "decision_20260302_171158_g03bu4"
+}

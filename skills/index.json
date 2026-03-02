@@ -1,3 +1,6 @@
+Added session_start
+Added session_end
+Added decision_accountability
 {
   "version": "1.2",
   "description": "Duro Skills Index - Executable code that compounds",
@@ -1694,6 +1697,24 @@
       ],
       "notes": "Phase 3.3 skill. Pencil to Blender pipeline - extracts design specs (colors, materials, lighting) from Pencil designs and renders 3D product shots. Supports asset persistence via .blend files.",
       "last_used": "2026-02-26T22:54:28.382100"
+    },
+    {
+      "name": "session_start",
+      "file": "compound/session_start.py",
+      "tier": "tested",
+      "category": "compound"
+    },
+    {
+      "name": "session_end",
+      "file": "compound/session_end.py",
+      "tier": "tested",
+      "category": "compound"
+    },
+    {
+      "name": "decision_accountability",
+      "file": "compound/decision_accountability.py",
+      "tier": "tested",
+      "category": "compound"
     }
   ],
   "selection_priority": [
