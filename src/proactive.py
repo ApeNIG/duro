@@ -58,7 +58,7 @@ class ProactiveRecall:
         context: str,
         limit: int = 10,
         include_types: Optional[list[str]] = None,
-        min_confidence: float = 0.2,
+        min_confidence: float = 0.12,
         force: bool = False
     ) -> RecallResult:
         """
@@ -80,12 +80,21 @@ class ProactiveRecall:
         import time
         start_time = time.time()
 
+        # DEBUG: Write to file since print() doesn't work with stdio MCP
+        debug_log = Path(__file__).parent.parent / "proactive_debug.log"
+        def debug(msg):
+            with open(debug_log, "a") as f:
+                f.write(f"[{time.strftime('%H:%M:%S')}] {msg}\n")
+        debug(f"=== RECALL START === context: {context[:100]}...")
+
         # Step 1: Hot path classification (for boosting, NOT gating)
         hot_result = hot_path_classify(context)
+        debug(f"Hot path categories: {hot_result.categories}")
 
         # Step 2: Convert categories to search params (for boosting)
         search_params = category_to_search_params(hot_result.categories)
         boost_tags = search_params.get("tags", [])
+        debug(f"Boost tags: {boost_tags}")
 
         # Override types if specified, otherwise search all relevant types
         if include_types:
@@ -95,6 +104,7 @@ class ProactiveRecall:
             artifact_types = ["fact", "decision", "episode"]
 
         # Step 3: ALWAYS search semantically (no gating)
+        debug(f"Calling _search_memories with min_score={min_confidence}, types={artifact_types}")
         memories = self._search_memories(
             context=context,
             tags=None,  # Don't filter by tags - search everything
@@ -102,6 +112,7 @@ class ProactiveRecall:
             limit=limit * 3,  # Get extra for filtering and boosting
             min_score=min_confidence
         )
+        debug(f"_search_memories returned {len(memories)} results")
 
         # Step 4: Boost scores for keyword matches (optional enhancement)
         if boost_tags and memories:
@@ -145,36 +156,57 @@ class ProactiveRecall:
 
         Falls back gracefully: hybrid -> FTS -> keyword
         """
+        import time
+        debug_log = Path(__file__).parent.parent / "proactive_debug.log"
+        def debug(msg):
+            with open(debug_log, "a") as f:
+                f.write(f"[{time.strftime('%H:%M:%S')}] [_search] {msg}\n")
+
         # Try hybrid search first
         try:
             from embeddings import embed_text, is_embedding_available
 
             query_embedding = None
-            if is_embedding_available():
+            emb_available = is_embedding_available()
+            debug(f"Embedding available: {emb_available}")
+            if emb_available:
                 query_embedding = embed_text(context)
+                debug(f"Got query embedding, shape: {len(query_embedding) if query_embedding else 'None'}")
 
             # Use hybrid search
+            debug(f"Calling hybrid_search with limit={limit}, min_score={min_score}")
             search_result = self.index.hybrid_search(
                 query=context,
                 query_embedding=query_embedding,
                 artifact_type=artifact_types[0] if artifact_types and len(artifact_types) == 1 else None,
                 tags=tags,
                 limit=limit,
-                explain=False
+                explain=True  # Enable explain for debugging
             )
 
             results = search_result.get("results", [])
+            debug(f"hybrid_search returned {len(results)} raw results")
+
+            # Log scores before filtering
+            if results:
+                scores = [r.get("search_score", 0) for r in results[:10]]
+                debug(f"Top 10 scores before filter: {scores}")
 
             # Filter by min score
+            pre_filter_count = len(results)
             results = [r for r in results if r.get("search_score", 0) >= min_score]
+            debug(f"After min_score filter ({min_score}): {len(results)}/{pre_filter_count} remain")
 
             # Filter by types if multiple specified
             if artifact_types and len(artifact_types) > 1:
+                pre_type_count = len(results)
                 results = [r for r in results if r.get("type") in artifact_types]
+                debug(f"After type filter: {len(results)}/{pre_type_count} remain")
 
             return results
 
         except Exception as e:
+            debug(f"ERROR in hybrid search: {e}")
             # Fall back to FTS search
             print(f"[WARN] Hybrid search failed, falling back to FTS: {e}")
             return self._fts_fallback(context, tags, artifact_types, limit)
