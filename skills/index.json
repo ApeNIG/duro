@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 21,
+      "usage_count": 22,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1042,7 +1042,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
-      "last_used": "2026-03-01T20:35:57.374087"
+      "last_used": "2026-03-02T16:53:16.079077"
     },
     {
       "id": "skill_memory_002",
@@ -1068,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 21,
+      "usage_count": 22,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1080,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-03-01T20:36:05.451450"
+      "last_used": "2026-03-02T16:53:22.062000"
     },
     {
       "id": "skill_memory_003",
@@ -1176,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 37,
-      "success_rate": 0.6756756756756757,
+      "usage_count": 39,
+      "success_rate": 0.6666666666666666,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1188,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-03-01T20:36:32.412301"
+      "last_used": "2026-03-02T16:53:41.558490"
     },
     {
       "id": "skill_memory_006",
@@ -1217,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 21,
+      "usage_count": 22,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1229,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-03-01T20:36:14.974302"
+      "last_used": "2026-03-02T16:53:27.569075"
     },
     {
       "id": "skill_memory_007",
