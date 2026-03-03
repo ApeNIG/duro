@@ -8,13 +8,26 @@
   "severity": "medium",
   "created": "2026-03-02T16:45:00Z",
   "trigger_keywords": [
-    "help me", "can you", "let's", "build", "fix", "create", 
-    "implement", "debug", "design", "refactor", "add", "update"
+    "help me",
+    "can you",
+    "let's",
+    "build",
+    "fix",
+    "create",
+    "implement",
+    "debug",
+    "design",
+    "refactor",
+    "add",
+    "update"
   ],
   "prevention": {
     "before_action": "Call duro_proactive_recall(context='<task description>') before diving into implementation",
     "rationale": "Past decisions, incidents, and learnings are only valuable if surfaced at the right moment"
   },
-  "validations": 0,
-  "source_decision": "decision_20260302_164252_v5j38d"
+  "validations": 1,
+  "source_decision": "decision_20260302_164252_v5j38d",
+  "validation_notes": [
+    "2026-03-02: LinkedIn poster task - recalled 2 past failure logs successfully"
+  ]
 }

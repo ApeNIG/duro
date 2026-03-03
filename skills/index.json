@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 22,
+      "usage_count": 23,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1042,7 +1042,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
-      "last_used": "2026-03-02T16:53:16.079077"
+      "last_used": "2026-03-03T03:43:10.709025"
     },
     {
       "id": "skill_memory_002",
@@ -1068,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 22,
+      "usage_count": 23,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1080,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-03-02T16:53:22.062000"
+      "last_used": "2026-03-03T03:43:11.173420"
     },
     {
       "id": "skill_memory_003",
@@ -1176,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 39,
-      "success_rate": 0.6666666666666666,
+      "usage_count": 41,
+      "success_rate": 0.6829268292682927,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1188,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-03-02T16:53:41.558490"
+      "last_used": "2026-03-03T03:43:11.544206"
     },
     {
       "id": "skill_memory_006",
@@ -1217,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 22,
+      "usage_count": 23,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1229,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-03-02T16:53:27.569075"
+      "last_used": "2026-03-03T03:43:11.232110"
     },
     {
       "id": "skill_memory_007",
@@ -1439,7 +1439,7 @@
         "unverified",
         "verification queue"
       ],
-      "usage_count": 2,
+      "usage_count": 3,
       "success_rate": 0.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1454,7 +1454,7 @@
         "query_memory"
       ],
       "notes": "Reflective layer skill from Mac Duro. Scores facts by blast radius (30%), confidence mismatch (25%), age (20%), usage (20%), quick win bonus (5%). Tiers: critical, high, medium, low.",
-      "last_used": "2026-02-26T19:14:55.903237"
+      "last_used": "2026-03-02T21:05:37.748938"
     },
     {
       "id": "skill_memory_012",
@@ -1483,7 +1483,7 @@
         "prevention to rule",
         "rca to rule"
       ],
-      "usage_count": 7,
+      "usage_count": 8,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1500,7 +1500,7 @@
       ],
       "version": "1.2.0",
       "notes": "Phase 4 automation: every mistake becomes a permanent law. Scans high-severity incidents, extracts actionable prevention, creates candidate rules in candidates/failures/. Rules promote to active after 3 validations. v1.2.0: dry_run-safe validation, de-dup by incident_id, validation report.",
-      "last_used": "2026-02-28T08:45:07.072693"
+      "last_used": "2026-03-03T03:43:10.853389"
     },
     {
       "id": "skill_memory_013",
@@ -1538,7 +1538,7 @@
         "full analysis",
         "synthesize"
       ],
-      "usage_count": 6,
+      "usage_count": 7,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 180,
@@ -1560,7 +1560,7 @@
         "query_memory"
       ],
       "notes": "First compound skill - runs 4 skills in sequence, passing outputs between them. Each step builds on the previous: learnings become facts, facts reveal patterns, patterns spawn ideas, ideas suggest connections. Run at session end for maximum insight.",
-      "last_used": "2026-02-28T08:45:08.048736"
+      "last_used": "2026-03-03T03:43:11.561139"
     },
     {
       "id": "skill_memory_014",
@@ -1589,7 +1589,7 @@
         "decision surfacer",
         "decision audit"
       ],
-      "usage_count": 8,
+      "usage_count": 9,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1606,7 +1606,7 @@
         "log_task"
       ],
       "notes": "The decision foreman. Surfaces: (1) unreviewed decisions older than N days, (2) validated decisions with no linked work, (3) contradictions. Auto-logs tasks per stale decision. Run as step 0 in daily_synthesis.",
-      "last_used": "2026-02-28T08:45:06.391546"
+      "last_used": "2026-03-03T03:43:10.621198"
     },
     {
       "id": "skill_memory_015",
