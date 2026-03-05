@@ -1,0 +1,68 @@
+{
+  "id": "skill_plan_deepen",
+  "name": "plan_deepen",
+  "version": "1.0.0",
+  "scope": "compound",
+  "tier": "tested",
+  "type": "python",
+  "compound": true,
+  "parallel": true,
+  "model_tier": "advanced",
+  "classification": {
+    "domain": ["planning", "research", "context", "multi-agent"],
+    "primary_action": "deepen_plan"
+  },
+  "description": {
+    "short": "Research-driven plan enhancement with 4 parallel research sub-agents",
+    "full": "Spawns 4 parallel research sub-agents to gather context before complex tasks: framework_docs_researcher (uses Context7), learnings_researcher (queries Duro memory), best_practices_researcher (external sources), codebase_analyzer (patterns and history). Front-loads research to make execution more accurate."
+  },
+  "triggers": {
+    "hard": {
+      "intents": [
+        "deepen plan",
+        "research before implementing",
+        "gather context first",
+        "enhance plan with research"
+      ]
+    },
+    "soft": {
+      "keywords": [
+        "research", "context", "before", "plan", "deepen",
+        "framework", "best practices", "learnings"
+      ],
+      "embedding_threshold": 0.7
+    }
+  },
+  "researchers": [
+    {
+      "name": "framework_docs_researcher",
+      "description": "Fetch current framework documentation via Context7 or web search"
+    },
+    {
+      "name": "learnings_researcher",
+      "description": "Search past facts, decisions, and incidents from Duro memory"
+    },
+    {
+      "name": "best_practices_researcher",
+      "description": "Gather external best practices for the task type"
+    },
+    {
+      "name": "codebase_analyzer",
+      "description": "Analyze existing code patterns and recent changes"
+    }
+  ],
+  "requires": ["semantic_search", "query_memory", "web_search", "read_file"],
+  "outputs": {
+    "report": "Consolidated research report with categorized findings",
+    "findings_count": "Total findings across all researchers",
+    "framework_findings": "Framework documentation findings",
+    "learning_findings": "Past learnings from memory",
+    "best_practice_findings": "External best practices",
+    "codebase_findings": "Codebase patterns detected"
+  },
+  "lifecycle": {
+    "created_at": "2026-03-05T06:30:00Z",
+    "provenance": ["Kyle Zantos video", "compound-engineering /deepen-plan"],
+    "validated": "2026-03-05"
+  }
+}

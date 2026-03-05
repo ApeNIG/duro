@@ -1,0 +1,70 @@
+{
+  "id": "skill_design_critique_parallel",
+  "name": "design_critique_parallel",
+  "version": "1.0.0",
+  "scope": "design",
+  "tier": "tested",
+  "type": "python",
+  "parallel": true,
+  "classification": {
+    "domain": ["design", "review", "critique", "evaluation", "multi-agent"],
+    "primary_action": "parallel_critique_design"
+  },
+  "description": {
+    "short": "Multi-agent parallel design critique with 5 specialized reviewers",
+    "full": "Runs 5 specialized reviewers simultaneously (layout, color, typography, accessibility, patterns) using ThreadPoolExecutor, then consolidates findings prioritized by severity (P1 > P2 > P3). Inspired by compound-engineering plugin's multi-agent parallel review pattern."
+  },
+  "triggers": {
+    "hard": {
+      "intents": [
+        "parallel design critique",
+        "full design review",
+        "comprehensive critique",
+        "multi-agent review"
+      ]
+    },
+    "soft": {
+      "keywords": [
+        "parallel", "comprehensive", "full review", "all aspects",
+        "layout", "color", "typography", "accessibility", "patterns"
+      ],
+      "embedding_threshold": 0.75
+    }
+  },
+  "reviewers": [
+    {
+      "name": "layout_analyzer",
+      "description": "Visual hierarchy, balance, composition, alignment"
+    },
+    {
+      "name": "color_harmony_checker",
+      "description": "Color usage, contrast, palette cohesion"
+    },
+    {
+      "name": "typography_reviewer",
+      "description": "Typography hierarchy, readability, pairing"
+    },
+    {
+      "name": "accessibility_auditor",
+      "description": "WCAG compliance, contrast ratios, touch targets"
+    },
+    {
+      "name": "interaction_patterns",
+      "description": "Consistency, whitespace, component patterns"
+    }
+  ],
+  "requires": ["get_screenshot", "read_node"],
+  "outputs": {
+    "report": "Consolidated critique report with prioritized findings",
+    "overall_score": "Average score 1-5 across all reviewers",
+    "findings_count": "Total issues found",
+    "p1_count": "Critical issues",
+    "p2_count": "Major issues",
+    "p3_count": "Minor issues"
+  },
+  "lifecycle": {
+    "created_at": "2026-03-05T06:00:00Z",
+    "provenance": ["Kyle Zantos video", "compound-engineering plugin"],
+    "validated": "2026-03-05"
+  }
+}

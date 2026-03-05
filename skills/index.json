@@ -127,8 +127,8 @@
         "generate",
         "skill"
       ],
-      "usage_count": 2,
-      "success_rate": 0.5,
+      "usage_count": 3,
+      "success_rate": 0.3333333333333333,
       "special": true,
       "notes": "Use this to scale the skill library without handcrafting",
       "requires_network": false,
@@ -140,7 +140,7 @@
       ],
       "fallback_skill": null,
       "pre_checks": [],
-      "last_used": "2026-02-18T01:40:09.772983"
+      "last_used": "2026-03-04T22:37:22.274930"
     },
     {
       "id": "skill_research_001",
@@ -1029,7 +1029,7 @@
         "extract insights",
         "log review"
       ],
-      "usage_count": 23,
+      "usage_count": 26,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1042,7 +1042,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Scans logs using semantic analysis to find latent signal, classifies candidates, cross-references against existing artifacts.",
-      "last_used": "2026-03-03T03:43:10.709025"
+      "last_used": "2026-03-05T05:22:14.459882"
     },
     {
       "id": "skill_memory_002",
@@ -1068,7 +1068,7 @@
         "detect patterns",
         "latent patterns"
       ],
-      "usage_count": 23,
+      "usage_count": 27,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1080,7 +1080,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Five-phase algorithm: census, term extraction, semantic probing, pattern scoring, report. Measures 'unarticulated ratio'.",
-      "last_used": "2026-03-03T03:43:11.173420"
+      "last_used": "2026-03-05T05:22:26.678139"
     },
     {
       "id": "skill_memory_003",
@@ -1140,7 +1140,7 @@
         "accountability",
         "decision drift"
       ],
-      "usage_count": 4,
+      "usage_count": 5,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1152,7 +1152,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Surfaces decisions with no follow-up, contradicting follow-up, or active themes without decisions. Scheduled every 7 days.",
-      "last_used": "2026-02-28T00:38:27.221852"
+      "last_used": "2026-03-03T21:36:03.607829"
     },
     {
       "id": "skill_memory_005",
@@ -1176,8 +1176,8 @@
         "find connections",
         "relate concepts"
       ],
-      "usage_count": 41,
-      "success_rate": 0.6829268292682927,
+      "usage_count": 49,
+      "success_rate": 0.673469387755102,
       "requires_network": false,
       "timeout_seconds": 60,
       "expected_runtime_seconds": 20,
@@ -1188,7 +1188,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds direct intersections, semantic bridges, and tag bridges between domains. Scores by relevance and balance.",
-      "last_used": "2026-03-03T03:43:11.544206"
+      "last_used": "2026-03-05T05:22:51.738507"
     },
     {
       "id": "skill_memory_006",
@@ -1217,7 +1217,7 @@
         "suggestions",
         "synthesis"
       ],
-      "usage_count": 23,
+      "usage_count": 26,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1229,7 +1229,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer capstone skill. Generates: skills to build, decisions to revisit, facts to verify, connections to explore, patterns to name, knowledge gaps. Scheduled every 14 days.",
-      "last_used": "2026-03-03T03:43:11.232110"
+      "last_used": "2026-03-05T05:22:36.512236"
     },
     {
       "id": "skill_memory_007",
@@ -1255,7 +1255,7 @@
         "duplicates",
         "cleanup"
       ],
-      "usage_count": 4,
+      "usage_count": 5,
       "success_rate": 1.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1267,7 +1267,7 @@
       "fallback_skill": null,
       "pre_checks": [],
       "notes": "Reflective layer skill. Finds untagged items, rarely-tagged isolates, stale entries (21+ days), and duplicates. Scheduled every 3 days.",
-      "last_used": "2026-02-28T13:14:29.580761"
+      "last_used": "2026-03-03T13:15:56.569574"
     },
     {
       "id": "skill_memory_008",
@@ -1439,7 +1439,7 @@
         "unverified",
         "verification queue"
       ],
-      "usage_count": 3,
+      "usage_count": 4,
       "success_rate": 0.0,
       "requires_network": false,
       "timeout_seconds": 60,
@@ -1454,7 +1454,7 @@
         "query_memory"
       ],
       "notes": "Reflective layer skill from Mac Duro. Scores facts by blast radius (30%), confidence mismatch (25%), age (20%), usage (20%), quick win bonus (5%). Tiers: critical, high, medium, low.",
-      "last_used": "2026-03-02T21:05:37.748938"
+      "last_used": "2026-03-04T00:14:50.598031"
     },
     {
       "id": "skill_memory_012",
@@ -1696,28 +1696,67 @@
       "last_used": "2026-02-26T22:54:28.382100"
     },
     {
+      "id": "skill_compound_001",
       "name": "session_start",
-      "file": "compound/session_start.py",
+      "path": "compound/session_start.py",
       "tier": "tested",
       "category": "compound"
     },
     {
+      "id": "skill_compound_002",
       "name": "session_end",
-      "file": "compound/session_end.py",
+      "path": "compound/session_end.py",
       "tier": "tested",
       "category": "compound"
     },
     {
+      "id": "skill_compound_003",
       "name": "decision_accountability",
-      "file": "compound/decision_accountability.py",
+      "path": "compound/decision_accountability.py",
       "tier": "tested",
       "category": "compound"
     },
     {
+      "id": "skill_compound_004",
       "name": "design_qa_verify",
-      "file": "compound/design_qa_verify.py",
+      "path": "compound/design_qa_verify.py",
       "tier": "tested",
       "category": "compound"
+    },
+    {
+      "id": "skill_security_001",
+      "name": "sensitive_content_gate",
+      "path": "security/sensitive_content_gate.py",
+      "description": "Pre-send content scanner for browser automation. Detects passwords, API keys, tokens, and other sensitive data before allowing send/submit actions.",
+      "tier": "tested",
+      "keywords": [
+        "security",
+        "sensitive",
+        "password",
+        "api key",
+        "token",
+        "scanner",
+        "browser",
+        "automation",
+        "gate",
+        "pre-send"
+      ],
+      "triggers": [
+        "scan for sensitive content",
+        "check for passwords",
+        "pre-send scan",
+        "sensitive data detection"
+      ],
+      "usage_count": 3,
+      "success_rate": 1.0,
+      "requires_network": false,
+      "timeout_seconds": 10,
+      "expected_runtime_seconds": 1,
+      "dependencies": [],
+      "side_effects": [],
+      "fallback_skill": null,
+      "notes": "Security skill. Scans text content for sensitive patterns before browser automation actions. Used by browser_draft_mode rule.",
+      "last_used": "2026-03-04T23:51:20.801599"
     }
   ],
   "selection_priority": [
